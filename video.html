@@ -12,6 +12,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,7 +110,7 @@
     class="h-16 border-b border-border bg-[#0a0f12]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-50">
     <div class="flex items-center gap-3">
       <a href="freelancer_panel.html" class="flex-shrink-0">
-        <img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz" class="h-9 w-auto">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-9 w-auto">
       </a>
       <div class="hidden sm:flex items-center gap-2 pl-3 border-l border-border text-xs text-muted">
         <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
@@ -124,10 +125,9 @@
         class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
         <i class="fa-solid fa-lock text-[10px]"></i> E2E Encrypted
       </span>
-      <button data-vz-theme-btn
-        onclick="(function(btn){var t=localStorage.getItem('vz-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('vz-theme',t);btn.textContent=t==='dark'?'\u2600\uFE0F':'\uD83C\uDF19';})(this)"
-        title="Switch Theme" aria-label="Switch Theme"
-        class="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-gray-300 hover:text-accent hover:border-accent/40 transition-all text-sm cursor-pointer">
+      <button class="theme-toggle" data-vz-theme-btn
+        onclick="vzToggleTheme()"
+        title="Switch Theme" aria-label="Switch Theme">
         🌙
       </button>
       <a href="freelancer_panel.html"
@@ -440,6 +440,7 @@
       window.location.href = 'freelancer_panel.html';
     }
   </script>
+  <script src="assets/js/app.js"></script>
 </body>
 
 </html>

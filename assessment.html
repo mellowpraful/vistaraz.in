@@ -12,7 +12,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.bb7028db.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,23 +46,22 @@
 
 </head>
 
-<body
-  class="font-sans min-h-screen flex flex-col antialiased">
+<body class="font-sans min-h-screen flex flex-col antialiased">
 
   <!-- Header with logo.png -->
   <header class="site-header">
     <div class="site-header-inner">
       <a class="brand flex-shrink-0" href="index.html">
-        <img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz" height="48">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="48">
       </a>
       <nav class="hidden sm:flex items-center gap-6 text-sm font-medium text-muted">
         <a href="index.html" class="hover:text-white transition-colors">Home</a>
         <a href="assessment.html" class="text-white font-semibold">Check-in</a>
         <a href="dashboard.html"
           class="bg-accent/10 border border-accent/30 text-accent px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all">Dashboard</a>
-        <button data-vz-theme-btn onclick="vzToggleTheme ? vzToggleTheme() : (document.documentElement.setAttribute('data-theme', localStorage.getItem('vz-theme')==='dark'?'light':'dark'), localStorage.setItem('vz-theme', document.documentElement.getAttribute('data-theme')), this.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'\u2600\uFE0F':'\uD83C\uDF19')"
-          title="Switch Theme" aria-label="Switch Theme"
-          class="w-9 h-9 rounded-full bg-white/5 border border-white/15 text-muted hover:text-accent hover:border-accent/50 flex items-center justify-center transition-all text-base cursor-pointer">
+        <button class="theme-toggle" data-vz-theme-btn
+          onclick="vzToggleTheme()"
+          title="Switch Theme" aria-label="Switch Theme">
           🌙
         </button>
       </nav>
@@ -97,21 +96,24 @@
         <!-- Q1: Primary Challenge -->
         <fieldset data-step="1" class="step-fieldset space-y-5">
           <div class="space-y-2">
-            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">1. What kind of <em>mental issue or challenge</em> are you facing?</h2>
-            <p class="text-xs text-muted">Select the option that best describes your situation. This helps your helper understand you better.</p>
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">1. What kind of <em>mental issue or challenge</em>
+              are you facing?</h2>
+            <p class="text-xs text-muted">Select the option that best describes your situation. This helps your helper
+              understand you better.</p>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-            <div
-              onclick="recordAnswer('currentMood', 'Relationship Issues', 50, 'fa-heart', '#ff6b6b', 'Struggling')"
+            <div onclick="recordAnswer('currentMood', 'Relationship Issues', 50, 'fa-heart', '#ff6b6b', 'Struggling')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg">
-                <i class="fa-solid fa-heart"></i></div>
+                <i class="fa-solid fa-heart"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Relationship Issues</p>
                 <p class="text-xs text-muted">Family, friends, partner, or social conflicts</p>
               </div>
             </div>
-            <div onclick="recordAnswer('currentMood', 'Academic & Career Stress', 60, 'fa-graduation-cap', '#8ab4f8', 'Struggling')"
+            <div
+              onclick="recordAnswer('currentMood', 'Academic & Career Stress', 60, 'fa-graduation-cap', '#8ab4f8', 'Struggling')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
                   class="fa-solid fa-graduation-cap"></i></div>
@@ -120,8 +122,7 @@
                 <p class="text-xs text-muted">Workload, exams, job search, performance</p>
               </div>
             </div>
-            <div
-              onclick="recordAnswer('currentMood', 'Financial Stress', 70, 'fa-wallet', '#f59e0b', 'Struggling')"
+            <div onclick="recordAnswer('currentMood', 'Financial Stress', 70, 'fa-wallet', '#f59e0b', 'Struggling')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
                   class="fa-solid fa-wallet"></i></div>
@@ -130,12 +131,12 @@
                 <p class="text-xs text-muted">Expenses, debt, stability, or cost of living</p>
               </div>
             </div>
-            <div
-              id="q1-other-opt"
-              onclick="selectQ1Other()"
+            <div id="q1-other-opt" onclick="selectQ1Other()"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg"><i
-                  class="fa-solid fa-circle-question"></i></div>
+              <div
+                class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-circle-question"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Other Issue</p>
                 <p class="text-xs text-muted">Describe your custom situation below</p>
@@ -145,7 +146,8 @@
 
           <!-- Typing bar for Other Option -->
           <div id="q1-other-container" class="hidden space-y-3 pt-3 border-t border-border/40">
-            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Describe the challenge you are facing:</label>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Describe the challenge you
+              are facing:</label>
             <div class="flex gap-2">
               <input id="q1-other-input" type="text" placeholder="Type your issue here..."
                 class="flex-grow bg-surface border border-border text-gray-100 text-sm p-3 rounded-xl focus:outline-none focus:border-accent">
@@ -168,7 +170,8 @@
             <div onclick="recordAnswer('stressAnxiety', 'Minimal Stress', 20, 'fa-bolt', '#4cd964', 'Low')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-feather"></i></div>
+                <i class="fa-solid fa-feather"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Very Low / Calm</p>
                 <p class="text-xs text-muted">Feeling relaxed and in control</p>
@@ -218,7 +221,8 @@
               onclick="recordAnswer('academicPressure', 'Comfortable Pace', 20, 'fa-graduation-cap', '#4cd964', 'Low')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-graduation-cap"></i></div>
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Comfortable Workload</p>
                 <p class="text-xs text-muted">On top of assignments and goals</p>
@@ -268,7 +272,8 @@
             <div onclick="recordAnswer('relationships', 'Strong & Supported', 15, 'fa-heart', '#4cd964', 'Strong')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-heart"></i></div>
+                <i class="fa-solid fa-heart"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Deeply Supported</p>
                 <p class="text-xs text-muted">Warm, trusting connections</p>
@@ -318,7 +323,8 @@
             <div onclick="recordAnswer('loneliness', 'Well Connected', 15, 'fa-user-slash', '#4cd964', 'Low')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-people-roof"></i></div>
+                <i class="fa-solid fa-people-roof"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Rarely Lonely</p>
                 <p class="text-xs text-muted">Surrounded by caring people</p>
@@ -366,7 +372,8 @@
             <div onclick="recordAnswer('sleep', 'Deep & Restful', 15, 'fa-moon', '#4cd964', 'Restful')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-moon"></i></div>
+                <i class="fa-solid fa-moon"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Deep & Restful</p>
                 <p class="text-xs text-muted">Sleeping 7–8 hours effortlessly</p>
@@ -415,7 +422,8 @@
             <div onclick="recordAnswer('motivation', 'High & Driven', 15, 'fa-compass', '#4cd964', 'Driven')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-rocket"></i></div>
+                <i class="fa-solid fa-rocket"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">High & Excited</p>
                 <p class="text-xs text-muted">Looking forward to tasks and goals</p>
@@ -464,7 +472,8 @@
             <div onclick="recordAnswer('concentration', 'Sharp & Focused', 15, 'fa-brain', '#4cd964', 'Sharp')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-bullseye"></i></div>
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Sharp & Clear</p>
                 <p class="text-xs text-muted">Easily maintain focus for hours</p>
@@ -513,7 +522,8 @@
             <div onclick="recordAnswer('socialWellbeing', 'Socially Confident', 15, 'fa-users', '#4cd964', 'Confident')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-users"></i></div>
+                <i class="fa-solid fa-users"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Outgoing & Comfortable</p>
                 <p class="text-xs text-muted">Enjoy social interactions</p>
@@ -564,7 +574,8 @@
               onclick="recordAnswer('generalEmotionalState', 'Resilient & Hopeful', 15, 'fa-shield-heart', '#4cd964', 'Resilient')"
               class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
-                <i class="fa-solid fa-sun"></i></div>
+                <i class="fa-solid fa-sun"></i>
+              </div>
               <div>
                 <p class="text-sm font-semibold text-gray-100">Resilient & Hopeful</p>
                 <p class="text-xs text-muted">Confident in handling life</p>
@@ -639,7 +650,7 @@
           <div class="flex items-center gap-3 mt-1">
             <span id="resOverallScore" class="text-3xl font-bold text-accent">72/100</span>
             <span id="resOverallBadge"
-               class="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Moderate
+              class="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Moderate
               Need</span>
           </div>
         </div>
@@ -708,8 +719,8 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0681f239.js"></script>
-  <script src="assets/dist/app.e60ea13d.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
 
   <footer class="border-t border-border bg-surface/50 py-4 mt-8">
     <div class="max-w-4xl mx-auto px-4 flex items-center justify-between text-xs text-muted">

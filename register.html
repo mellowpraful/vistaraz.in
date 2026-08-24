@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Get Started — Vistaraz Portal</title>
-  <link rel="stylesheet" href="assets/dist/app.bb7028db.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .role-card-btn {
@@ -84,12 +84,49 @@
       border-color: var(--accent-primary);
       color: var(--text-main);
     }
+        .terms-checkbox {
+        margin: 18px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .terms-checkbox label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        line-height: 1.5;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        margin-top: 2px;
+        flex-shrink: 0;
+        accent-color: #5b5bd6;
+        cursor: pointer;
+    }
+
+    .terms-checkbox a {
+        color: #5b5bd6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .terms-checkbox a:hover {
+        text-decoration: underline;
+    }
+
+    .terms-checkbox input[type="checkbox"]:focus {
+        outline: 2px solid rgba(91, 91, 214, 0.3);
+        outline-offset: 2px;
+    }
   </style>
 </head>
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz — Innovate, Heal, Impact"
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
         height="48"></a>
     <nav>
       <a data-i="home" href="index.html">Home</a>
@@ -97,7 +134,8 @@
       <a data-i="support" href="support.html">Support</a>
       <a data-i="tools" href="tools.html">Tools</a>
       <a data-i="plans" href="plans.html">Plans</a>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">🌙</button>
+      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+        aria-label="Switch Theme">🌙</button>
     </nav>
   </header>
 
@@ -249,6 +287,18 @@
           <div id="seeker-error"
             style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
           </div>
+                            <div class="terms-checkbox">
+    <label>
+        <input type="checkbox" id="terms" name="terms" required>
+        <span>
+            I agree to the
+            <a href="/rules.html" target="_blank" rel="noopener noreferrer">
+                Terms &amp; Conditions</span>
+            </a>
+            
+        </span>
+    </label>
+</div>
 
           <button type="submit" id="seeker-submit-btn" class="button primary" style="width: 100%;">
             <span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>
@@ -349,6 +399,17 @@
           <div id="provider-error"
             style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
           </div>
+                  <div class="terms-checkbox">
+    <label>
+        <input type="checkbox" id="terms" name="terms" required>
+        <span>
+            I agree to the
+            <a href="/rules.html" target="_blank" rel="noopener noreferrer">
+                Terms &amp; Conditions </span>
+            </a>
+        </span>
+    </label>
+</div>
 
           <button type="submit" id="provider-submit-btn" class="button primary"
             style="width: 100%; background: var(--accent-secondary); color: #fff;">
@@ -397,8 +458,8 @@
 
   <!-- Supabase JS & App Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0681f239.js"></script>
-  <script src="assets/dist/app.e60ea13d.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
 
   <script>
     let currentRole = 'seeker'; // 'seeker' | 'provider'
@@ -506,7 +567,7 @@
     async function handleSeekerRegister(e) {
       e.preventDefault();
       const btn = document.getElementById('seeker-submit-btn');
-      
+
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up portal...';
 

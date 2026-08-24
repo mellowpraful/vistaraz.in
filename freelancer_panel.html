@@ -14,7 +14,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.bb7028db.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <!-- Google Fonts: Inter & Fraunces -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -200,8 +200,7 @@
   </style>
 </head>
 
-<body
-  class="font-sans min-h-screen flex flex-col antialiased text-[0.9rem]">
+<body class="font-sans min-h-screen flex flex-col antialiased text-[0.9rem]">
 
   <!-- ═══════════════════════════════════════════════════════════
        SITE HEADER & PRIMARY FREELANCER NAVIGATION
@@ -211,20 +210,19 @@
 
       <!-- Brand Logo (Original PNG per project rules) -->
       <a class="brand flex-shrink-0" href="index.html">
-        <img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz" height="48">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="48">
       </a>
 
       <!-- Desktop Primary Freelancer Navigation (Strictly 7 Items) -->
       <nav class="site-nav hidden lg:flex">
-        <a id="nav-home"      onclick="switchView('home')"      class="active">Home</a>
-        <a id="nav-dashboard" onclick="switchView('dashboard')" >Dashboard</a>
-        <a id="nav-requests"  onclick="switchView('requests')"  >Requests</a>
-        <a id="nav-sessions"  onclick="switchView('sessions')"  >Sessions</a>
-        <a id="nav-community" onclick="switchView('community')" >Community</a>
-        <a id="nav-earnings"  onclick="switchView('earnings')"  >Earnings</a>
-        <a id="nav-profile"   onclick="switchView('profile')"   >Profile</a>
-        <button data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme"
-          class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-all text-sm cursor-pointer">
+        <a id="nav-home" onclick="switchView('home')" class="active">Home</a>
+        <a id="nav-dashboard" onclick="switchView('dashboard')">Dashboard</a>
+        <a id="nav-requests" onclick="switchView('requests')">Requests</a>
+        <a id="nav-sessions" onclick="switchView('sessions')">Sessions</a>
+        <a id="nav-community" onclick="switchView('community')">Community</a>
+        <a id="nav-earnings" onclick="switchView('earnings')">Earnings</a>
+        <a id="nav-profile" onclick="switchView('profile')">Profile</a>
+        <button class="theme-toggle" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
           🌙
         </button>
       </nav>
@@ -294,7 +292,7 @@
     class="hidden fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex flex-col justify-between p-6 lg:hidden">
     <div>
       <div class="flex items-center justify-between pb-6 border-b border-border">
-        <img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz" height="38">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="38">
         <button onclick="toggleMobileDrawer()" class="text-muted hover:text-white text-xl">
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -1541,7 +1539,8 @@
               </div>
               <div>
                 <span class="text-muted block">Languages Spoken</span>
-                <span id="provider-profile-languages" class="font-medium text-gray-200">English (Fluent), Hindi (Conversational)</span>
+                <span id="provider-profile-languages" class="font-medium text-gray-200">English (Fluent), Hindi
+                  (Conversational)</span>
               </div>
               <div class="sm:col-span-2">
                 <span class="text-muted block mb-1">Provider Bio</span>
@@ -1564,7 +1563,8 @@
               </div>
               <div>
                 <span class="text-muted block">Qualification</span>
-                <span id="provider-profile-qualification" class="font-medium text-gray-200">Certified Peer Listener (Vistaraz L2)</span>
+                <span id="provider-profile-qualification" class="font-medium text-gray-200">Certified Peer Listener
+                  (Vistaraz L2)</span>
               </div>
               <div>
                 <span class="text-muted block">Experience</span>
@@ -1877,7 +1877,7 @@
   <footer class="border-t border-border bg-card mt-4">
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
       <div class="flex items-center gap-2.5">
-        <img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz" class="h-7 w-auto opacity-60">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-7 w-auto opacity-60">
         <span class="text-[10px] text-muted font-mono">Innovate · Heal · Impact</span>
       </div>
       <p class="text-[11px] text-muted">&copy; 2026 Vistaraz Care Support Provider Panel. Internal Use Only.</p>
@@ -1885,8 +1885,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0681f239.js"></script>
-  <script src="assets/dist/app.e60ea13d.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
 
   <!-- ═══════════════════════════════════════════════════════════
        JAVASCRIPT LOGIC
@@ -1914,7 +1914,7 @@
 
       const profileQualEl = document.getElementById('provider-profile-qualification');
       if (profileQualEl) profileQualEl.textContent = qualification;
-      
+
       const profileEdEl = document.getElementById('provider-profile-education');
       if (profileEdEl) profileEdEl.textContent = qualification;
     });

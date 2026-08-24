@@ -48,8 +48,11 @@ VzTheme.init();
 // This ensures onclick="vzToggleTheme()" always works
 window.vzToggleTheme = function() { VzTheme.toggle(); };
 
-// ── SCROLL REVEAL ANIMATIONS ────────────────────────────────
+// ── DOM READY ACTIONS ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Re-sync all button icons once DOM elements are rendered
+  VzTheme.apply(VzTheme.getCurrent());
+
   // Intersection Observer for .reveal elements
   const revealObserver = new IntersectionObserver(
     (entries, obs) => {
@@ -64,3 +67,4 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 });
+

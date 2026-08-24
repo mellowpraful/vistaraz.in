@@ -1,20 +1,25 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Chat Support — Vistaraz</title>
-  <link rel="stylesheet" href="assets/dist/app.bb7028db.css">
+  <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/dist/logo.4203ec3a.png" alt="Vistaraz � Innovate, Heal, Impact" height="48"></a>
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+        height="48"></a>
     <nav>
-      <a class="button ghost" href="support.html" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Leave Chat</a>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">🌙</button>
+      <a class="button ghost" href="support.html" style="padding: 6px 12px; font-size: 0.8rem;"><i
+          class="fas fa-arrow-left" style="margin-right: 5px;"></i> Leave Chat</a>
+      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+        aria-label="Switch Theme">🌙</button>
     </nav>
   </header>
 
@@ -23,54 +28,65 @@
       <!-- Header -->
       <div class="chat-header">
         <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; font-family: var(--font-serif); color: #000; font-size: 1.2rem;">A</div>
+          <div
+            style="width: 45px; height: 45px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; font-family: var(--font-serif); color: #000; font-size: 1.2rem;">
+            A</div>
           <div>
             <h3 style="margin: 0; font-size: 1.1rem; font-family: var(--font-sans); font-weight: 600;">Aanya R.</h3>
-            <span style="font-size: 0.75rem; color: var(--success);"><i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> Online</span>
+            <span style="font-size: 0.75rem; color: var(--success);"><i class="fas fa-circle"
+                style="font-size: 0.5rem; margin-right: 4px;"></i> Online</span>
           </div>
         </div>
         <div style="display: flex; gap: 10px;">
-          <button class="button ghost" style="padding: 8px 12px;" title="Take a breath"><i class="fas fa-leaf"></i></button>
-          <a class="button ghost" href="video-call.html" style="padding: 8px 12px;" title="Switch to Video"><i class="fas fa-video"></i></a>
+          <button class="button ghost" style="padding: 8px 12px;" title="Take a breath"><i
+              class="fas fa-leaf"></i></button>
+          <a class="button ghost" href="video-call.html" style="padding: 8px 12px;" title="Switch to Video"><i
+              class="fas fa-video"></i></a>
         </div>
       </div>
 
       <!-- Body -->
       <div class="chat-body" id="chat-body">
         <div style="text-align: center; margin-bottom: 20px;">
-          <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px;">Session started. First 15 mins are free.</span>
+          <span
+            style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px;">Session
+            started. First 15 mins are free.</span>
         </div>
-        
+
         <div class="msg received">
           Hi! I'm Aanya. I'm a verified listener here. Take your time—how are you feeling today?
         </div>
-        
+
         <div class="msg sent">
-          Hi Aanya. I'm just feeling really overwhelmed with upcoming placements. Everyone seems to have it figured out but me.
+          Hi Aanya. I'm just feeling really overwhelmed with upcoming placements. Everyone seems to have it figured out
+          but me.
         </div>
-        
+
         <div class="msg received">
-          I hear you. Placement season can feel incredibly heavy, especially when you start comparing yourself to others. It's completely normal to feel overwhelmed. Do you want to vent about it, or would you like to try breaking it down together?
+          I hear you. Placement season can feel incredibly heavy, especially when you start comparing yourself to
+          others. It's completely normal to feel overwhelmed. Do you want to vent about it, or would you like to try
+          breaking it down together?
         </div>
       </div>
 
       <!-- Input -->
       <div class="chat-input">
         <input type="text" placeholder="Type your message..." style="flex: 1;" id="chat-input-field">
-        <button class="button primary" style="padding: 10px 20px;" onclick="sendMockMessage()"><i class="fas fa-paper-plane"></i></button>
+        <button class="button primary" style="padding: 10px 20px;" onclick="sendMockMessage()"><i
+            class="fas fa-paper-plane"></i></button>
       </div>
     </div>
   </main>
 
-  <script src="assets/dist/app.e60ea13d.js"></script>
+  <script src="assets/js/app.js"></script>
   <script>
     function sendMockMessage() {
       const input = document.getElementById('chat-input-field');
       const text = input.value.trim();
       if (!text) return;
-      
+
       const body = document.getElementById('chat-body');
-      
+
       const sentMsg = document.createElement('div');
       sentMsg.className = 'msg sent';
       sentMsg.textContent = text;
@@ -102,4 +118,5 @@
     });
   </script>
 </body>
+
 </html>

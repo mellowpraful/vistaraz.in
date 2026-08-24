@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Terms & Conditions — Vistaraz</title>
+  <style>
+     :root {
+            --primary: #5b5bd6;
+            --primary-dark: #4444a8;
+            --text: #202124;
+            --muted: #666b73;
+            --background: #f6f7fb;
+            --card: #ffffff;
+            --border: #e6e8ef;
+            --warning-bg: #fff7ed;
+            --warning-border: #f97316;
+            --warning-text: #9a3412;
+            --success-bg: #eefbf4;
+            --success-border: #34a853;
+            --shadow: 0 12px 35px rgba(35, 38, 55, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .page {
+            width: 100%;
+            padding: 48px 20px;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5b5bd6, #7373e8);
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 48px 42px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 18px;
+        }
+
+        .brand-mark {
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.15;
+            margin-bottom: 14px;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            max-width: 720px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+
+        .effective-date {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 42px;
+            box-shadow: var(--shadow);
+        }
+
+        .intro {
+            background: #f4f4ff;
+            border-left: 4px solid var(--primary);
+            padding: 18px 20px;
+            border-radius: 8px;
+            margin-bottom: 36px;
+            color: #3d3d68;
+        }
+
+        section {
+            margin-bottom: 38px;
+        }
+
+        section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            color: #25265f;
+            font-size: 1.35rem;
+            line-height: 1.35;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            margin: 20px 0 10px;
+            color: #33353a;
+        }
+
+        p {
+            margin-bottom: 13px;
+            color: #44484f;
+        }
+
+        ul {
+            padding-left: 23px;
+            margin: 12px 0 16px;
+        }
+
+        li {
+            margin-bottom: 9px;
+            color: #44484f;
+        }
+
+        strong {
+            color: #292c32;
+        }
+
+        .warning-box {
+            background: var(--warning-bg);
+            border: 1px solid #fed7aa;
+            border-left: 6px solid var(--warning-border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .warning-box h2 {
+            color: var(--warning-text);
+            border-bottom-color: #fed7aa;
+        }
+
+        .warning-box p,
+        .warning-box li {
+            color: #7c2d12;
+        }
+
+        .warning-label {
+            display: inline-block;
+            background: var(--warning-border);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 9px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+        }
+
+        .notice-box {
+            background: var(--success-bg);
+            border: 1px solid #bbf0cf;
+            border-left: 5px solid var(--success-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 18px;
+        }
+
+        .notice-box p {
+            color: #205c34;
+            margin-bottom: 0;
+        }
+
+        .toc {
+            background: #fafaff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 34px;
+        }
+
+        .toc-title {
+            font-weight: 700;
+            color: #292c32;
+            margin-bottom: 10px;
+        }
+
+        .toc ul {
+            margin-bottom: 0;
+        }
+
+        .toc a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-card {
+            background: #f7f7fa;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            margin-top: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px 10px 5px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                padding: 20px 12px;
+            }
+
+            .header {
+                padding: 34px 24px;
+                border-radius: 16px;
+            }
+
+            .content {
+                padding: 27px 21px;
+                border-radius: 16px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .warning-box {
+                padding: 19px;
+            }
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .page {
+                padding: 0;
+            }
+
+            .header,
+            .content {
+                box-shadow: none;
+            }
+
+            .header {
+                border-radius: 0;
+            }
+
+            .content {
+                border: none;
+            }
+        }
+  </style>
+</head>
+<body>
+     <main class="page">
+        <div class="container">
+
+            <header class="header">
+                <div class="brand">
+                    <span class="brand-mark"></span>
+                    Vistaraz
+                </div>
+
+                <h1>Terms &amp; Conditions</h1>
+
+                <p>
+                    These Terms &amp; Conditions govern access to and use of
+                    Vistaraz, an interactive chat and guidance platform
+                    connecting users with supporters and freelancer interns.
+                </p>
+
+                <div class="effective-date">
+                    Effective Date: 24 August 2026
+                </div>
+            </header>
+
+            <article class="content">
+
+                <div class="intro">
+                    <strong>Please read these Terms carefully.</strong>
+                    By accessing, registering for, or using Vistaraz, you
+                    acknowledge that you have read, understood, and agreed
+                    to be bound by these Terms &amp; Conditions and any
+                    applicable policies referenced herein.
+                </div>
+
+                <nav class="toc" aria-label="Table of Contents">
+                    <div class="toc-title">Contents</div>
+                    <ul>
+                        <li><a href="#acceptance">1. Acceptance of Terms</a></li>
+                        <li><a href="#platform">2. About Vistaraz</a></li>
+                        <li><a href="#eligibility">3. Eligibility &amp; Account Use</a></li>
+                        <li><a href="#user-conduct">4. User &amp; Student Conduct</a></li>
+                        <li><a href="#supporter-responsibility">5. Supporter &amp; Freelancer Responsibilities</a></li>
+                        <li><a href="#interactions">6. User-to-User Interactions</a></li>
+                        <li><a href="#advice">7. Guidance &amp; Information Disclaimer</a></li>
+                        <li><a href="#liability">8. Limitation of Liability</a></li>
+                        <li><a href="#privacy">9. Privacy &amp; Personal Information</a></li>
+                        <li><a href="#intellectual-property">10. Intellectual Property</a></li>
+                        <li><a href="#prohibited">11. Prohibited Activities</a></li>
+                        <li><a href="#suspension">12. Suspension &amp; Termination</a></li>
+                        <li><a href="#availability">13. Platform Availability</a></li>
+                        <li><a href="#third-party">14. Third-Party Services &amp; Links</a></li>
+                        <li><a href="#changes">15. Changes to These Terms</a></li>
+                        <li><a href="#law">16. Governing Law &amp; Jurisdiction</a></li>
+                        <li><a href="#contact">17. Contact</a></li>
+                    </ul>
+                </nav>
+
+                <section id="acceptance">
+                    <h2>1. Acceptance of Terms</h2>
+
+                    <p>
+                        These Terms &amp; Conditions constitute an agreement
+                        between you and Vistaraz regarding your use of the
+                        platform and its related services.
+                    </p>
+
+                    <p>
+                        If you do not agree with these Terms, you must not
+                        access or use Vistaraz.
+                    </p>
+
+                    <p>
+                        Continued use of the platform after any update to
+                        these Terms constitutes acceptance of the revised
+                        Terms, subject to applicable law.
+                    </p>
+                </section>
+
+                <section id="platform">
+                    <h2>2. About Vistaraz</h2>
+
+                    <p>
+                        Vistaraz is an interactive technology platform designed
+                        to facilitate communication, chat, guidance, and
+                        support-oriented interactions between users and
+                        participating supporters or freelancer interns.
+                    </p>
+
+                    <p>
+                        Vistaraz primarily serves students, learners, and
+                        young users seeking accessible guidance, conversation,
+                        peer-oriented support, or related platform services.
+                    </p>
+
+                    <p>
+                        Vistaraz acts as a technology facilitator and
+                        intermediary. The platform does not represent that
+                        every supporter, freelancer intern, statement,
+                        recommendation, response, or interaction will be
+                        suitable, accurate, complete, professional, or
+                        beneficial for every user.
+                    </p>
+                </section>
+
+                <section id="eligibility">
+                    <h2>3. Eligibility &amp; Account Use</h2>
+
+                    <p>
+                        You are responsible for ensuring that your use of
+                        Vistaraz is lawful in your place of residence and
+                        complies with these Terms.
+                    </p>
+
+                    <ul>
+                        <li>
+                            You must provide information that is accurate and
+                            not intentionally misleading.
+                        </li>
+                        <li>
+                            You must keep your account credentials secure and
+                            must not knowingly share them with unauthorized
+                            persons.
+                        </li>
+                        <li>
+                            You are responsible for activity conducted through
+                            your account.
+                        </li>
+                        <li>
+                            You must not impersonate another person, supporter,
+                            freelancer intern, organization, or Vistaraz
+                            representative.
+                        </li>
+                        <li>
+                            Where applicable, users below the age of majority
+                            must use the platform only in accordance with
+                            applicable law and any required parent or guardian
+                            involvement.
+                        </li>
+                    </ul>
+                </section>
+
+                <section id="user-conduct">
+                    <h2>4. User &amp; Student Conduct</h2>
+
+                    <p>
+                        Vistaraz is intended to provide a respectful and
+                        constructive environment. Every student and user is
+                        required to treat supporters and freelancer interns
+                        with utmost respect, courtesy, and politeness.
+                    </p>
+
+                    <p>
+                        Users must not engage in conduct that is abusive,
+                        threatening, discriminatory, sexually inappropriate,
+                        intimidating, harassing, or deliberately disrespectful.
+                    </p>
+
+                    <h3>Users must not:</h3>
+
+                    <ul>
+                        <li>Harass, threaten, insult, or abuse a supporter or intern.</li>
+                        <li>Use hateful, discriminatory, or degrading language.</li>
+                        <li>Send sexually explicit or inappropriate content.</li>
+                        <li>Attempt to pressure, manipulate, or intimidate another participant.</li>
+                        <li>Repeatedly contact a participant after being asked to stop.</li>
+                        <li>Attempt to obtain private or personal information from supporters or interns.</li>
+                        <li>Record, distribute, publish, or misuse private interactions without appropriate authorization or legal basis.</li>
+                        <li>Use the platform to facilitate unlawful activity.</li>
+                    </ul>
+
+                    <p>
+                        <strong>Violation of these standards may result in
+                        immediate suspension or permanent termination of the
+                        user's account, without prejudice to any other rights
+                        or remedies available to Vistaraz.</strong>
+                    </p>
+                </section>
+
+                <section id="supporter-responsibility">
+                    <h2>5. Supporter &amp; Freelancer Responsibilities</h2>
+
+                    <p>
+                        Supporters and freelancer interns participating on
+                        Vistaraz are expected to maintain strict professional
+                        boundaries during all platform interactions.
+                    </p>
+
+                    <ul>
+                        <li>
+                            Supporters and interns must communicate respectfully
+                            and professionally.
+                        </li>
+                        <li>
+                            Their personal life issues, emotional distress,
+                            private conflicts, or unrelated personal problems
+                            must not interfere with support sessions.
+                        </li>
+                        <li>
+                            They must not intentionally create inappropriate
+                            emotional, romantic, financial, or personal
+                            dependency with users.
+                        </li>
+                        <li>
+                            They must not exploit information shared by users
+                            for personal benefit.
+                        </li>
+                        <li>
+                            They must respect user privacy and confidentiality
+                            to the extent required by applicable law and
+                            platform policies.
+                        </li>
+                        <li>
+                            They must not represent themselves as employees,
+                            legal representatives, doctors, psychologists,
+                            therapists, counselors, or other licensed
+                            professionals unless they actually possess the
+                            relevant qualifications and authorization.
+                        </li>
+                        <li>
+                            They must not provide knowingly false, dangerous,
+                            unlawful, or intentionally misleading information.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Vistaraz may review, restrict, suspend, or terminate
+                        access for supporters or interns who fail to meet these
+                        standards.
+                    </p>
+                </section>
+
+                <section id="interactions">
+                    <h2>6. User-to-User Interactions</h2>
+
+                    <p>
+                        Vistaraz facilitates interactions but does not control
+                        every communication or relationship formed through the
+                        platform.
+                    </p>
+
+                    <p>
+                        Users are responsible for exercising reasonable
+                        judgment when communicating with other individuals.
+                        You should not disclose passwords, financial details,
+                        identity documents, precise private addresses, or other
+                        sensitive personal information unless disclosure is
+                        necessary, lawful, and appropriate.
+                    </p>
+
+                    <p>
+                        Any personal relationship, disagreement, dispute,
+                        misunderstanding, or conflict that develops between
+                        users, supporters, or freelancer interns is primarily
+                        a matter between the individuals involved, subject to
+                        any mandatory legal obligations applicable to Vistaraz.
+                    </p>
+                </section>
+
+                <section id="advice">
+                    <h2>7. Guidance &amp; Information Disclaimer</h2>
+
+                    <p>
+                        Information, suggestions, conversations, guidance,
+                        opinions, or responses provided through Vistaraz are
+                        not guaranteed to be accurate, complete, current, or
+                        appropriate for your particular circumstances.
+                    </p>
+
+                    <p>
+                        Vistaraz is not a substitute for qualified professional
+                        services where such services are required.
+                    </p>
+
+                    <p>
+                        Users remain responsible for evaluating information
+                        received through the platform and for making their own
+                        decisions.
+                    </p>
+
+                    <div class="notice-box">
+                        <p>
+                            <strong>Important:</strong>
+                            If a situation involves an immediate risk to a
+                            person's safety or requires urgent professional,
+                            medical, legal, or emergency assistance, users
+                            should contact the appropriate qualified service
+                            or emergency authority rather than relying solely
+                            on Vistaraz.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="liability" class="warning-box">
+                    <span class="warning-label">Important Legal Notice</span>
+
+                    <h2>8. Limitation of Liability</h2>
+
+                    <p>
+                        <strong>
+                            Vistaraz is strictly a technology facilitator and
+                            intermediary. To the maximum extent permitted by
+                            applicable law, Vistaraz assumes ZERO responsibility
+                            and ZERO legal liability for personal disputes,
+                            emotional distress, incorrect advice, statements,
+                            recommendations, conduct, omissions, or other
+                            issues arising from interactions between users,
+                            supporters, freelancer interns, or other platform
+                            participants.
+                        </strong>
+                    </p>
+
+                    <p>
+                        Without limiting the foregoing, Vistaraz shall not be
+                        responsible, to the maximum extent permitted by
+                        applicable law, for:
+                    </p>
+
+                    <ul>
+                        <li>
+                            Any personal dispute or disagreement between
+                            platform participants.
+                        </li>
+                        <li>
+                            Emotional distress, disappointment, embarrassment,
+                            offense, or other personal consequences arising
+                            from an interaction.
+                        </li>
+                        <li>
+                            Incorrect, incomplete, unsuitable, misleading, or
+                            outdated advice or information provided by a user,
+                            supporter, freelancer intern, or other third party.
+                        </li>
+                        <li>
+                            Actions, omissions, statements, promises, or
+                            representations made by any platform participant.
+                        </li>
+                        <li>
+                            Any decision made by a user based on information
+                            obtained through the platform.
+                        </li>
+                        <li>
+                            Loss, misuse, or unauthorized disclosure of
+                            information caused by another participant, except
+                            to the extent liability cannot lawfully be excluded.
+                        </li>
+                        <li>
+                            Any relationship, financial arrangement, personal
+                            meeting, communication, or transaction occurring
+                            outside Vistaraz.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Vistaraz does not guarantee that interactions will
+                        always be uninterrupted, error-free, secure, accurate,
+                        available, or suitable for a particular purpose.
+                    </p>
+
+                    <p>
+                        Nothing in these Terms is intended to exclude or limit
+                        liability that cannot legally be excluded or limited
+                        under applicable law.
+                    </p>
+                </section>
+
+                <section id="privacy">
+                    <h2>9. Privacy &amp; Personal Information</h2>
+
+                    <p>
+                        Vistaraz may collect and process information necessary
+                        to operate accounts, provide platform functionality,
+                        maintain security, communicate with users, and comply
+                        with applicable legal obligations.
+                    </p>
+
+                    <p>
+                        Personal information will be handled in accordance
+                        with Vistaraz's applicable Privacy Policy and relevant
+                        data-protection requirements.
+                    </p>
+
+                    <p>
+                        Users should avoid voluntarily sharing unnecessary
+                        sensitive personal information in chats, profiles, or
+                        other public or semi-public areas of the platform.
+                    </p>
+                </section>
+
+                <section id="intellectual-property">
+                    <h2>10. Intellectual Property</h2>
+
+                    <p>
+                        Unless otherwise stated, the Vistaraz name, logo,
+                        branding, website design, interface, software,
+                        graphics, text, layouts, and other original platform
+                        materials are owned by or licensed to Vistaraz and
+                        are protected by applicable intellectual-property laws.
+                    </p>
+
+                    <p>
+                        Users may not copy, reproduce, modify, distribute,
+                        reverse engineer, commercially exploit, or create
+                        derivative works from Vistaraz materials without prior
+                        authorization, except where such activity is permitted
+                        by applicable law.
+                    </p>
+                </section>
+
+                <section id="prohibited">
+                    <h2>11. Prohibited Activities</h2>
+
+                    <p>
+                        In addition to the conduct restrictions described
+                        above, users must not use Vistaraz to:
+                    </p>
+
+                    <ul>
+                        <li>Commit, promote, facilitate, or solicit unlawful activity.</li>
+                        <li>Attempt to gain unauthorized access to accounts, systems, or platform infrastructure.</li>
+                        <li>Upload malicious software, harmful code, or deceptive content.</li>
+                        <li>Spam, scrape, overload, or interfere with platform operations.</li>
+                        <li>Misrepresent identity, qualifications, affiliation, or professional credentials.</li>
+                        <li>Exploit or manipulate platform features for fraudulent purposes.</li>
+                        <li>Collect or misuse another person's personal information.</li>
+                        <li>Use the platform in a manner that threatens the safety or wellbeing of another participant.</li>
+                    </ul>
+                </section>
+
+                <section id="suspension">
+                    <h2>12. Suspension &amp; Termination</h2>
+
+                    <p>
+                        Vistaraz may suspend, restrict, or terminate access to
+                        an account where it reasonably believes that the user
+                        has violated these Terms, applicable law, platform
+                        safety requirements, or the rights of another person.
+                    </p>
+
+                    <p>
+                        Serious misconduct, harassment, abuse, threats,
+                        impersonation, fraud, or behavior that creates a safety
+                        risk may result in immediate termination.
+                    </p>
+
+                    <p>
+                        Termination does not automatically release a user from
+                        obligations that are intended to survive termination,
+                        including applicable provisions relating to liability,
+                        intellectual property, disputes, and lawful use.
+                    </p>
+                </section>
+
+                <section id="availability">
+                    <h2>13. Platform Availability</h2>
+
+                    <p>
+                        Vistaraz may modify, suspend, restrict, or discontinue
+                        any part of the platform at any time for maintenance,
+                        security, technical, operational, business, or legal
+                        reasons.
+                    </p>
+
+                    <p>
+                        Although reasonable efforts may be made to maintain
+                        availability, Vistaraz does not guarantee uninterrupted
+                        access or that the platform will always be free from
+                        technical errors, vulnerabilities, or interruptions.
+                    </p>
+                </section>
+
+                <section id="third-party">
+                    <h2>14. Third-Party Services &amp; Links</h2>
+
+                    <p>
+                        Vistaraz may use or integrate third-party technologies,
+                        services, communication systems, payment processors,
+                        hosting providers, analytics tools, or external links.
+                    </p>
+
+                    <p>
+                        Third-party services may operate under their own terms
+                        and privacy policies. Vistaraz does not control and is
+                        not responsible for the independent acts, omissions,
+                        availability, policies, or content of third parties,
+                        except where applicable law provides otherwise.
+                    </p>
+                </section>
+
+                <section id="changes">
+                    <h2>15. Changes to These Terms</h2>
+
+                    <p>
+                        Vistaraz may update these Terms from time to time to
+                        reflect changes in the platform, business operations,
+                        technology, security requirements, or applicable law.
+                    </p>
+
+                    <p>
+                        Updated Terms will be made available through the
+                        platform. The effective date displayed at the top of
+                        this page will indicate the latest revision.
+                    </p>
+
+                    <p>
+                        Where applicable law requires specific notice or consent
+                        for material changes, Vistaraz will follow the required
+                        process.
+                    </p>
+                </section>
+
+                <section id="law">
+                    <h2>16. Governing Law &amp; Jurisdiction</h2>
+
+                    <p>
+                        These Terms shall be governed by and interpreted in
+                        accordance with the laws applicable to Vistaraz and its
+                        operating jurisdiction, subject to any mandatory
+                        consumer-protection or other applicable legal rights.
+                    </p>
+
+                    <p>
+                        Any dispute shall be subject to the jurisdiction of
+                        the courts having lawful jurisdiction over the matter,
+                        unless applicable law requires otherwise.
+                    </p>
+
+                    <p>
+                        <strong>
+                            Before public launch, the governing jurisdiction
+                            and dispute-resolution mechanism should be
+                            confirmed by Vistaraz's legal counsel and inserted
+                            here as a specific jurisdictional clause.
+                        </strong>
+                    </p>
+                </section>
+
+                <section id="contact">
+                    <h2>17. Contact</h2>
+
+                    <p>
+                        For questions, complaints, legal notices, or concerns
+                        regarding these Terms, users may contact Vistaraz
+                        through the official contact channel provided on the
+                        platform.
+                    </p>
+
+                    <div class="contact-card">
+                        <p>
+                            <strong>Vistaraz</strong>
+                        </p>
+
+                        <p>
+                            Official Website:
+                            <a href="https://vistaraz.in/">vistaraz.in</a>
+                        </p>
+
+                        <p>
+                            Support Email:
+                            <span>support@vistaraz.in</span>
+                        </p>
+
+                        <p>
+                            Legal/Grievance Contact:
+                            <span>mellowpraful@gmail.com <mellowpraful@gmail.com></span>
+                        </p>
+                    </div>
+                </section>
+
+            </article>
+
+            <footer class="footer">
+                <p>
+                    © 2026 Vistaraz. All rights reserved.
+                </p>
+                <p>
+                    These Terms should be reviewed by qualified legal counsel
+                    before production deployment.
+                </p>
+            </footer>
+
+        </div>
+    </main>
+</body>
+</html>
