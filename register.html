@@ -126,26 +126,35 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
-        height="48"></a>
-    <nav>
-      <a data-i="home" href="index.html">Home</a>
-      <a data-i="assessment" href="assessment.html">Check-in</a>
-      <a data-i="support" href="support.html">Support</a>
-      <a data-i="tools" href="tools.html">Tools</a>
-      <a data-i="plans" href="plans.html">Plans</a>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-        aria-label="Switch Theme">🌙</button>
-    </nav>
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="assessment" href="assessment.html">Check-in</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <a data-i="plans" href="plans.html">Plans</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
   </header>
 
   <main
-    style="padding-top: 50px; padding-bottom: 80px; max-width: 960px; margin: 0 auto; padding-left: 20px; padding-right: 20px;">
+    style="padding-top: 30px; padding-bottom: 60px; max-width: 960px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
 
     <!-- Top Header -->
-    <section style="text-align: center; margin-bottom: 35px;">
+    <section style="text-align: center; margin-bottom: 30px;">
       <span class="eyebrow">CHOOSE YOUR PATHWAY</span>
-      <h1 style="font-size: 2.8rem; margin-bottom: 10px;">Welcome to <em>Vistaraz</em></h1>
+      <h1 style="font-size: clamp(2rem, 5vw, 2.8rem); margin-bottom: 10px;">Welcome to <em>Vistaraz</em></h1>
       <p style="color: var(--text-muted); max-width: 550px; margin: 0 auto; font-size: 0.95rem;">
         Whether you are seeking a safe, confidential space or looking to offer compassionate support as a listener,
         select your pathway below.
@@ -154,7 +163,7 @@
 
     <!-- STEP 1: Two Role Cards (I Need Help vs I Want to Help) -->
     <div
-      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 30px;">
 
       <!-- Option 1: I Need Help (Seeker) -->
       <div id="role-seeker-card" class="role-card-btn active" onclick="selectRolePathway('seeker')">

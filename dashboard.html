@@ -13,35 +13,45 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
-        height="48"></a>
-    <nav>
-      <a data-i="home" href="index.html">Home</a>
-      <a data-i="support" href="support.html">Support</a>
-      <a data-i="tools" href="tools.html">Tools</a>
-      <div style="width: 1px; height: 20px; background: var(--line); margin: 0 10px;"></div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div id="user-avatar-badge"
-          style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; color: #000; font-weight: 600; font-size: 1.1rem;">
-          🦊</div>
-        <span id="user-profile-type" style="font-size: 0.9rem; color: var(--text-main);">My Profile</span>
-        <button onclick="VistarazAuth.signOut()" class="button ghost"
-          style="padding: 4px 10px; font-size: 0.75rem; margin-left: 5px;" title="Sign Out">
-          <i class="fas fa-sign-out-alt"></i>
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <a data-i="plans" href="plans.html">Plans</a>
+        <div class="vz-divider desktop-only" style="width: 1px; height: 20px; background: var(--line); margin: 0 4px;"></div>
+        <div class="desktop-only" style="display: flex; align-items: center; gap: 10px;">
+          <div id="user-avatar-badge"
+            style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; color: #000; font-weight: 600; font-size: 1.1rem;">
+            🦊</div>
+          <span id="user-profile-type" style="font-size: 0.9rem; color: var(--text-main);">My Profile</span>
+          <button onclick="VistarazAuth.signOut()" class="button ghost"
+            style="padding: 4px 10px; font-size: 0.75rem; margin-left: 5px;" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </button>
-      </div>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-        aria-label="Switch Theme">🌙</button>
-    </nav>
+      </nav>
+    </div>
   </header>
 
-  <main style="padding-top: 40px; max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;">
+  <main style="padding-top: 30px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
       <div>
-        <h1 style="margin-bottom: 5px; font-size: 2.8rem;">Welcome back, <em id="user-display-name">Friend</em></h1>
+        <h1 style="margin-bottom: 5px; font-size: clamp(1.8rem, 4vw, 2.8rem);">Welcome back, <em id="user-display-name">Friend</em></h1>
         <p style="margin: 0;">Here is a summary of your wellbeing, upcoming support, and active plan.</p>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a class="button ghost" href="plans.html" style="font-size: 0.8rem;"><i class="fas fa-crown"
             style="color: var(--accent-secondary); margin-right: 8px;"></i> Upgrade Plan</a>
       </div>
@@ -49,19 +59,19 @@
 
     <!-- Wearable Insight Prompt -->
     <div class="glass-card reveal"
-      style="background: linear-gradient(90deg, rgba(138, 180, 248, 0.1), rgba(138, 180, 248, 0)); border-left: 4px solid var(--accent-primary); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; padding: 20px 30px;">
-      <div style="display: flex; gap: 20px; align-items: center;">
-        <i class="fas fa-watch" style="font-size: 2rem; color: var(--accent-primary);"></i>
+      style="background: linear-gradient(90deg, rgba(138, 180, 248, 0.1), rgba(138, 180, 248, 0)); border-left: 4px solid var(--accent-primary); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 20px; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; gap: 16px; align-items: center; flex: 1; min-width: 260px;">
+        <i class="fas fa-watch" style="font-size: 1.8rem; color: var(--accent-primary); flex-shrink: 0;"></i>
         <div>
-          <h4 style="font-family: var(--font-sans); font-size: 1.1rem; margin-bottom: 4px;">Wearable Insight</h4>
-          <p style="font-size: 0.9rem; margin: 0; max-width: 500px;">Your average sleep duration dropped by 1.5 hours
+          <h4 style="font-family: var(--font-sans); font-size: 1.05rem; margin-bottom: 4px;">Wearable Insight</h4>
+          <p style="font-size: 0.88rem; margin: 0; max-width: 500px;">Your average sleep duration dropped by 1.5 hours
             over the last 3 days. Would you like to do a quick check-in?</p>
         </div>
       </div>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <button class="button ghost" onclick="this.closest('.glass-card').style.display='none'"
-          style="padding: 8px 16px;">Dismiss</button>
-        <a class="button primary" href="assessment.html" style="padding: 8px 16px;">Check-in</a>
+          style="padding: 8px 16px; font-size: 0.85rem;">Dismiss</button>
+        <a class="button primary" href="assessment.html" style="padding: 8px 16px; font-size: 0.85rem;">Check-in</a>
       </div>
     </div>
 

@@ -52,17 +52,26 @@
   <header class="site-header">
     <div class="site-header-inner">
       <a class="brand flex-shrink-0" href="index.html">
-        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="48">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
       </a>
-      <nav class="hidden sm:flex items-center gap-6 text-sm font-medium text-muted">
-        <a href="index.html" class="hover:text-white transition-colors">Home</a>
-        <a href="assessment.html" class="text-white font-semibold">Check-in</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="assessment.html" class="active">Check-in</a>
+        <a href="support.html">Support</a>
+        <a href="tools.html">Tools</a>
         <a href="dashboard.html"
-          class="bg-accent/10 border border-accent/30 text-accent px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all">Dashboard</a>
+          class="vz-quick-access bg-accent/10 border border-accent/30 text-accent px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all">Dashboard</a>
         <button class="theme-toggle" data-vz-theme-btn
           onclick="vzToggleTheme()"
           title="Switch Theme" aria-label="Switch Theme">
           🌙
+        </button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </button>
       </nav>
     </div>

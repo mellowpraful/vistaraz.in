@@ -241,7 +241,7 @@
 
       <!-- Brand -->
       <a class="brand flex-shrink-0" href="index.html">
-        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="48">
+        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
       </a>
 
       <!-- Desktop Nav -->
@@ -258,79 +258,83 @@
       </nav>
 
       <!-- Right Cluster -->
-      <div class="flex items-center gap-3 flex-shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
 
-        <!-- Wellbeing Quick Badge -->
+        <!-- Wellbeing Quick Badge (desktop/tablet) -->
         <div
-          class="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
+          class="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
           <span class="w-2.5 h-2.5 rounded-full bg-accent flex-shrink-0"></span>
           <span class="text-accent" id="wellbeingLabel">Wellness Active</span>
         </div>
 
-        <!-- Avatar -->
+        <!-- Avatar / Profile quick trigger -->
         <button id="client-avatar-btn" onclick="switchView('profile')" title="My Profile"
-          class="w-8 h-8 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent hover:bg-accent hover:text-black transition-all flex-shrink-0 text-sm">
+          class="vz-quick-access w-8 h-8 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent hover:bg-accent hover:text-black transition-all flex-shrink-0 text-sm">
           👤
         </button>
 
-        <!-- Sign Out -->
+        <!-- Theme toggle (visible directly on mobile) -->
+        <button class="theme-toggle lg:hidden" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+          🌙
+        </button>
+
+        <!-- Sign Out (desktop only, in drawer on mobile) -->
         <button onclick="handleSignOut()" title="Sign Out"
-          class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-danger hover:border-danger/30 transition-all flex-shrink-0">
+          class="hidden lg:flex w-8 h-8 rounded-full bg-white/5 border border-white/10 items-center justify-center text-gray-400 hover:text-danger hover:border-danger/30 transition-all flex-shrink-0">
           <i class="fa-solid fa-sign-out-alt text-xs"></i>
         </button>
 
-        <!-- Mobile Drawer Toggle -->
-        <button onclick="toggleMobileDrawer()" class="lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0">
-          <i class="fa-solid fa-bars"></i>
+        <!-- Mobile Drawer Toggle (☰ hamburger) -->
+        <button onclick="toggleMobileDrawer()" class="mobile-nav-toggle lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ═══════════════ MOBILE DRAWER ═══════════════ -->
-  <div id="mobileDrawer"
-    class="hidden fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex flex-col justify-between p-6 lg:hidden">
-    <div>
-      <div class="flex items-center justify-between pb-6 border-b border-border">
-        <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="38">
-        <button onclick="toggleMobileDrawer()" class="text-muted hover:text-white text-xl">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <!-- ═══════════════ MOBILE DRAWER (Same as index.html) ═══════════════ -->
+  <div id="mobileDrawer" class="mobile-nav-drawer lg:hidden">
+    <div class="mobile-nav-panel">
+      <div>
+        <div class="mobile-nav-header">
+          <a class="brand" href="index.html" onclick="toggleMobileDrawer()">
+            <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="38">
+          </a>
+          <button onclick="toggleMobileDrawer()" class="mobile-nav-close" aria-label="Close menu">&times;</button>
+        </div>
+
+        <nav class="mobile-nav-links">
+          <a id="mob-nav-home" onclick="switchView('home'); toggleMobileDrawer();" class="active">
+            <i class="fa-solid fa-house"></i> <span>Home</span>
+          </a>
+          <a id="mob-nav-sessions" onclick="switchView('sessions'); toggleMobileDrawer();">
+            <i class="fa-solid fa-calendar-check"></i> <span>Sessions</span>
+          </a>
+          <a id="mob-nav-checkin" onclick="switchView('checkin'); toggleMobileDrawer();">
+            <i class="fa-solid fa-heart-pulse"></i> <span>Check-in</span>
+          </a>
+          <a id="mob-nav-community" onclick="switchView('community'); toggleMobileDrawer();">
+            <i class="fa-solid fa-users"></i> <span>Community</span>
+          </a>
+          <a id="mob-nav-tools" onclick="switchView('tools'); toggleMobileDrawer();">
+            <i class="fa-solid fa-kit-medical"></i> <span>Care Tools</span>
+          </a>
+          <a id="mob-nav-profile" onclick="switchView('profile'); toggleMobileDrawer();">
+            <i class="fa-solid fa-id-card"></i> <span>Profile</span>
+          </a>
+          <a onclick="handleSignOut(); toggleMobileDrawer();" style="color: var(--danger); cursor: pointer;">
+            <i class="fa-solid fa-sign-out-alt" style="color: var(--danger);"></i> <span>Sign Out</span>
+          </a>
+        </nav>
       </div>
 
-      <nav class="flex flex-col gap-4 mt-6 text-base font-medium">
-        <a onclick="switchView('home'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-house w-5 text-accent"></i> Home
-        </a>
-        <a onclick="switchView('sessions'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-calendar-check w-5 text-accent"></i> Sessions
-        </a>
-        <a onclick="switchView('checkin'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-heart-pulse w-5 text-accent"></i> Check-in
-        </a>
-        <a onclick="switchView('community'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-users w-5 text-accent"></i> Community
-        </a>
-        <a onclick="switchView('tools'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-kit-medical w-5 text-accent"></i> Care Tools
-        </a>
-        <a onclick="switchView('profile'); toggleMobileDrawer();"
-          class="text-gray-200 hover:text-accent flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-id-card w-5 text-accent"></i> Profile
-        </a>
-        <a onclick="handleSignOut();" class="text-gray-200 hover:text-danger flex items-center gap-3 cursor-pointer">
-          <i class="fa-solid fa-sign-out-alt w-5 text-danger"></i> Sign Out
-        </a>
-      </nav>
-    </div>
-
-    <div class="pt-6 border-t border-border">
-      <p class="text-xs text-muted text-center">Your safe care space. Confidential & private.</p>
+      <div class="mobile-nav-footer">
+        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin: 0;">Your safe care space. Confidential & private.</p>
+      </div>
     </div>
   </div>
 
@@ -1055,19 +1059,27 @@
       views.forEach(v => {
         const vEl = document.getElementById('view-' + v);
         const nEl = document.getElementById('nav-' + v);
+        const mEl = document.getElementById('mob-nav-' + v);
         if (vEl) vEl.classList.add('hidden');
         if (nEl) nEl.classList.remove('active');
+        if (mEl) mEl.classList.remove('active');
       });
       const activeView = document.getElementById('view-' + targetView);
       const activeNav = document.getElementById('nav-' + targetView);
+      const activeMobNav = document.getElementById('mob-nav-' + targetView);
       if (activeView) { activeView.classList.remove('hidden'); activeView.classList.add('fade-in'); }
       if (activeNav) activeNav.classList.add('active');
+      if (activeMobNav) activeMobNav.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ─── Mobile Drawer ─────────────────────────
     function toggleMobileDrawer() {
-      document.getElementById('mobileDrawer').classList.toggle('hidden');
+      if (window.vzToggleDrawer) {
+        window.vzToggleDrawer();
+      } else {
+        document.getElementById('mobileDrawer').classList.toggle('open');
+      }
     }
 
     // ─── Sessions Tab ─────────────────────────

@@ -306,31 +306,40 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
-        height="48"></a>
-    <nav>
-      <a data-i="home" href="index.html">Home</a>
-      <a data-i="assessment" href="assessment.html">Check-in</a>
-      <a data-i="support" href="support.html">Support</a>
-      <a data-i="tools" href="tools.html">Tools</a>
-      <a data-i="community" href="community.html">Community</a>
-      <a class="active" data-i="plans" href="plans.html">Plans</a>
-      <a href="dashboard.html" class="button ghost" style="padding: 8px 16px; font-size: 0.8rem;">Dashboard</a>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-        aria-label="Switch Theme">🌙</button>
-    </nav>
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="assessment" href="assessment.html">Check-in</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <a data-i="community" href="community.html">Community</a>
+        <a class="active" data-i="plans" href="plans.html">Plans</a>
+        <a href="dashboard.html" class="button ghost vz-quick-access" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
   </header>
 
-  <main style="padding-top: 60px;">
-    <section class="section" style="text-align: center; padding-top: 0; padding-bottom: 40px;">
+  <main style="padding-top: 30px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
+    <section class="section" style="text-align: center; padding-top: 0; padding-bottom: 30px;">
       <span class="eyebrow">ACCESSIBLE BY DESIGN</span>
-      <h1>Support should feel<br><em>possible.</em></h1>
+      <h1 style="font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 12px;">Support should feel<br><em>possible.</em></h1>
       <p style="margin: 0 auto;">Essential tools and your first step remain free. Choose a plan when you need more room.
       </p>
     </section>
 
     <!-- Toggle -->
-    <div style="display: flex; justify-content: center; margin-bottom: 50px;">
+    <div style="display: flex; justify-content: center; margin-bottom: 40px;">
       <div
         style="background: rgba(255,255,255,0.05); padding: 5px; border-radius: 30px; border: 1px solid var(--line); display: flex;">
         <button class="button primary"

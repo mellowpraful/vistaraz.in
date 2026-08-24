@@ -13,20 +13,29 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
-        height="48"></a>
-    <nav>
-      <a class="button ghost" href="support.html" style="padding: 6px 12px; font-size: 0.8rem;"><i
-          class="fas fa-arrow-left" style="margin-right: 5px;"></i> Leave Chat</a>
-      <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-        aria-label="Switch Theme">🌙</button>
-    </nav>
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a class="button ghost desktop-only" href="support.html" style="padding: 6px 12px; font-size: 0.8rem;"><i
+            class="fas fa-arrow-left" style="margin-right: 5px;"></i> Leave Chat</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
   </header>
 
-  <main style="padding-top: 40px; display: flex; justify-content: center;">
-    <div class="chat-window glass-card" style="width: 100%; padding: 0; border-radius: 16px;">
+  <main style="padding-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; width: 100%; box-sizing: border-box; padding-left: 12px; padding-right: 12px;">
+    <div class="chat-window glass-card" style="width: 100%; max-width: 860px; padding: 0; border-radius: 16px;">
       <!-- Header -->
-      <div class="chat-header">
+      <div class="chat-header" style="padding: 14px 18px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div
             style="width: 45px; height: 45px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; font-family: var(--font-serif); color: #000; font-size: 1.2rem;">

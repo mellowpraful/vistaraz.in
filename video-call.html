@@ -107,9 +107,9 @@
 
   <!-- Header Banner -->
   <header
-    class="h-16 border-b border-border bg-[#0a0f12]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-50">
+    class="site-header h-16 border-b border-border bg-[#0a0f12]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-50">
     <div class="flex items-center gap-3">
-      <a href="freelancer_panel.html" class="flex-shrink-0">
+      <a href="freelancer_panel.html" class="brand flex-shrink-0">
         <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-9 w-auto">
       </a>
       <div class="hidden sm:flex items-center gap-2 pl-3 border-l border-border text-xs text-muted">
@@ -120,9 +120,9 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-3 text-xs">
+    <div class="flex items-center gap-2 sm:gap-3 text-xs">
       <span
-        class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+        class="hidden md:flex bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-3 py-1.5 rounded-full items-center gap-1.5">
         <i class="fa-solid fa-lock text-[10px]"></i> E2E Encrypted
       </span>
       <button class="theme-toggle" data-vz-theme-btn
@@ -131,14 +131,21 @@
         🌙
       </button>
       <a href="freelancer_panel.html"
-        class="bg-surface hover:bg-white/10 border border-border text-muted hover:text-white px-3 py-1.5 rounded-lg transition-all text-xs font-semibold">
+        class="hidden sm:inline-flex bg-surface hover:bg-white/10 border border-border text-muted hover:text-white px-3 py-1.5 rounded-lg transition-all text-xs font-semibold">
         Exit Room
       </a>
+      <button class="mobile-nav-toggle sm:hidden" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+        <div class="hamburger-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
     </div>
   </header>
 
   <!-- Main Video Workspace -->
-  <main class="flex-grow p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-4 max-w-7xl w-full mx-auto">
+  <main class="flex-grow p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-4 max-w-7xl w-full mx-auto">
 
     <!-- Primary Video Display (Remote Freelancer View & PIP Local Webcam) -->
     <div class="lg:col-span-3 flex flex-col gap-4">
@@ -194,7 +201,7 @@
 
         <!-- Self WebCam Picture-in-Picture (PIP) Container -->
         <div
-          class="absolute top-4 right-4 w-36 sm:w-52 aspect-video bg-surface rounded-2xl border-2 border-accent/40 overflow-hidden shadow-2xl flex items-center justify-center group-hover:border-accent transition-all z-10">
+          class="absolute top-4 right-4 w-28 sm:w-52 aspect-video bg-surface rounded-2xl border-2 border-accent/40 overflow-hidden shadow-2xl flex items-center justify-center group-hover:border-accent transition-all z-10">
 
           <!-- Live User WebCam Feed -->
           <video id="localVideo" class="w-full h-full object-cover" autoplay playsinline muted></video>
@@ -203,40 +210,40 @@
           <div id="camFallback"
             class="hidden absolute inset-0 bg-[#121c21] flex flex-col items-center justify-center p-2 text-center">
             <div
-              class="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-sm mb-1">
+              class="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-xs sm:text-sm mb-1">
               YOU
             </div>
-            <span class="text-[10px] text-muted">Camera Off / Micro-Feed</span>
+            <span class="text-[9px] text-muted">Camera Off</span>
           </div>
 
           <!-- WebCam Badge Overlay -->
           <div
-            class="absolute bottom-1.5 left-2 bg-black/70 border border-white/15 px-2 py-0.5 rounded text-[9px] font-bold text-gray-200 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-success"></span> You (Satyam)
+            class="absolute bottom-1.5 left-2 bg-black/70 border border-white/15 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-bold text-gray-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-success"></span> You
           </div>
         </div>
 
         <!-- Bottom Floating Controls Toolbar -->
         <div
-          class="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-[#0c1418]/90 backdrop-blur-xl border border-white/15 px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl z-20">
+          class="absolute bottom-3 sm:bottom-5 left-1/2 transform -translate-x-1/2 bg-[#0c1418]/90 backdrop-blur-xl border border-white/15 px-3 sm:px-5 py-2 sm:py-3 rounded-2xl flex items-center gap-2 sm:gap-3 shadow-2xl z-20 max-w-[96%] flex-wrap justify-center">
 
           <button id="btnMute" onclick="toggleMute()" title="Mute Microphone"
-            class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-sm">
+            class="w-9 sm:w-11 h-9 sm:h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-xs sm:text-sm">
             <i class="fa-solid fa-microphone"></i>
           </button>
 
           <button id="btnCam" onclick="toggleCamera()" title="Toggle Camera"
-            class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-sm">
+            class="w-9 sm:w-11 h-9 sm:h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-xs sm:text-sm">
             <i class="fa-solid fa-video"></i>
           </button>
 
           <button id="btnShare" onclick="toggleScreenShare()" title="Share Screen"
-            class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-sm">
+            class="w-9 sm:w-11 h-9 sm:h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-xs sm:text-sm">
             <i class="fa-solid fa-desktop"></i>
           </button>
 
           <button onclick="endCall()" title="End Session"
-            class="h-11 px-5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-2 transition-all text-xs shadow-lg shadow-red-600/30">
+            class="h-9 sm:h-11 px-3 sm:px-5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 sm:gap-2 transition-all text-[11px] sm:text-xs shadow-lg shadow-red-600/30">
             <i class="fa-solid fa-phone-slash"></i> End Session
           </button>
         </div>

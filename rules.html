@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Terms & Conditions — Vistaraz</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
      :root {
             --primary: #5b5bd6;
@@ -307,15 +308,33 @@
   </style>
 </head>
 <body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="assessment" href="assessment.html">Check-in</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <a data-i="plans" href="plans.html">Plans</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
      <main class="page">
         <div class="container">
 
             <header class="header">
-                <div class="brand">
-                    <span class="brand-mark"></span>
-                    Vistaraz
-                </div>
-
                 <h1>Terms &amp; Conditions</h1>
 
                 <p>
@@ -887,5 +906,6 @@
 
         </div>
     </main>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
