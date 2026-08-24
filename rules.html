@@ -9,350 +9,384 @@
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-     :root {
-            --primary: #5b5bd6;
-            --primary-dark: #4444a8;
-            --text: #202124;
-            --muted: #666b73;
-            --background: #f6f7fb;
-            --card: #ffffff;
-            --border: #e6e8ef;
-            --warning-bg: #fff7ed;
-            --warning-border: #f97316;
-            --warning-text: #9a3412;
-            --success-bg: #eefbf4;
-            --success-border: #34a853;
-            --shadow: 0 12px 35px rgba(35, 38, 55, 0.08);
-        }
+    :root {
+      --primary: #5b5bd6;
+      --primary-dark: #4444a8;
+      --text: #202124;
+      --muted: #666b73;
+      --background: #f6f7fb;
+      --card: #ffffff;
+      --border: #e6e8ef;
+      --warning-bg: #fff7ed;
+      --warning-border: #f97316;
+      --warning-text: #9a3412;
+      --success-bg: #eefbf4;
+      --success-border: #34a853;
+      --shadow: 0 12px 35px rgba(35, 38, 55, 0.08);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        html {
-            scroll-behavior: smooth;
-        }
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
 
-        body {
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Helvetica,
-                Arial,
-                sans-serif;
-            background: var(--background);
-            color: var(--text);
-            line-height: 1.7;
-        }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.7;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
 
-        .page {
-            width: 100%;
-            padding: 48px 20px;
-        }
+    .page {
+      width: 100%;
+      max-width: 100vw;
+      padding: 40px 16px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
 
-        .container {
-            max-width: 920px;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
 
-        .header {
-            background: linear-gradient(135deg, #5b5bd6, #7373e8);
-            color: #ffffff;
-            border-radius: 20px;
-            padding: 48px 42px;
-            margin-bottom: 28px;
-            box-shadow: var(--shadow);
-        }
+    .header {
+      background: linear-gradient(135deg, #101c24, #1b333f, #5b5bd6);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            opacity: 0.9;
-            margin-bottom: 18px;
-        }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
 
-        .brand-mark {
-            width: 10px;
-            height: 10px;
-            background: #ffffff;
-            border-radius: 50%;
-        }
+    .header-top a.brand-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
 
-        h1 {
-            font-size: clamp(2rem, 5vw, 3rem);
-            line-height: 1.15;
-            margin-bottom: 14px;
-            letter-spacing: -0.03em;
-        }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.2s;
+    }
 
-        .header p {
-            max-width: 720px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
-        }
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
 
-        .effective-date {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.78);
-        }
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
 
-        .content {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 42px;
-            box-shadow: var(--shadow);
-        }
+    .header p {
+      max-width: 720px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
 
-        .intro {
-            background: #f4f4ff;
-            border-left: 4px solid var(--primary);
-            padding: 18px 20px;
-            border-radius: 8px;
-            margin-bottom: 36px;
-            color: #3d3d68;
-        }
+    .effective-date {
+      margin-top: 18px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.75);
+    }
 
-        section {
-            margin-bottom: 38px;
-        }
+    .content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        section:last-child {
-            margin-bottom: 0;
-        }
+    .intro {
+      background: #f4f4ff;
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      color: #3d3d68;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        h2 {
-            color: #25265f;
-            font-size: 1.35rem;
-            line-height: 1.35;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-        }
+    section {
+      margin-bottom: 34px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        h3 {
-            font-size: 1.05rem;
-            margin: 20px 0 10px;
-            color: #33353a;
-        }
+    section:last-child {
+      margin-bottom: 0;
+    }
 
-        p {
-            margin-bottom: 13px;
-            color: #44484f;
-        }
+    h2 {
+      color: #25265f;
+      font-size: 1.25rem;
+      line-height: 1.35;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
 
-        ul {
-            padding-left: 23px;
-            margin: 12px 0 16px;
-        }
+    h3 {
+      font-size: 1rem;
+      margin: 18px 0 8px;
+      color: #33353a;
+    }
 
-        li {
-            margin-bottom: 9px;
-            color: #44484f;
-        }
+    p {
+      margin-bottom: 12px;
+      color: #44484f;
+      font-size: 0.95rem;
+    }
 
-        strong {
-            color: #292c32;
-        }
+    ul {
+      padding-left: 20px;
+      margin: 10px 0 14px;
+    }
 
-        .warning-box {
-            background: var(--warning-bg);
-            border: 1px solid #fed7aa;
-            border-left: 6px solid var(--warning-border);
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-        }
+    li {
+      margin-bottom: 8px;
+      color: #44484f;
+      font-size: 0.95rem;
+    }
 
-        .warning-box h2 {
-            color: var(--warning-text);
-            border-bottom-color: #fed7aa;
-        }
+    strong {
+      color: #292c32;
+    }
 
-        .warning-box p,
-        .warning-box li {
-            color: #7c2d12;
-        }
+    .warning-box {
+      background: var(--warning-bg);
+      border: 1px solid #fed7aa;
+      border-left: 6px solid var(--warning-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 18px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        .warning-label {
-            display: inline-block;
-            background: var(--warning-border);
-            color: #ffffff;
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 5px 9px;
-            border-radius: 5px;
-            margin-bottom: 12px;
-        }
+    .warning-box h2 {
+      color: var(--warning-text);
+      border-bottom-color: #fed7aa;
+    }
 
-        .notice-box {
-            background: var(--success-bg);
-            border: 1px solid #bbf0cf;
-            border-left: 5px solid var(--success-border);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 18px;
-        }
+    .warning-box p,
+    .warning-box li {
+      color: #7c2d12;
+    }
 
-        .notice-box p {
-            color: #205c34;
-            margin-bottom: 0;
-        }
+    .warning-label {
+      display: inline-block;
+      background: var(--warning-border);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
 
-        .toc {
-            background: #fafaff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin-bottom: 34px;
-        }
+    .notice-box {
+      background: var(--success-bg);
+      border: 1px solid #bbf0cf;
+      border-left: 5px solid var(--success-border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        .toc-title {
-            font-weight: 700;
-            color: #292c32;
-            margin-bottom: 10px;
-        }
+    .notice-box p {
+      color: #205c34;
+      margin-bottom: 0;
+    }
 
-        .toc ul {
-            margin-bottom: 0;
-        }
+    .toc {
+      background: #fafaff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 30px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        .toc a {
-            color: var(--primary-dark);
-            text-decoration: none;
-        }
+    .toc-title {
+      font-weight: 700;
+      color: #292c32;
+      margin-bottom: 10px;
+    }
 
-        .toc a:hover {
-            text-decoration: underline;
-        }
+    .toc ul {
+      margin-bottom: 0;
+    }
 
-        .contact-card {
-            background: #f7f7fa;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 22px;
-            margin-top: 15px;
-        }
+    .toc a {
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
 
-        .footer {
-            text-align: center;
-            padding: 25px 10px 5px;
-            color: var(--muted);
-            font-size: 0.85rem;
-        }
+    .toc a:hover {
+      text-decoration: underline;
+    }
 
-        .footer a {
-            color: var(--primary-dark);
-            text-decoration: none;
-        }
+    .contact-card {
+      background: #f7f7fa;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-        @media (max-width: 700px) {
-            .page {
-                padding: 20px 12px;
-            }
+    .footer {
+      text-align: center;
+      padding: 24px 10px 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
 
-            .header {
-                padding: 34px 24px;
-                border-radius: 16px;
-            }
+    .footer a {
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
 
-            .content {
-                padding: 27px 21px;
-                border-radius: 16px;
-            }
+    @media (max-width: 600px) {
+      .page {
+        padding: 16px 10px;
+      }
 
-            h2 {
-                font-size: 1.2rem;
-            }
+      .header {
+        padding: 24px 16px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+      }
 
-            .warning-box {
-                padding: 19px;
-            }
-        }
+      .content {
+        padding: 22px 14px;
+        border-radius: 16px;
+      }
 
-        @media print {
-            body {
-                background: #ffffff;
-            }
+      h1 {
+        font-size: 1.5rem;
+      }
 
-            .page {
-                padding: 0;
-            }
+      h2 {
+        font-size: 1.15rem;
+      }
 
-            .header,
-            .content {
-                box-shadow: none;
-            }
+      .warning-box {
+        padding: 14px;
+      }
 
-            .header {
-                border-radius: 0;
-            }
+      .toc {
+        padding: 14px;
+      }
+    }
 
-            .content {
-                border: none;
-            }
-        }
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        padding: 0;
+      }
+
+      .header,
+      .content {
+        box-shadow: none;
+      }
+
+      .header {
+        border-radius: 0;
+      }
+
+      .content {
+        border: none;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a class="brand" href="index.html"><img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact"
-          height="44"></a>
-      <nav>
-        <a data-i="home" href="index.html">Home</a>
-        <a data-i="assessment" href="assessment.html">Check-in</a>
-        <a data-i="support" href="support.html">Support</a>
-        <a data-i="tools" href="tools.html">Tools</a>
-        <a data-i="plans" href="plans.html">Plans</a>
-        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-          aria-label="Switch Theme">🌙</button>
-        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
-          <div class="hamburger-icon">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
-      </nav>
-    </div>
-  </header>
+  <main class="page">
+    <div class="container">
 
-     <main class="page">
-        <div class="container">
+      <header class="header">
+        <div class="header-top">
+          <a class="brand-link" href="index.html">
+            <img src="assets/logo.png" alt="Vistaraz · Innovate, Heal, Impact" height="40">
+          </a>
+          <a href="index.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Home
+          </a>
+        </div>
 
-            <header class="header">
-                <h1>Terms &amp; Conditions</h1>
+        <h1>Terms &amp; Conditions</h1>
 
-                <p>
-                    These Terms &amp; Conditions govern access to and use of
-                    Vistaraz, an interactive chat and guidance platform
-                    connecting users with supporters and freelancer interns.
-                </p>
+        <p>
+          These Terms &amp; Conditions govern access to and use of
+          Vistaraz, an interactive chat and guidance platform
+          connecting users with supporters and freelancer interns.
+        </p>
 
-                <div class="effective-date">
-                    Effective Date: 24 August 2026
-                </div>
-            </header>
+        <div class="effective-date">
+          Effective Date: 24 August 2026
+        </div>
+      </header>
 
-            <article class="content">
+      <article class="content">
 
-                <div class="intro">
-                    <strong>Please read these Terms carefully.</strong>
-                    By accessing, registering for, or using Vistaraz, you
+        <div class="intro">
+          <strong>Please read these Terms carefully.</strong>
+          By accessing, registering for, or using Vistaraz, you
                     acknowledge that you have read, understood, and agreed
                     to be bound by these Terms &amp; Conditions and any
                     applicable policies referenced herein.
