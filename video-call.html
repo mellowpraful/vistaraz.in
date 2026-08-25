@@ -87,9 +87,6 @@
     </div>
 
     <div class="space-y-2 max-w-sm">
-      <span
-        class="text-[10px] uppercase font-bold tracking-widest text-accent bg-accent/10 border border-accent/20 px-3 py-1 rounded-full">Encrypted
-        Stream</span>
       <h2 class="text-xl font-bold text-gray-100 font-serif pt-1">Connecting with freelancer...</h2>
       <p class="text-xs text-muted">Establishing peer-to-peer HD video session and verifying microphone feed.</p>
     </div>
@@ -180,15 +177,15 @@
 
         <!-- Top Overlay Info Badge -->
         <div
-          class="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs z-10">
-          <span class="w-2.5 h-2.5 rounded-full bg-success animate-ping"></span>
-          <span class="font-bold text-gray-100">Dr. Nidhi Sharma</span>
-          <span class="text-muted">· Peer Support Listener</span>
+          class="absolute top-3 left-3 sm:top-4 sm:left-4 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs z-10 max-w-[55%] sm:max-w-none overflow-hidden">
+          <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-success animate-ping flex-shrink-0"></span>
+          <span class="font-bold text-gray-100 truncate">Dr. Nidhi Sharma</span>
+          <span class="text-muted hidden sm:inline">· Peer Support Listener</span>
         </div>
 
         <!-- Audio Waveform Indicator -->
         <div
-          class="absolute bottom-20 left-4 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs z-10">
+          class="absolute bottom-16 sm:bottom-20 left-3 sm:left-4 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs z-10">
           <i class="fa-solid fa-microphone text-accent text-xs"></i>
           <div class="flex items-center gap-0.5 h-3">
             <span class="w-1 bg-accent h-2 animate-bounce"></span>
@@ -196,7 +193,7 @@
             <span class="w-1 bg-accent h-1.5 animate-bounce" style="animation-delay: 0.3s"></span>
             <span class="w-1 bg-accent h-3 animate-bounce" style="animation-delay: 0.45s"></span>
           </div>
-          <span class="text-[10px] text-muted font-mono ml-1">Audio Active</span>
+          <span class="text-[10px] text-muted font-mono ml-1 hidden sm:inline">Audio Active</span>
         </div>
 
         <!-- Self WebCam Picture-in-Picture (PIP) Container -->
@@ -225,7 +222,7 @@
 
         <!-- Bottom Floating Controls Toolbar -->
         <div
-          class="absolute bottom-3 sm:bottom-5 left-1/2 transform -translate-x-1/2 bg-[#0c1418]/90 backdrop-blur-xl border border-white/15 px-3 sm:px-5 py-2 sm:py-3 rounded-2xl flex items-center gap-2 sm:gap-3 shadow-2xl z-20 max-w-[96%] flex-wrap justify-center">
+          class="absolute bottom-2 sm:bottom-5 left-1/2 transform -translate-x-1/2 bg-[#0c1418]/90 backdrop-blur-xl border border-white/15 px-2.5 sm:px-5 py-2 sm:py-3 rounded-2xl flex items-center gap-1.5 sm:gap-3 shadow-2xl z-20 max-w-[95%] sm:max-w-none">
 
           <button id="btnMute" onclick="toggleMute()" title="Mute Microphone"
             class="w-9 sm:w-11 h-9 sm:h-11 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center transition-all text-xs sm:text-sm">
@@ -243,8 +240,8 @@
           </button>
 
           <button onclick="endCall()" title="End Session"
-            class="h-9 sm:h-11 px-3 sm:px-5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 sm:gap-2 transition-all text-[11px] sm:text-xs shadow-lg shadow-red-600/30">
-            <i class="fa-solid fa-phone-slash"></i> End Session
+            class="h-9 sm:h-11 px-2.5 sm:px-5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1 sm:gap-2 transition-all text-[10px] sm:text-xs shadow-lg shadow-red-600/30 whitespace-nowrap">
+            <i class="fa-solid fa-phone-slash"></i> <span class="hidden xs:inline sm:inline">End</span>
           </button>
         </div>
 
