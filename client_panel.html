@@ -10,6 +10,9 @@
   <meta name="description"
     content="Vistaraz Client Care Dashboard — track your mental wellness, connect with peer listeners, manage sessions, and access care tools.">
 
+  <!-- Supabase (must load before api.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/dist/api.0681f239.js"></script>
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
@@ -1042,13 +1045,41 @@
   <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
   <script src="assets/dist/app.989f6897.js"></script>
   <script>
-    // ─── Init ─────────────────────────────────
-    document.addEventListener('DOMContentLoaded', () => {
-      const name = 'Seeker Profile';
-      document.getElementById('client-name').textContent = name;
-      document.getElementById('profile-name-display').textContent = name;
-      document.getElementById('client-plan').textContent = 'Free';
-      document.getElementById('profile-plan-display').textContent = 'Free Membership · Since Aug 2026';
+    // ─── Auth Guard + Real Profile Init ───────
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Auth guard: redirect to login if no active session
+      if (typeof VistarazAuth === 'undefined') {
+        window.location.href = 'register.html?action=login';
+        return;
+      }
+      const user = await VistarazAuth.getUser();
+      if (!user) {
+        window.location.href = 'register.html?action=login';
+        return;
+      }
+
+      // Load real profile from Supabase
+      const profile = await VistarazAuth.getProfile(user.id);
+      const displayName = (profile && (profile.nickname || profile.full_name)) ||
+                          user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
+      const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🦊';
+      const plan = (profile && profile.plan) || 'Free';
+      const joinYear = new Date(user.created_at || Date.now()).getFullYear();
+
+      // Populate UI
+      const clientName = document.getElementById('client-name');
+      const profileNameDisplay = document.getElementById('profile-name-display');
+      const clientPlan = document.getElementById('client-plan');
+      const profilePlanDisplay = document.getElementById('profile-plan-display');
+
+      if (clientName) clientName.textContent = displayName;
+      if (profileNameDisplay) profileNameDisplay.textContent = displayName;
+      if (clientPlan) clientPlan.textContent = plan;
+      if (profilePlanDisplay) profilePlanDisplay.textContent = `${plan} Membership · Since ${joinYear}`;
+
+      // Set avatar badge if element exists
+      const avatarEl = document.getElementById('client-avatar');
+      if (avatarEl) avatarEl.textContent = avatar;
     });
 
     // ─── View Switching ────────────────────────
@@ -1126,9 +1157,13 @@
     }
 
     // ─── Sign Out ─────────────────────────────
-    function handleSignOut() {
-      showToast('Signing out… redirecting to home.');
-      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    async function handleSignOut() {
+      showToast('Signing out…');
+      if (typeof VistarazAuth !== 'undefined') {
+        await VistarazAuth.signOut();
+      } else {
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+      }
     }
 
     // ─── Toast ────────────────────────────────

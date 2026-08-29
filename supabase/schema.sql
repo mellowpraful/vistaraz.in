@@ -55,10 +55,12 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'role', 'user'),
     COALESCE(NEW.raw_user_meta_data->>'avatar_url', '🦊'),
     COALESCE(NEW.raw_user_meta_data->>'qualification', NULL),
-    COALESCE(
-      ARRAY(SELECT jsonb_array_elements_text(NEW.raw_user_meta_data->'languages')),
-      ARRAY['English']
-    )
+    CASE 
+      WHEN NEW.raw_user_meta_data ? 'languages' AND jsonb_typeof(NEW.raw_user_meta_data->'languages') = 'array' THEN
+        ARRAY(SELECT jsonb_array_elements_text(NEW.raw_user_meta_data->'languages'))
+      ELSE
+        ARRAY['English']
+    END
   );
   RETURN NEW;
 END;

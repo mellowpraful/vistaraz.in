@@ -477,11 +477,26 @@
     let currentSelectedAvatar = '🦊';
 
     // Parse URL params for direct routing (e.g. ?role=counselor)
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(window.location.search);
       const roleParam = params.get('role');
       const actionParam = params.get('action');
 
+      // ── Session Check: Redirect already-logged-in users ──
+      if (typeof VistarazAuth !== 'undefined') {
+        const user = await VistarazAuth.getUser();
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          if (profile && profile.role === 'counselor') {
+            window.location.href = 'freelancer_panel.html';
+          } else {
+            window.location.href = 'client_panel.html';
+          }
+          return; // stop rest of init
+        }
+      }
+
+      // ── No session: set up the page normally ──
       if (roleParam === 'provider' || roleParam === 'counselor') {
         selectRolePathway('provider');
       } else {
@@ -576,46 +591,135 @@
     async function handleSeekerRegister(e) {
       e.preventDefault();
       const btn = document.getElementById('seeker-submit-btn');
-
+      const errBox = document.getElementById('seeker-error');
+      
+      if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up portal...';
 
-      // Dummy delay to simulate network request
-      setTimeout(() => {
-        window.location.href = 'client_panel.html';
-      }, 800);
+      const email = document.getElementById('seeker-email').value.trim();
+      const password = document.getElementById('seeker-password').value;
+      
+      let nickname = 'Friend';
+      let fullName = '';
+      
+      if (currentSeekerProfileType === 'anon') {
+        nickname = document.getElementById('seeker-anon-nickname').value.trim() || 'Friend';
+      } else {
+        fullName = document.getElementById('seeker-private-name').value.trim();
+        nickname = fullName.split(' ')[0] || 'Friend';
+      }
+
+      const { data, error } = await VistarazAuth.signUp(email, password, {
+        fullName,
+        nickname,
+        role: 'user',
+        avatarUrl: currentSelectedAvatar
+      });
+
+      if (error) {
+        if (errBox) {
+          errBox.textContent = error.message;
+          errBox.style.display = 'block';
+        } else {
+          alert(error.message);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      } else {
+        if (data?.session) {
+          window.location.href = 'client_panel.html';
+        } else {
+          alert('Registration successful! Please check your email for a confirmation link.');
+          window.location.href = 'register.html?action=login';
+        }
+      }
     }
 
     // 5. Handle Provider / Counselor Registration
     async function handleProviderRegister(e) {
       e.preventDefault();
       const btn = document.getElementById('provider-submit-btn');
+      const errBox = document.getElementById('provider-error');
 
+      if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating listener workspace...';
 
-      // Dummy delay to simulate network request
-      setTimeout(() => {
-        window.location.href = 'freelancer_panel.html';
-      }, 800);
+      const email = document.getElementById('provider-email').value.trim();
+      const password = document.getElementById('provider-password').value;
+      const fullName = document.getElementById('provider-name').value.trim();
+      const qualification = document.getElementById('provider-qualification').value;
+      
+      const languagesStr = document.getElementById('provider-languages').value.trim();
+      const languages = languagesStr ? languagesStr.split(',').map(s => s.trim()) : ['English'];
+
+      const { data, error } = await VistarazAuth.signUp(email, password, {
+        fullName,
+        nickname: fullName.split(' ')[0],
+        role: 'counselor',
+        avatarUrl: '👨‍⚕️',
+        qualification,
+        languages
+      });
+
+      if (error) {
+        if (errBox) {
+          errBox.textContent = error.message;
+          errBox.style.display = 'block';
+        } else {
+          alert(error.message);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      } else {
+        if (data?.session) {
+          window.location.href = 'freelancer_panel.html';
+        } else {
+          alert('Registration successful! Please check your email for a confirmation link.');
+          window.location.href = 'register.html?role=provider&action=login';
+        }
+      }
     }
 
     // 6. Universal Login Handler (Auto-routes based on role)
     async function handleUniversalLogin(e, roleType) {
       e.preventDefault();
       const btn = roleType === 'seeker' ? document.getElementById('seeker-login-btn') : document.getElementById('provider-login-btn');
+      const errBox = roleType === 'seeker' ? document.getElementById('seeker-login-error') : document.getElementById('provider-login-error');
 
+      if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
-      // Dummy delay to simulate network request
-      setTimeout(() => {
-        if (roleType === 'counselor' || roleType === 'provider') {
-          window.location.href = 'freelancer_panel.html';
+      const email = roleType === 'seeker' ? document.getElementById('seeker-login-email').value.trim() : document.getElementById('provider-login-email').value.trim();
+      const password = roleType === 'seeker' ? document.getElementById('seeker-login-password').value : document.getElementById('provider-login-password').value;
+
+      const { data, error } = await VistarazAuth.signIn(email, password);
+
+      if (error) {
+        if (errBox) {
+          errBox.textContent = error.message;
+          errBox.style.display = 'block';
         } else {
-          window.location.href = 'client_panel.html';
+          alert(error.message);
         }
-      }, 800);
+        btn.disabled = false;
+        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
+      } else {
+        const user = data?.user;
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          if (profile && profile.role === 'counselor') {
+            window.location.href = 'freelancer_panel.html';
+          } else {
+            window.location.href = 'client_panel.html';
+          }
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
+        }
+      }
     }
   </script>
 </body>

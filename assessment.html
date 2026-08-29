@@ -863,6 +863,24 @@
       // Save to localStorage
       localStorage.setItem('vistaraz_user_assessment_profile', JSON.stringify(assessmentProfile));
 
+      // Save to Supabase DB if client initialized
+      if (window.VistarazDB) {
+        VistarazDB.saveAssessment({
+          score: avgScore,
+          category: highestDistressArea || 'General',
+          answers: assessmentProfile.areaScores || {},
+          notes: assessmentProfile.primaryConcern || ''
+        }).then(({ error }) => {
+          if (error) {
+            console.error('Error saving assessment to Supabase:', error);
+          } else {
+            console.log('Assessment saved to Supabase successfully');
+          }
+        }).catch(err => {
+          console.error('Failed to save assessment:', err);
+        });
+      }
+
       // Append to freelancer requests queue
       let existingRequests = [];
       try {
