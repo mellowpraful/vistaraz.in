@@ -467,7 +467,7 @@
 
   <!-- Supabase JS & App Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0681f239.js"></script>
+  <script src="assets/dist/api.0d265376.js"></script>
   <script src="assets/dist/app.989f6897.js"></script>
 
   <script>
@@ -592,47 +592,55 @@
       e.preventDefault();
       const btn = document.getElementById('seeker-submit-btn');
       const errBox = document.getElementById('seeker-error');
-      
+
+      function showErr(msg) {
+        if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+        else alert(msg);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      }
+
       if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up portal...';
 
-      const email = document.getElementById('seeker-email').value.trim();
-      const password = document.getElementById('seeker-password').value;
-      
-      let nickname = 'Friend';
-      let fullName = '';
-      
-      if (currentSeekerProfileType === 'anon') {
-        nickname = document.getElementById('seeker-anon-nickname').value.trim() || 'Friend';
-      } else {
-        fullName = document.getElementById('seeker-private-name').value.trim();
-        nickname = fullName.split(' ')[0] || 'Friend';
-      }
+      try {
+        const email = document.getElementById('seeker-email').value.trim();
+        const password = document.getElementById('seeker-password').value;
 
-      const { data, error } = await VistarazAuth.signUp(email, password, {
-        fullName,
-        nickname,
-        role: 'user',
-        avatarUrl: currentSelectedAvatar
-      });
+        if (!email || !password) { showErr('Please enter your email and password.'); return; }
 
-      if (error) {
-        if (errBox) {
-          errBox.textContent = error.message;
-          errBox.style.display = 'block';
+        let nickname = 'Friend';
+        let fullName = '';
+        if (currentSeekerProfileType === 'anon') {
+          nickname = document.getElementById('seeker-anon-nickname').value.trim() || 'Friend';
         } else {
-          alert(error.message);
+          fullName = document.getElementById('seeker-private-name').value.trim();
+          nickname = fullName.split(' ')[0] || 'Friend';
         }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
-      } else {
+
+        const { data, error } = await VistarazAuth.signUp(email, password, {
+          fullName, nickname, role: 'user', avatarUrl: currentSelectedAvatar
+        });
+
+        if (error) { showErr(error.message); return; }
+
         if (data?.session) {
           window.location.href = 'client_panel.html';
         } else {
-          alert('Registration successful! Please check your email for a confirmation link.');
-          window.location.href = 'register.html?action=login';
+          // Email confirmation required
+          if (errBox) {
+            errBox.style.background = 'rgba(76,217,100,0.12)';
+            errBox.style.color = '#4cd964';
+            errBox.textContent = '✅ Account created! Check your email for a confirmation link, then sign in.';
+            errBox.style.display = 'block';
+          }
+          btn.disabled = false;
+          btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
         }
+      } catch (err) {
+        console.error('[handleSeekerRegister]', err);
+        showErr('Something went wrong. Please refresh and try again.');
       }
     }
 
@@ -642,43 +650,53 @@
       const btn = document.getElementById('provider-submit-btn');
       const errBox = document.getElementById('provider-error');
 
+      function showErr(msg) {
+        if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+        else alert(msg);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      }
+
       if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating listener workspace...';
 
-      const email = document.getElementById('provider-email').value.trim();
-      const password = document.getElementById('provider-password').value;
-      const fullName = document.getElementById('provider-name').value.trim();
-      const qualification = document.getElementById('provider-qualification').value;
-      
-      const languagesStr = document.getElementById('provider-languages').value.trim();
-      const languages = languagesStr ? languagesStr.split(',').map(s => s.trim()) : ['English'];
+      try {
+        const email = document.getElementById('provider-email').value.trim();
+        const password = document.getElementById('provider-password').value;
+        const fullName = document.getElementById('provider-name').value.trim();
+        const qualification = document.getElementById('provider-qualification').value;
+        const languagesStr = document.getElementById('provider-languages').value.trim();
+        const languages = languagesStr ? languagesStr.split(',').map(s => s.trim()) : ['English'];
 
-      const { data, error } = await VistarazAuth.signUp(email, password, {
-        fullName,
-        nickname: fullName.split(' ')[0],
-        role: 'counselor',
-        avatarUrl: '👨‍⚕️',
-        qualification,
-        languages
-      });
+        if (!email || !password || !fullName) { showErr('Please fill in all required fields.'); return; }
 
-      if (error) {
-        if (errBox) {
-          errBox.textContent = error.message;
-          errBox.style.display = 'block';
-        } else {
-          alert(error.message);
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
-      } else {
+        const { data, error } = await VistarazAuth.signUp(email, password, {
+          fullName,
+          nickname: fullName.split(' ')[0],
+          role: 'counselor',
+          avatarUrl: '👨‍⚕️',
+          qualification,
+          languages
+        });
+
+        if (error) { showErr(error.message); return; }
+
         if (data?.session) {
           window.location.href = 'freelancer_panel.html';
         } else {
-          alert('Registration successful! Please check your email for a confirmation link.');
-          window.location.href = 'register.html?role=provider&action=login';
+          if (errBox) {
+            errBox.style.background = 'rgba(76,217,100,0.12)';
+            errBox.style.color = '#4cd964';
+            errBox.textContent = '✅ Account created! Check your email for a confirmation link, then sign in.';
+            errBox.style.display = 'block';
+          }
+          btn.disabled = false;
+          btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
         }
+      } catch (err) {
+        console.error('[handleProviderRegister]', err);
+        showErr('Something went wrong. Please refresh and try again.');
       }
     }
 
@@ -687,26 +705,35 @@
       e.preventDefault();
       const btn = roleType === 'seeker' ? document.getElementById('seeker-login-btn') : document.getElementById('provider-login-btn');
       const errBox = roleType === 'seeker' ? document.getElementById('seeker-login-error') : document.getElementById('provider-login-error');
+      const resetBtn = () => {
+        btn.disabled = false;
+        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
+      };
 
       if (errBox) errBox.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
-      const email = roleType === 'seeker' ? document.getElementById('seeker-login-email').value.trim() : document.getElementById('provider-login-email').value.trim();
-      const password = roleType === 'seeker' ? document.getElementById('seeker-login-password').value : document.getElementById('provider-login-password').value;
+      try {
+        const emailId = roleType === 'seeker' ? 'seeker-login-email' : 'provider-login-email';
+        const passId  = roleType === 'seeker' ? 'seeker-login-password' : 'provider-login-password';
+        const email    = document.getElementById(emailId).value.trim();
+        const password = document.getElementById(passId).value;
 
-      const { data, error } = await VistarazAuth.signIn(email, password);
-
-      if (error) {
-        if (errBox) {
-          errBox.textContent = error.message;
-          errBox.style.display = 'block';
-        } else {
-          alert(error.message);
+        if (!email || !password) {
+          if (errBox) { errBox.textContent = 'Please enter your email and password.'; errBox.style.display = 'block'; }
+          resetBtn(); return;
         }
-        btn.disabled = false;
-        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
-      } else {
+
+        const { data, error } = await VistarazAuth.signIn(email, password);
+
+        if (error) {
+          if (errBox) { errBox.textContent = error.message; errBox.style.display = 'block'; }
+          else alert(error.message);
+          resetBtn();
+          return;
+        }
+
         const user = data?.user;
         if (user) {
           const profile = await VistarazAuth.getProfile(user.id);
@@ -716,9 +743,12 @@
             window.location.href = 'client_panel.html';
           }
         } else {
-          btn.disabled = false;
-          btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
+          resetBtn();
         }
+      } catch (err) {
+        console.error('[handleUniversalLogin]', err);
+        if (errBox) { errBox.textContent = 'Something went wrong. Please refresh and try again.'; errBox.style.display = 'block'; }
+        resetBtn();
       }
     }
   </script>
