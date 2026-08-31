@@ -12,7 +12,7 @@
 
   <!-- Supabase (must load before api.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0d265376.js"></script>
+  <script src="assets/dist/api.dbdbb757.js"></script>
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
@@ -1043,7 +1043,7 @@
   </footer>
 
   <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
-  <script src="assets/dist/app.989f6897.js"></script>
+  <script src="assets/dist/app.fbb92857.js"></script>
   <script>
     // ─── Auth Guard + Real Profile Init ───────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1159,10 +1159,12 @@
     // ─── Sign Out ─────────────────────────────
     async function handleSignOut() {
       showToast('Signing out…');
-      if (typeof VistarazAuth !== 'undefined') {
-        await VistarazAuth.signOut();
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
       } else {
-        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+        window.location.replace('index.html');
       }
     }
 

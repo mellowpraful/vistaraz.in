@@ -467,8 +467,8 @@
 
   <!-- Supabase JS & App Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0d265376.js"></script>
-  <script src="assets/dist/app.989f6897.js"></script>
+  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/app.fbb92857.js"></script>
 
   <script>
     let currentRole = 'seeker'; // 'seeker' | 'provider'
@@ -481,16 +481,32 @@
       const params = new URLSearchParams(window.location.search);
       const roleParam = params.get('role');
       const actionParam = params.get('action');
+      const isLogout = params.get('logout') === 'true';
 
-      // ── Session Check: Redirect already-logged-in users ──
-      if (typeof VistarazAuth !== 'undefined') {
+      // ── Handle explicit logout param if present ──
+      if (isLogout) {
+        try {
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth') || key.includes('vz-user') || key.includes('session'))) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach(k => localStorage.removeItem(k));
+          sessionStorage.clear();
+        } catch (e) {}
+      }
+
+      // ── Session Check: Redirect already-logged-in users (only if not logging out) ──
+      if (!isLogout && typeof VistarazAuth !== 'undefined') {
         const user = await VistarazAuth.getUser();
         if (user) {
           const profile = await VistarazAuth.getProfile(user.id);
           if (profile && profile.role === 'counselor') {
-            window.location.href = 'freelancer_panel.html';
+            window.location.replace('freelancer_panel.html');
           } else {
-            window.location.href = 'client_panel.html';
+            window.location.replace('client_panel.html');
           }
           return; // stop rest of init
         }

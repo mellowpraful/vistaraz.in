@@ -27,7 +27,7 @@
             style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; color: #000; font-weight: 600; font-size: 1.1rem;">
             🦊</div>
           <span id="user-profile-type" style="font-size: 0.9rem; color: var(--text-main);">My Profile</span>
-          <button onclick="VistarazAuth.signOut()" class="button ghost"
+          <button onclick="handleSignOut()" class="button ghost"
             style="padding: 4px 10px; font-size: 0.75rem; margin-left: 5px;" title="Sign Out">
             <i class="fas fa-sign-out-alt"></i>
           </button>
@@ -147,24 +147,41 @@
 
   <!-- Supabase Integration -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0d265376.js"></script>
-  <script src="assets/dist/app.989f6897.js"></script>
+  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/app.fbb92857.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Check session
-      const user = await VistarazAuth.getUser();
-      if (user) {
-        const profile = await VistarazAuth.getProfile(user.id);
-        const name = (profile && (profile.nickname || profile.full_name)) || user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
-        const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '👤';
-        const plan = (profile && profile.plan) || 'Silver';
-
-        document.getElementById('user-display-name').innerText = name;
-        document.getElementById('user-avatar-badge').innerText = avatar;
-        document.getElementById('user-profile-type').innerText = profile?.role === 'counselor' ? 'Counselor' : (profile?.full_name ? 'Private Profile' : 'Anonymous');
-        document.getElementById('user-plan-title').innerText = plan + ' Membership';
+    async function handleSignOut() {
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
+      } else {
+        window.location.replace('index.html');
       }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof VistarazAuth === 'undefined') return;
+      const user = await VistarazAuth.getUser();
+      if (!user) {
+        window.location.replace('register.html?action=login');
+        return;
+      }
+
+      const profile = await VistarazAuth.getProfile(user.id);
+      const name = (profile && (profile.nickname || profile.full_name)) || user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
+      const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '👤';
+      const plan = (profile && profile.plan) || 'Silver';
+
+      const nameEl = document.getElementById('user-display-name');
+      if (nameEl) nameEl.innerText = name;
+      const avatarEl = document.getElementById('user-avatar-badge');
+      if (avatarEl) avatarEl.innerText = avatar;
+      const typeEl = document.getElementById('user-profile-type');
+      if (typeEl) typeEl.innerText = profile?.role === 'counselor' ? 'Counselor' : (profile?.full_name ? 'Private Profile' : 'Anonymous');
+      const planEl = document.getElementById('user-plan-title');
+      if (planEl) planEl.innerText = plan + ' Membership';
     });
   </script>
 </body>

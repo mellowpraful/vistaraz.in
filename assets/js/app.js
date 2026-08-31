@@ -214,6 +214,28 @@ window.vzCloseDrawer = () => VzNav.close();
 window.vzOpenDrawer = () => VzNav.open();
 window.toggleMobileDrawer = () => VzNav.toggle(); // legacy name compatibility
 
+// Universal Global Sign Out Handler
+window.handleSignOut = async function(redirectTo = 'index.html') {
+  if (window.VistarazAuth && typeof window.VistarazAuth.signOut === 'function') {
+    await window.VistarazAuth.signOut(redirectTo);
+    return;
+  }
+  // Fallback if VistarazAuth is not loaded
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth') || key.includes('vz-user') || key.includes('session'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    sessionStorage.clear();
+  } catch (e) {}
+  window.location.replace(redirectTo);
+};
+window.vzSignOut = window.handleSignOut;
+
 // ── DOM READY ACTIONS ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Re-sync all button icons once DOM elements are rendered

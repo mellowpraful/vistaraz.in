@@ -275,7 +275,7 @@
         </button>
 
         <!-- Sign Out Button (Desktop Only - In Drawer on Mobile) -->
-        <button onclick="window.location.href='register.html'" title="Sign Out"
+        <button onclick="handleSignOut()" title="Sign Out"
           class="hidden lg:flex w-8 h-8 rounded-full bg-white/5 border border-white/10 items-center justify-center text-gray-400 hover:text-danger hover:border-danger/30 transition-all flex-shrink-0">
           <i class="fa-solid fa-sign-out-alt text-xs"></i>
         </button>
@@ -329,7 +329,7 @@
           <a id="mob-nav-profile" onclick="switchView('profile'); toggleMobileDrawer();">
             <i class="fa-solid fa-id-card"></i> <span>Profile</span>
           </a>
-          <a onclick="VistarazAuth.signOut(); toggleMobileDrawer();" style="color: var(--danger); cursor: pointer;">
+          <a onclick="handleSignOut(); toggleMobileDrawer();" style="color: var(--danger); cursor: pointer;">
             <i class="fa-solid fa-sign-out-alt" style="color: var(--danger);"></i> <span>Sign Out</span>
           </a>
         </nav>
@@ -1631,6 +1631,17 @@
               </div>
             </div>
           </div>
+
+          <!-- Account Actions & Sign Out -->
+          <div class="bg-card border rounded-xl p-5" style="border-color: rgba(255,107,107,.2);">
+            <p class="text-xs font-bold uppercase tracking-wider text-danger mb-3">Account Actions</p>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="handleSignOut()"
+                class="border border-danger/30 text-danger hover:bg-danger hover:text-black px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-sign-out-alt text-[10px]"></i> Sign Out
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -1890,8 +1901,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.0d265376.js"></script>
-  <script src="assets/dist/app.989f6897.js"></script>
+  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/app.fbb92857.js"></script>
 
   <!-- ═══════════════════════════════════════════════════════════
        JAVASCRIPT LOGIC
@@ -2127,6 +2138,18 @@
 
       closeScheduleModal();
       showToast('Schedule preferences updated successfully.', 'success');
+    }
+
+    // ─── Sign Out ─────────────────────────────
+    async function handleSignOut() {
+      showToast('Signing out…', 'info');
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
+      } else {
+        window.location.replace('index.html');
+      }
     }
 
     document.querySelectorAll('.modal-backdrop').forEach(modal => {

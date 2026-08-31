@@ -72,15 +72,33 @@ const VistarazAuth = {
   },
 
   // Sign out
-  async signOut() {
+  async signOut(redirectTo = 'index.html') {
     const sb = getClient();
-    if (!sb) { window.location.href = 'index.html'; return; }
     try {
-      await sb.auth.signOut();
+      if (sb && sb.auth) {
+        await sb.auth.signOut({ scope: 'local' });
+      }
     } catch (err) {
       console.error('[VistarazAuth.signOut]', err);
     } finally {
-      window.location.href = 'index.html';
+      // Force clear all auth & Supabase session keys from localStorage and sessionStorage
+      try {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth') || key.includes('vz-user') || key.includes('session'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        sessionStorage.clear();
+      } catch (storageErr) {
+        console.error('[VistarazAuth.signOut] storage clear error:', storageErr);
+      }
+
+      if (redirectTo) {
+        window.location.replace(redirectTo);
+      }
     }
   },
 
