@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Vistaraz — Mental Wellbeing Made Human</title>
-  <link rel="stylesheet" href="assets/dist/app.ad4fe4ec.css">
+  <link rel="stylesheet" href="assets/dist/app.fa935d0c.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -28,6 +28,7 @@
         <a data-i="tools" href="tools.html">Tools</a>
         <a data-i="community" href="community.html">Community</a>
         <a href="dashboard.html" class="button ghost vz-quick-access" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
+        <button class="a11y-toggle" id="a11yBtn" onclick="vzA11yToggleModal()" title="Accessibility Settings" aria-label="Accessibility Settings"><span style="font-size: 0.85rem; font-weight: 700;">Aa</span></button>
         <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
           aria-label="Switch Theme">🌙</button>
         <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
@@ -44,12 +45,12 @@
   <main>
     <section class="hero">
       <div class="hero-content reveal">
-        <span class="eyebrow">MENTAL WELLBEING, MADE HUMAN</span>
+        <span class="eyebrow" style="color: var(--accent-primary);">MENTAL WELLBEING, MADE HUMAN</span>
         <h1>A little more <em>room</em><br>to feel like you.</h1>
         <p>A private, judgement-free space for young people to pause, talk things through, and find the kind of support
           that fits.</p>
         <div class="hero-actions" style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <a class="button primary" href="register.html?role=seeker" style="padding: 14px 28px; font-weight: 600;">
+          <a class="button coral" href="register.html?role=seeker" style="padding: 14px 28px; font-weight: 600;">
             🌿 I Need Help <i class="fas fa-arrow-right" style="margin-left: 8px"></i>
           </a>
           <a class="button ghost" href="register.html?role=provider"
@@ -61,10 +62,10 @@
       <div class="hero-art reveal">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
-        <div class="glass-card" style="position: relative; z-index: 10; text-align: center; max-width: 300px;">
-          <i class="fas fa-leaf" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
-          <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Take a breath</h3>
-          <p style="font-size: 0.9rem; margin-bottom: 0;">You don’t have to have it all figured out right now.</p>
+        <div class="glass-card breathe-soft" style="position: relative; z-index: 10; text-align: center; max-width: 310px; border-color: rgba(251, 146, 60, 0.22); box-shadow: 0 16px 40px -10px rgba(0,0,0,0.5), 0 0 24px -6px var(--coral-glow);">
+          <i class="fas fa-leaf" style="font-size: 2rem; color: var(--accent-coral); margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--coral-glow));"></i>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Take a breath</h3>
+          <p style="font-size: 0.92rem; margin-bottom: 0; color: var(--text-secondary);">You don’t have to have it all figured out right now.</p>
         </div>
       </div>
     </section>
@@ -137,7 +138,7 @@
     </div>
   </footer>
 
-  <script src="assets/dist/app.fbb92857.js"></script>
+  <script src="assets/dist/app.54837a44.js"></script>
 </body>
 
 </html>

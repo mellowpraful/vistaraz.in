@@ -1,11 +1,12 @@
 /* ═══════════════════════════════════════════════════════════
    VISTARAZ GLOBAL SCRIPTS
    - Scroll reveal animations
-   - Theme switcher (Light ↔ Dark) with localStorage persistence
+   - Sanctuary Theme Switcher (Dark default ↔ Light) with localStorage
+   - Accessibility Controller (Reduced Motion, Text Size, High Contrast)
    - Universal Responsive Mobile Navigation Drawer (Three-Line ☰ Menu)
    ═══════════════════════════════════════════════════════════ */
 
-// ── THEME SWITCHER ──────────────────────────────────────────
+// ── THEME SWITCHER (Dark Sanctuary as Default) ──────────────
 const VzTheme = (() => {
   const STORAGE_KEY = 'vz-theme';
   const DARK  = 'dark';
@@ -14,7 +15,7 @@ const VzTheme = (() => {
   const ICON_LIGHT = '☀️';
 
   function getCurrent() {
-    return localStorage.getItem(STORAGE_KEY) || LIGHT;
+    return localStorage.getItem(STORAGE_KEY) || DARK; // Default: Midnight Sanctuary
   }
 
   function apply(theme) {
@@ -41,13 +42,210 @@ const VzTheme = (() => {
   return { init, toggle, apply, getCurrent };
 })();
 
-// ── Run immediately, NOT inside DOMContentLoaded ─────────────
-// This prevents flash-of-wrong-theme on every page load
-VzTheme.init();
+// ── ACCESSIBILITY CONTROLLER (Reduce Motion, Text Size, Contrast) ──
+const VzA11y = (() => {
+  const KEY_MOTION = 'vz-reduce-motion';
+  const KEY_TEXT_SIZE = 'vz-text-size';
+  const KEY_CONTRAST = 'vz-contrast';
 
-// ── Expose globally IMMEDIATELY (not inside DOMContentLoaded) ─
-// This ensures onclick="vzToggleTheme()" always works
+  function getMotion() {
+    return localStorage.getItem(KEY_MOTION) === 'true';
+  }
+
+  function getTextSize() {
+    return localStorage.getItem(KEY_TEXT_SIZE) || 'normal';
+  }
+
+  function getContrast() {
+    return localStorage.getItem(KEY_CONTRAST) || 'normal';
+  }
+
+  function applyMotion(enabled) {
+    if (enabled) {
+      document.documentElement.setAttribute('data-reduce-motion', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-reduce-motion');
+    }
+    localStorage.setItem(KEY_MOTION, enabled ? 'true' : 'false');
+    updateModalUI();
+  }
+
+  function applyTextSize(size) {
+    if (size === 'normal') {
+      document.documentElement.removeAttribute('data-text-size');
+    } else {
+      document.documentElement.setAttribute('data-text-size', size);
+    }
+    localStorage.setItem(KEY_TEXT_SIZE, size);
+    updateModalUI();
+  }
+
+  function applyContrast(contrast) {
+    if (contrast === 'high') {
+      document.documentElement.setAttribute('data-contrast', 'high');
+    } else {
+      document.documentElement.removeAttribute('data-contrast');
+    }
+    localStorage.setItem(KEY_CONTRAST, contrast);
+    updateModalUI();
+  }
+
+  // Synchronous init prevents FOUC
+  function init() {
+    if (getMotion()) document.documentElement.setAttribute('data-reduce-motion', 'true');
+    const ts = getTextSize();
+    if (ts !== 'normal') document.documentElement.setAttribute('data-text-size', ts);
+    const ct = getContrast();
+    if (ct === 'high') document.documentElement.setAttribute('data-contrast', 'high');
+  }
+
+  function getModal() {
+    return document.getElementById('vzA11yModal');
+  }
+
+  function open() {
+    const modal = getModal();
+    if (!modal) return;
+    updateModalUI();
+    modal.classList.add('open');
+  }
+
+  function close() {
+    const modal = getModal();
+    if (!modal) return;
+    modal.classList.remove('open');
+  }
+
+  function toggle() {
+    const modal = getModal();
+    if (!modal) return;
+    if (modal.classList.contains('open')) close();
+    else open();
+  }
+
+  function updateModalUI() {
+    const modal = getModal();
+    if (!modal) return;
+
+    // Motion switch
+    const motionToggle = modal.querySelector('#a11yMotionToggle');
+    if (motionToggle) motionToggle.checked = getMotion();
+
+    // Text size buttons
+    const currentSize = getTextSize();
+    modal.querySelectorAll('[data-a11y-size]').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-a11y-size') === currentSize);
+    });
+
+    // Contrast buttons
+    const currentContrast = getContrast();
+    modal.querySelectorAll('[data-a11y-contrast]').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-a11y-contrast') === currentContrast);
+    });
+  }
+
+  function initDOM() {
+    // 1. Ensure accessibility modal exists
+    let modal = getModal();
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'vzA11yModal';
+      modal.className = 'a11y-modal-backdrop';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'a11yModalTitle');
+      modal.innerHTML = `
+        <div class="a11y-modal-card">
+          <div class="a11y-modal-header">
+            <h3 class="a11y-modal-title" id="a11yModalTitle">
+              <i class="fa-solid fa-universal-access" style="color: var(--accent-primary)"></i>
+              Accessibility
+            </h3>
+            <button class="a11y-modal-close" onclick="VzA11y.close()" aria-label="Close accessibility options">&times;</button>
+          </div>
+
+          <!-- Text Size Scaling -->
+          <div class="a11y-control-group">
+            <div class="a11y-control-label">
+              <span>Text Size</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Reading comfort</span>
+            </div>
+            <div class="a11y-segmented">
+              <button class="a11y-opt-btn active" data-a11y-size="normal" onclick="VzA11y.applyTextSize('normal')">Default (100%)</button>
+              <button class="a11y-opt-btn" data-a11y-size="lg" onclick="VzA11y.applyTextSize('lg')">Comfortable</button>
+              <button class="a11y-opt-btn" data-a11y-size="xl" onclick="VzA11y.applyTextSize('xl')">Large (125%)</button>
+            </div>
+          </div>
+
+          <!-- High Contrast Mode -->
+          <div class="a11y-control-group">
+            <div class="a11y-control-label">
+              <span>Contrast</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">WCAG AAA</span>
+            </div>
+            <div class="a11y-segmented">
+              <button class="a11y-opt-btn active" data-a11y-contrast="normal" onclick="VzA11y.applyContrast('normal')">Sanctuary</button>
+              <button class="a11y-opt-btn" data-a11y-contrast="high" onclick="VzA11y.applyContrast('high')">High Contrast</button>
+            </div>
+          </div>
+
+          <!-- Reduced Motion Switch -->
+          <div class="a11y-control-group" style="margin-bottom: 0;">
+            <div class="a11y-toggle-row">
+              <div>
+                <div style="font-size: 0.88rem; font-weight: 600; color: var(--text-main);">Reduce Motion</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Pause orbs & ambient breathing</div>
+              </div>
+              <label class="a11y-switch" aria-label="Toggle reduced motion">
+                <input type="checkbox" id="a11yMotionToggle" onchange="VzA11y.applyMotion(this.checked)">
+                <span class="a11y-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) close();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) close();
+      });
+    }
+
+    // 2. Ensure accessibility toggle button exists in header beside themeBtn
+    document.querySelectorAll('.site-header-inner, .site-header').forEach(header => {
+      if (!header.querySelector('.a11y-toggle, [data-vz-a11y-btn]')) {
+        const themeBtn = header.querySelector('.theme-toggle, [data-vz-theme-btn]');
+        if (themeBtn && themeBtn.parentNode) {
+          const btn = document.createElement('button');
+          btn.className = 'a11y-toggle';
+          btn.setAttribute('data-vz-a11y-btn', '');
+          btn.setAttribute('onclick', 'VzA11y.toggle()');
+          btn.setAttribute('title', 'Accessibility settings (text size, contrast, motion)');
+          btn.setAttribute('aria-label', 'Accessibility settings');
+          btn.innerHTML = '<span style="font-size: 0.85rem; font-weight: 700;">Aa</span>';
+          themeBtn.parentNode.insertBefore(btn, themeBtn);
+        }
+      }
+    });
+
+    updateModalUI();
+  }
+
+  return { init, initDOM, open, close, toggle, applyMotion, applyTextSize, applyContrast };
+})();
+
+// ── Run immediately, NOT inside DOMContentLoaded ─────────────
+// This prevents flash-of-wrong-theme or wrong-a11y on every page load
+VzTheme.init();
+VzA11y.init();
+
+// ── Expose globally IMMEDIATELY ──────────────────────────────
 window.vzToggleTheme = function() { VzTheme.toggle(); };
+window.vzA11yToggleModal = function() { VzA11y.toggle(); };
+window.vzA11y = VzA11y;
 
 // ── MOBILE DRAWER NAVIGATION CONTROLLER ──────────────────────
 const VzNav = (() => {
@@ -243,6 +441,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize mobile navigation
   VzNav.init();
+
+  // Initialize accessibility controls and UI
+  VzA11y.initDOM();
 
   // Intersection Observer for .reveal elements
   const revealObserver = new IntersectionObserver(

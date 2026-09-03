@@ -17,7 +17,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.ad4fe4ec.css">
+  <link rel="stylesheet" href="assets/dist/app.fa935d0c.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -255,7 +255,8 @@
         <a id="nav-community" onclick="switchView('community')">Community</a>
         <a id="nav-tools" onclick="switchView('tools')">Care Tools</a>
         <a id="nav-profile" onclick="switchView('profile')">Profile</a>
-        <button class="theme-toggle" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+        <button class="theme-toggle" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">
           🌙
         </button>
       </nav>
@@ -277,7 +278,8 @@
         </button>
 
         <!-- Theme toggle (visible directly on mobile) -->
-        <button class="theme-toggle lg:hidden" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+        <button class="theme-toggle lg:hidden" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">
           🌙
         </button>
 
@@ -288,7 +290,9 @@
         </button>
 
         <!-- Mobile Drawer Toggle (☰ hamburger) -->
-        <button onclick="toggleMobileDrawer()" class="mobile-nav-toggle lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0" aria-label="Open Navigation Menu" title="Menu">
+        <button onclick="toggleMobileDrawer()"
+          class="mobile-nav-toggle lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0"
+          aria-label="Open Navigation Menu" title="Menu">
           <div class="hamburger-icon">
             <span></span>
             <span></span>
@@ -336,7 +340,8 @@
       </div>
 
       <div class="mobile-nav-footer">
-        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin: 0;">Your safe care space. Confidential & private.</p>
+        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin: 0;">Your safe care space.
+          Confidential & private.</p>
       </div>
     </div>
   </div>
@@ -909,7 +914,8 @@
           <a href="tools.html"
             class="block bg-surface border border-border hover:border-secondary/30 rounded-xl p-4 transition-all group">
             <i class="fa-solid fa-leaf text-secondary mb-2"></i>
-            <p class="text-sm font-semibold text-gray-100 group-hover:text-secondary transition-colors">Self-Care Tools</p>
+            <p class="text-sm font-semibold text-gray-100 group-hover:text-secondary transition-colors">Self-Care Tools
+            </p>
             <p class="text-xs text-muted mt-0.5">Exercises, breathing & grounding.</p>
           </a>
         </div>
@@ -1043,7 +1049,7 @@
   </footer>
 
   <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
-  <script src="assets/dist/app.fbb92857.js"></script>
+  <script src="assets/dist/app.54837a44.js"></script>
   <script>
     // ─── Auth Guard + Real Profile Init ───────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1061,7 +1067,7 @@
       // Load real profile from Supabase
       const profile = await VistarazAuth.getProfile(user.id);
       const displayName = (profile && (profile.nickname || profile.full_name)) ||
-                          user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
+        user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
       const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🦊';
       const plan = (profile && profile.plan) || 'Free';
       const joinYear = new Date(user.created_at || Date.now()).getFullYear();
