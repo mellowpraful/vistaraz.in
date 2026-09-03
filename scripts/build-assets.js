@@ -42,9 +42,12 @@ function build() {
       const destPath = path.join(DIST_DIR, hashedName);
 
       fs.copyFileSync(srcPath, destPath);
+      // Also write unhashed alias in dist for local fallback resilience
+      fs.copyFileSync(srcPath, path.join(DIST_DIR, file));
       const originalRel = `assets/css/${file}`;
       const hashedRel = `assets/dist/${hashedName}`;
       manifest[originalRel] = hashedRel;
+      manifest[`assets/dist/${file}`] = hashedRel;
       assetMappings.push({
         type: 'css',
         baseName: base,
@@ -69,9 +72,12 @@ function build() {
       const destPath = path.join(DIST_DIR, hashedName);
 
       fs.copyFileSync(srcPath, destPath);
+      // Also write unhashed alias in dist for local fallback resilience
+      fs.copyFileSync(srcPath, path.join(DIST_DIR, file));
       const originalRel = `assets/js/${file}`;
       const hashedRel = `assets/dist/${hashedName}`;
       manifest[originalRel] = hashedRel;
+      manifest[`assets/dist/${file}`] = hashedRel;
       assetMappings.push({
         type: 'js',
         baseName: base,

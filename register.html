@@ -134,7 +134,6 @@
         <a data-i="assessment" href="assessment.html">Check-in</a>
         <a data-i="support" href="support.html">Support</a>
         <a data-i="tools" href="tools.html">Tools</a>
-        <a data-i="plans" href="plans.html">Plans</a>
         <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
           aria-label="Switch Theme">🌙</button>
         <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
@@ -422,7 +421,7 @@
 
           <button type="submit" id="provider-submit-btn" class="button primary"
             style="width: 100%; background: var(--accent-secondary); color: #fff;">
-            <span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>
+            <span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>
           </button>
         </form>
       </div>
@@ -456,7 +455,7 @@
 
           <button type="submit" id="provider-login-btn" class="button primary"
             style="width: 100%; background: var(--accent-secondary); color: #fff;">
-            <span>Open Freelancer Panel</span>
+            <span>Open Listener Portal</span>
           </button>
         </form>
       </div>
@@ -504,7 +503,7 @@
         if (user) {
           const profile = await VistarazAuth.getProfile(user.id);
           if (profile && profile.role === 'counselor') {
-            window.location.replace('freelancer_panel.html');
+            window.location.replace('listener_portal.html');
           } else {
             window.location.replace('client_panel.html');
           }
@@ -670,7 +669,7 @@
         if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
         else alert(msg);
         btn.disabled = false;
-        btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+        btn.innerHTML = '<span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
       }
 
       if (errBox) errBox.style.display = 'none';
@@ -699,7 +698,7 @@
         if (error) { showErr(error.message); return; }
 
         if (data?.session) {
-          window.location.href = 'freelancer_panel.html';
+          window.location.href = 'listener_portal.html';
         } else {
           if (errBox) {
             errBox.style.background = 'rgba(76,217,100,0.12)';
@@ -708,7 +707,7 @@
             errBox.style.display = 'block';
           }
           btn.disabled = false;
-          btn.innerHTML = '<span>Launch Freelancer Panel <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+          btn.innerHTML = '<span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
         }
       } catch (err) {
         console.error('[handleProviderRegister]', err);
@@ -723,7 +722,7 @@
       const errBox = roleType === 'seeker' ? document.getElementById('seeker-login-error') : document.getElementById('provider-login-error');
       const resetBtn = () => {
         btn.disabled = false;
-        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Freelancer Panel</span>';
+        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Listener Portal</span>';
       };
 
       if (errBox) errBox.style.display = 'none';
@@ -754,7 +753,7 @@
         if (user) {
           const profile = await VistarazAuth.getProfile(user.id);
           if (profile && profile.role === 'counselor') {
-            window.location.href = 'freelancer_panel.html';
+            window.location.href = 'listener_portal.html';
           } else {
             window.location.href = 'client_panel.html';
           }

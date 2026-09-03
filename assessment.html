@@ -881,14 +881,14 @@
         });
       }
 
-      // Append to freelancer requests queue
+      // Append to listener requests queue
       let existingRequests = [];
       try {
-        existingRequests = JSON.parse(localStorage.getItem('vistaraz_freelancer_requests') || '[]');
+        existingRequests = JSON.parse(localStorage.getItem('vistaraz_listener_requests') || '[]');
       } catch (e) { console.warn(e); }
 
       existingRequests.unshift(assessmentProfile);
-      localStorage.setItem('vistaraz_freelancer_requests', JSON.stringify(existingRequests));
+      localStorage.setItem('vistaraz_listener_requests', JSON.stringify(existingRequests));
 
       // Display results
       document.getElementById('quizContainer').classList.add('hidden');

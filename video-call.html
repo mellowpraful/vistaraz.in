@@ -73,7 +73,7 @@
 <body
   class="bg-[#070b0e] text-gray-100 font-sans min-h-screen flex flex-col antialiased selection:bg-accent selection:text-black">
 
-  <!-- Connecting Overlay ("Connecting with freelancer...") -->
+  <!-- Connecting Overlay ("Connecting with your listener...") -->
   <div id="connectingOverlay"
     class="fixed inset-0 z-[300] bg-[#070b0e]/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center transition-all duration-500">
     <div class="relative w-24 h-24 mb-6 flex items-center justify-center">
@@ -87,7 +87,7 @@
     </div>
 
     <div class="space-y-2 max-w-sm">
-      <h2 class="text-xl font-bold text-gray-100 font-serif pt-1">Connecting with freelancer...</h2>
+      <h2 class="text-xl font-bold text-gray-100 font-serif pt-1">Connecting with your listener...</h2>
       <p class="text-xs text-muted">Establishing peer-to-peer HD video session and verifying microphone feed.</p>
     </div>
 
@@ -106,7 +106,7 @@
   <header
     class="site-header h-16 border-b border-border bg-[#0a0f12]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-50">
     <div class="flex items-center gap-3">
-      <a href="freelancer_panel.html" class="brand flex-shrink-0">
+      <a href="listener_portal.html" class="brand flex-shrink-0">
         <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-9 w-auto">
       </a>
       <div class="hidden sm:flex items-center gap-2 pl-3 border-l border-border text-xs text-muted">
@@ -127,7 +127,7 @@
         title="Switch Theme" aria-label="Switch Theme">
         🌙
       </button>
-      <a href="freelancer_panel.html"
+      <a href="listener_portal.html"
         class="hidden sm:inline-flex bg-surface hover:bg-white/10 border border-border text-muted hover:text-white px-3 py-1.5 rounded-lg transition-all text-xs font-semibold">
         Exit Room
       </a>
@@ -144,13 +144,13 @@
   <!-- Main Video Workspace -->
   <main class="flex-grow p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-4 max-w-7xl w-full mx-auto">
 
-    <!-- Primary Video Display (Remote Freelancer View & PIP Local Webcam) -->
+    <!-- Primary Video Display (Remote Listener View & PIP Local Webcam) -->
     <div class="lg:col-span-3 flex flex-col gap-4">
 
       <div
         class="relative bg-black rounded-3xl border border-border overflow-hidden w-full aspect-video flex items-center justify-center group shadow-2xl">
 
-        <!-- Remote Freelancer Live Digital Stream UI (No photos) -->
+        <!-- Remote Listener Live Digital Stream UI (No photos) -->
         <div class="w-full h-full bg-gradient-to-br from-[#0a141b] via-[#111e26] to-[#070c10] flex flex-col items-center justify-center relative p-6 text-center overflow-hidden">
           <!-- Background Ambient Glow Rings -->
           <div class="absolute w-72 h-72 rounded-full bg-accent/10 blur-3xl animate-pulse"></div>
@@ -441,7 +441,7 @@
         localStream.getTracks().forEach(track => track.stop());
       }
       if (timerInterval) clearInterval(timerInterval);
-      window.location.href = 'freelancer_panel.html';
+      window.location.href = 'listener_portal.html';
     }
   </script>
   <script src="assets/dist/app.fbb92857.js"></script>

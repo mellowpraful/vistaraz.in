@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Freelancer Panel | Vistaraz</title>
+  <title>Support Listener Portal | Vistaraz</title>
   <meta name="description"
     content="Vistaraz Care Support Provider Dashboard — manage your availability, incoming session requests, sessions, community, earnings, and provider profile.">
 
@@ -203,7 +203,7 @@
 <body class="font-sans min-h-screen flex flex-col antialiased text-[0.9rem]">
 
   <!-- ═══════════════════════════════════════════════════════════
-       SITE HEADER & PRIMARY FREELANCER NAVIGATION
+       SITE HEADER & LISTENER PORTAL NAVIGATION
   ═══════════════════════════════════════════════════════════ -->
   <header class="site-header">
     <div class="site-header-inner">
@@ -213,7 +213,7 @@
         <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
       </a>
 
-      <!-- Desktop Primary Freelancer Navigation (Strictly 7 Items) -->
+      <!-- Desktop Primary Listener Portal Navigation (7 Items) -->
       <nav class="site-nav hidden lg:flex">
         <a id="nav-home" onclick="switchView('home')" class="active">Home</a>
         <a id="nav-dashboard" onclick="switchView('dashboard')">Dashboard</a>
@@ -1251,7 +1251,7 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════
-         VIEW 5: COMMUNITY (Freelancer / Support Listener Hub ONLY)
+         VIEW 5: COMMUNITY (Support Listener Hub ONLY)
     ═══════════════════════════════════════════════════════════ -->
     <section id="view-community" class="hidden fade-in flex flex-col gap-6">
 
@@ -1930,7 +1930,7 @@
       }
 
       const nickname = (profile && profile.nickname) || user.user_metadata?.nickname || 'Provider';
-      const name = (profile && profile.full_name) || user.user_metadata?.full_name || 'Freelancer Provider';
+      const name = (profile && profile.full_name) || user.user_metadata?.full_name || 'Support Listener';
       const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🩺';
       const qualification = (profile && profile.qualification) || user.user_metadata?.qualification || 'Peer Listener';
       const languages = (profile && profile.languages) ? profile.languages.join(', ') : 'English';
