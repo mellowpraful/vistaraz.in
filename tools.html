@@ -6,17 +6,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Free tools — Vistaraz</title>
-<link rel="stylesheet" href="assets/dist/app.9583a193.css">
-
+  <title>Sanctuary Wellbeing Toolkit — Vistaraz</title>
+  <link rel="stylesheet" href="assets/dist/app.384cd03b.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+  <!-- Global Top Progress Bar -->
+  <div id="vzTopProgress" class="vz-top-progress" role="progressbar" aria-hidden="true"></div>
+
+  <!-- Header -->
   <header class="site-header">
     <div class="site-header-inner">
-      <a class="brand" href="index.html"><img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact"
-          height="44"></a>
+      <a class="brand" href="index.html">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
+      </a>
       <nav>
         <a data-i="home" href="index.html">Home</a>
         <a data-i="assessment" href="assessment.html">Check-in</a>
@@ -24,8 +28,8 @@
         <a class="active" data-i="tools" href="tools.html">Tools</a>
         <a data-i="community" href="community.html">Community</a>
         <a href="dashboard.html" class="button ghost vz-quick-access" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
-        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-          aria-label="Switch Theme">🌙</button>
+        <button class="a11y-toggle" id="a11yBtn" onclick="vzA11yToggleModal()" title="Accessibility Settings" aria-label="Accessibility Settings"><span style="font-size: 0.85rem; font-weight: 700;">Aa</span></button>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">🌙</button>
         <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
           <div class="hamburger-icon">
             <span></span>
@@ -37,88 +41,387 @@
     </div>
   </header>
 
-  <main style="padding-top: 30px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
-    <section class="section" style="text-align: center; padding-top: 0; padding-bottom: 30px;">
-      <span class="eyebrow">FREE, ALWAYS AVAILABLE</span>
-      <h1 style="font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 12px;">Small practices for<br><em>big moments.</em></h1>
-      <p style="margin: 0 auto;">Tools cannot replace human support, but one calm minute can still make a difference.
+  <main style="flex: 1; padding-top: 30px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
+    
+    <!-- Hero Section -->
+    <section class="section" style="text-align: center; padding-top: 0; padding-bottom: 24px;">
+      <span class="eyebrow" style="color: var(--teal-400);">FREE · INTERACTIVE · ALWAYS AVAILABLE</span>
+      <h1 style="font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 12px;">Small practices for<br><em>peaceful moments.</em></h1>
+      <p style="margin: 0 auto; max-width: 620px; color: var(--text-muted); font-size: 1.05rem;">
+        Evidence-based somatic exercises, ambient acoustic soundscapes, sensory grounding, and cognitive defusion to restore your calm.
       </p>
     </section>
 
-    <div class="grid-2 reveal">
-      <!-- Breathing Tool -->
-      <article class="glass-card"
-        style="display: flex; flex-direction: column; align-items: center; text-align: center; overflow: hidden; position: relative;">
-        <span class="eyebrow">60 SECOND RESET</span>
-        <h3 style="margin-bottom: 30px;">Box Breathing</h3>
-
-        <div
-          style="position: relative; width: 250px; height: 250px; display: grid; place-items: center; margin-bottom: 30px;">
-          <div class="orb orb-1"
-            style="width: 150px; height: 150px; filter: blur(40px); opacity: 0.6; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-          </div>
-          <div style="z-index: 10; font-family: var(--font-serif); font-size: 1.5rem; color: var(--text-main);">Breathe
-            In</div>
-          <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;"
-            viewBox="0 0 100 100">
-            <rect x="10" y="10" width="80" height="80" fill="none" stroke="var(--line)" stroke-width="2" rx="10" />
-            <rect x="10" y="10" width="80" height="80" fill="none" stroke="var(--accent-primary)" stroke-width="4"
-              rx="10" stroke-dasharray="320" stroke-dashoffset="320">
-              <!-- Animation logic would go here in actual JS implementation -->
-            </rect>
-          </svg>
+    <!-- Emergency Panic SOS Top Strip -->
+    <div style="background: linear-gradient(90deg, rgba(255, 107, 107, 0.12), rgba(251, 146, 60, 0.08)); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 16px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="fa-solid fa-heart-pulse" style="font-size: 1.4rem; color: var(--danger);"></i>
+        <div>
+          <strong style="color: var(--text-main); font-size: 0.95rem;">Experiencing Acute Panic or Overwhelm?</strong>
+          <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted);">Use our rapid 60-second vagus nerve reset to interrupt acute fight-or-flight.</p>
         </div>
-
-        <button class="button primary" style="width: 100%;">Start Exercise</button>
-      </article>
-
-      <!-- Grounding -->
-      <article class="glass-card" style="display: flex; flex-direction: column;">
-        <span class="eyebrow" style="color: var(--accent-secondary);">5-4-3-2-1 GROUNDING</span>
-        <h3 style="margin-bottom: 15px;">Come back to<br><em>this moment.</em></h3>
-        <p style="font-size: 0.95rem; flex: 1;">Quietly name things around you to anchor yourself in the present.</p>
-
-        <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
-          <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <div
-              style="width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.1); display: grid; place-items: center; font-size: 0.75rem;">
-              5</div> Things you see
-          </li>
-          <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <div
-              style="width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.1); display: grid; place-items: center; font-size: 0.75rem;">
-              4</div> Things you can feel
-          </li>
-          <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-            <div
-              style="width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.1); display: grid; place-items: center; font-size: 0.75rem;">
-              3</div> Things you hear
-          </li>
-        </ul>
-        <button class="button ghost" style="width: 100%;">View Full Guide</button>
-      </article>
-
-      <!-- Journaling -->
-      <article class="glass-card" style="grid-column: 1 / -1;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <span class="eyebrow" style="color: var(--success);">PRIVATE REFLECTION</span>
-            <h3 style="margin: 0;">What is taking up space today?</h3>
-          </div>
-          <i class="fas fa-lock" style="color: var(--text-muted);" title="Saves locally"></i>
-        </div>
-
-        <textarea placeholder="No need to make it neat. This stays encrypted on your device."
-          style="height: 150px; margin-bottom: 20px; resize: vertical; background: rgba(0,0,0,0.2);"></textarea>
-
-          <div style="display: flex; justify-content: flex-end;">
-            <button class="button primary">Save Privately</button>
-          </div>
-      </article>
+      </div>
+      <button onclick="VzPanicSOS.openModal()" class="button" style="background: var(--danger); color: #fff; padding: 8px 18px; font-size: 0.85rem; border-radius: 8px; font-weight: 600;">
+        <i class="fa-solid fa-bolt" style="margin-right: 6px;"></i> 60s Panic SOS
+      </button>
     </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="vz-tool-filters" role="tablist">
+      <button class="vz-filter-btn active" onclick="vzFilterTools('all', this)"><i class="fa-solid fa-border-all"></i> All Tools</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('breath', this)"><i class="fa-solid fa-lungs"></i> Breathing Studio</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('audio', this)"><i class="fa-solid fa-water"></i> Ambient Soundscapes</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('ground', this)"><i class="fa-solid fa-compass"></i> Sensory Grounding</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('worry', this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Thought Defusion</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('somatic', this)"><i class="fa-solid fa-person"></i> Somatic Body Scan</button>
+      <button class="vz-filter-btn" onclick="vzFilterTools('journal', this)"><i class="fa-solid fa-book-bookmark"></i> Sanctuary Journal</button>
+    </div>
+
+    <!-- Tools Grid -->
+    <div class="grid-2 reveal" style="align-items: start; gap: 24px; margin-bottom: 50px;">
+      
+      <!-- 1. LIVE BREATHING STUDIO -->
+      <article class="glass-card vz-breath-studio" data-tool-cat="breath">
+        <span class="eyebrow" style="color: var(--teal-400);">AUTONOMIC NERVOUS SYSTEM REGULATOR</span>
+        <h3 style="margin-bottom: 6px; font-size: 1.4rem;">Breathing Sanctuary</h3>
+        <p id="vzBreathDesc" style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 18px; max-width: 440px;">
+          Navy SEAL grounding technique to stabilize autonomic nervous system
+        </p>
+
+        <!-- Pattern Switcher -->
+        <div class="vz-pattern-pills">
+          <button class="vz-pattern-btn active" data-pattern="box" onclick="VzBreathingStudio.setPattern('box')">Box (4-4-4-4)</button>
+          <button class="vz-pattern-btn" data-pattern="relax478" onclick="VzBreathingStudio.setPattern('relax478')">Sleep (4-7-8)</button>
+          <button class="vz-pattern-btn" data-pattern="coherence" onclick="VzBreathingStudio.setPattern('coherence')">Coherence (5.5s)</button>
+          <button class="vz-pattern-btn" data-pattern="panicReset" onclick="VzBreathingStudio.setPattern('panicReset')">Panic Reset</button>
+        </div>
+
+        <!-- Orb Visualizer -->
+        <div class="vz-orb-stage">
+          <div class="vz-breath-orb-ring"></div>
+          <div id="vzBreathOrb" class="vz-breath-orb"></div>
+          <div class="vz-breath-center-content">
+            <span id="vzPhaseText" class="vz-breath-phase-text">Inhale Slowly</span>
+            <span id="vzTimerVal" class="vz-breath-timer-val">4s</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div style="display: flex; gap: 10px; width: 100%; max-width: 320px;">
+          <button id="vzBreathStartBtn" onclick="VzBreathingStudio.toggle()" class="button primary" style="flex: 1; padding: 10px;">
+            <i class="fa-solid fa-play" style="margin-right: 8px;"></i> Start Exercise
+          </button>
+          <button onclick="VzBreathingStudio.stop()" class="button ghost" style="padding: 10px 14px;" title="Reset">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="vz-breath-stats">
+          <span>Cycles: <strong id="vzBreathCycles">0</strong></span>
+          <span>Time: <strong id="vzBreathTotalTime">0:00</strong></span>
+        </div>
+      </article>
+
+      <!-- 2. NATIVE WEB AUDIO AMBIENT SOUNDSCAPES -->
+      <article class="glass-card" data-tool-cat="audio" style="display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span class="eyebrow" style="color: var(--purple-400);">ORGANIC SYNTHESIZER · ZERO BUFFERING</span>
+            <h3 style="margin: 0; font-size: 1.4rem;">Acoustic Soundscapes</h3>
+          </div>
+          <button onclick="VzSoundscapeSynth.stopAll()" class="button ghost" style="padding: 4px 10px; font-size: 0.75rem;" title="Mute all sounds">
+            <i class="fa-solid fa-volume-xmark" style="margin-right: 4px;"></i> Mute All
+          </button>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 8px 0 14px 0;">
+          Generative therapeutic frequencies and nature textures synthesized directly in your browser. Mix multiple sounds together.
+        </p>
+
+        <!-- Sound Mixer Grid -->
+        <div class="vz-soundscape-grid">
+          
+          <!-- Rain -->
+          <div class="vz-sound-card" id="card-rain">
+            <div class="vz-sound-card-header">
+              <div class="vz-sound-icon"><i class="fa-solid fa-cloud-rain"></i></div>
+              <button class="vz-sound-play-toggle" onclick="VzSoundscapeSynth.toggleSound('rain')">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+            <span style="font-weight: 600; font-size: 0.9rem;">Gentle Rain</span>
+            <input type="range" class="vz-vol-slider" id="vol-rain" min="0" max="1" step="0.05" value="0.6" oninput="VzSoundscapeSynth.setVolume('rain', this.value)">
+          </div>
+
+          <!-- Waves -->
+          <div class="vz-sound-card" id="card-waves">
+            <div class="vz-sound-card-header">
+              <div class="vz-sound-icon"><i class="fa-solid fa-water"></i></div>
+              <button class="vz-sound-play-toggle" onclick="VzSoundscapeSynth.toggleSound('waves')">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+            <span style="font-weight: 600; font-size: 0.9rem;">Ocean Tide</span>
+            <input type="range" class="vz-vol-slider" id="vol-waves" min="0" max="1" step="0.05" value="0.6" oninput="VzSoundscapeSynth.setVolume('waves', this.value)">
+          </div>
+
+          <!-- 432Hz Om Drone -->
+          <div class="vz-sound-card" id="card-drone">
+            <div class="vz-sound-card-header">
+              <div class="vz-sound-icon"><i class="fa-solid fa-om"></i></div>
+              <button class="vz-sound-play-toggle" onclick="VzSoundscapeSynth.toggleSound('drone')">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+            <span style="font-weight: 600; font-size: 0.9rem;">432Hz Sanctuary</span>
+            <input type="range" class="vz-vol-slider" id="vol-drone" min="0" max="1" step="0.05" value="0.5" oninput="VzSoundscapeSynth.setVolume('drone', this.value)">
+          </div>
+
+          <!-- Fireplace -->
+          <div class="vz-sound-card" id="card-fire">
+            <div class="vz-sound-card-header">
+              <div class="vz-sound-icon"><i class="fa-solid fa-fire"></i></div>
+              <button class="vz-sound-play-toggle" onclick="VzSoundscapeSynth.toggleSound('fire')">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+            <span style="font-weight: 600; font-size: 0.9rem;">Hearth Flame</span>
+            <input type="range" class="vz-vol-slider" id="vol-fire" min="0" max="1" step="0.05" value="0.5" oninput="VzSoundscapeSynth.setVolume('fire', this.value)">
+          </div>
+
+        </div>
+
+        <!-- Sleep Timer -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i> Sleep Timer:</span>
+          <button class="vz-pattern-btn vz-timer-pill" id="timer-5" onclick="VzSoundscapeSynth.setSleepTimer(5)">5m</button>
+          <button class="vz-pattern-btn vz-timer-pill" id="timer-15" onclick="VzSoundscapeSynth.setSleepTimer(15)">15m</button>
+          <button class="vz-pattern-btn vz-timer-pill" id="timer-30" onclick="VzSoundscapeSynth.setSleepTimer(30)">30m</button>
+          <button class="vz-pattern-btn vz-timer-pill" onclick="VzSoundscapeSynth.setSleepTimer(0)">Off</button>
+        </div>
+      </article>
+
+      <!-- 3. THOUGHT DEFUSION & WORRY SHREDDER -->
+      <article class="glass-card" data-tool-cat="worry" style="display: flex; flex-direction: column;">
+        <span class="eyebrow" style="color: var(--accent-coral);">COGNITIVE DEFUSION & LETTING GO</span>
+        <h3 style="margin-bottom: 8px; font-size: 1.4rem;">Worry Vessel & Release</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+          Type anything taking up heavy space in your mind. Release it into stardust and watch your burden dissolve.
+        </p>
+
+        <div class="vz-worry-container">
+          <textarea id="vzWorryText" class="vz-worry-input" placeholder="Write down any heavy thought, anxiety, self-doubt, or ruminating thought…"></textarea>
+          <canvas id="vzWorryCanvas" class="vz-particle-canvas" style="display: none;"></canvas>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+          <button onclick="VzWorryShredder.releaseWorry('stardust')" class="button primary" style="flex: 1; padding: 10px 16px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 6px;"></i> Dissolve into Stardust
+          </button>
+          <button onclick="VzWorryShredder.releaseWorry('ash')" class="button ghost" style="padding: 10px 16px;">
+            <i class="fa-solid fa-fire-flame-curved" style="margin-right: 6px;"></i> Burn Cleanly
+          </button>
+        </div>
+
+        <div id="vzWorryReframe" class="vz-reframing-card">
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <i class="fa-solid fa-sparkles" style="color: var(--purple-400); font-size: 1.2rem; margin-top: 2px;"></i>
+            <div>
+              <strong style="color: var(--text-main); font-size: 0.9rem;">Mindful Truth:</strong>
+              <p id="vzWorryReframeMsg" style="margin: 4px 0 0 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;"></p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. 5-4-3-2-1 SENSORY GROUNDING JOURNEY -->
+      <article class="glass-card" id="vzGroundingCard" data-tool-cat="ground" style="display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <span class="eyebrow" id="vzGroundingBadge" style="color: var(--success);">Step 1 of 5 · Sight</span>
+            <h3 id="vzGroundingTitle" style="margin: 4px 0 8px 0; font-size: 1.4rem;">5 Things You Can SEE</h3>
+          </div>
+          <span style="font-size: 1.5rem; color: var(--success);"><i class="fa-solid fa-compass"></i></span>
+        </div>
+
+        <div class="vz-grounding-progress">
+          <div id="vzGroundingProgressBar" class="vz-grounding-progress-bar"></div>
+        </div>
+
+        <p id="vzGroundingDesc" style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 10px 0;">
+          Look around your room or space. Notice five specific visual items or details.
+        </p>
+
+        <!-- Dynamic Sensory Items Chips -->
+        <div id="vzGroundingChips" class="vz-sensory-chips"></div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line);">
+          <button id="vzGroundingPrevBtn" onclick="VzGroundingWizard.prev()" class="button ghost" style="padding: 8px 18px; visibility: hidden;">
+            <i class="fa-solid fa-arrow-left" style="margin-right: 6px;"></i> Back
+          </button>
+          <button id="vzGroundingNextBtn" onclick="VzGroundingWizard.next()" class="button primary" style="padding: 8px 22px;">
+            Next Step <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
+          </button>
+        </div>
+      </article>
+
+      <!-- 5. SOMATIC BODY SCAN & MUSCLE TENSION RELEASE -->
+      <article class="glass-card" data-tool-cat="somatic" style="display: flex; flex-direction: column;">
+        <span class="eyebrow" style="color: var(--teal-400);">PROGRESSIVE MUSCLE RELAXATION (PMR)</span>
+        <h3 style="margin-bottom: 6px; font-size: 1.4rem;">Somatic Tension Release</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+          Discharge physical stress and cortisol by tensing target muscle zones for 5s, then softening completely.
+        </p>
+
+        <!-- Body Zones -->
+        <div class="vz-body-zones-grid">
+          <button class="vz-body-zone-btn active" onclick="VzBodyScan.selectZone(0)">
+            <i class="fa-regular fa-face-smile"></i>
+            <span>Face & Jaw</span>
+          </button>
+          <button class="vz-body-zone-btn" onclick="VzBodyScan.selectZone(1)">
+            <i class="fa-solid fa-arrows-up-down"></i>
+            <span>Shoulders</span>
+          </button>
+          <button class="vz-body-zone-btn" onclick="VzBodyScan.selectZone(2)">
+            <i class="fa-solid fa-lungs"></i>
+            <span>Chest</span>
+          </button>
+          <button class="vz-body-zone-btn" onclick="VzBodyScan.selectZone(3)">
+            <i class="fa-solid fa-hand"></i>
+            <span>Hands & Arms</span>
+          </button>
+          <button class="vz-body-zone-btn" onclick="VzBodyScan.selectZone(4)">
+            <i class="fa-solid fa-circle-dot"></i>
+            <span>Abdomen</span>
+          </button>
+          <button class="vz-body-zone-btn" onclick="VzBodyScan.selectZone(5)">
+            <i class="fa-solid fa-shoe-prints"></i>
+            <span>Legs & Feet</span>
+          </button>
+        </div>
+
+        <!-- Zone Guidance Box -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
+          <h4 id="vzBodyZoneTitle" style="margin: 0 0 6px 0; font-size: 1.05rem; color: var(--text-main);">Face, Forehead & Jaw</h4>
+          <p id="vzBodyZoneTip" style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+            Unclench your teeth, soften your eyebrow ridge, drop tongue from roof of mouth.
+          </p>
+          <p id="vzBodyStatusText" style="margin: 10px 0 0 0; font-size: 0.85rem; font-weight: 600; color: var(--teal-300);"></p>
+        </div>
+
+        <button id="vzBodyActionBtn" onclick="VzBodyScan.startTensionRelease()" class="button primary" style="width: 100%; padding: 10px;">
+          Start 5s Tension & Release
+        </button>
+      </article>
+
+      <!-- 6. PRIVATE ENCRYPTED SANCTUARY JOURNAL -->
+      <article class="glass-card" data-tool-cat="journal" style="display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <span class="eyebrow" style="color: var(--success);">100% PRIVATE · ENCRYPTED LOCAL STORAGE</span>
+            <h3 style="margin: 0; font-size: 1.4rem;">Private Reflection Journal</h3>
+          </div>
+          <button onclick="VzSanctuaryJournal.exportEntries()" class="button ghost" style="padding: 4px 10px; font-size: 0.75rem;" title="Export Entries">
+            <i class="fa-solid fa-download" style="margin-right: 4px;"></i> Export
+          </button>
+        </div>
+
+        <!-- Mood Rating Bar -->
+        <div style="margin: 10px 0;">
+          <span style="font-size: 0.82rem; color: var(--text-muted);">How does your energy feel right now? (1 = Exhausted, 10 = Flourishing)</span>
+          <div class="vz-mood-scale">
+            <button class="vz-mood-btn" data-score="1" onclick="VzSanctuaryJournal.setMood(1)">1</button>
+            <button class="vz-mood-btn" data-score="2" onclick="VzSanctuaryJournal.setMood(2)">2</button>
+            <button class="vz-mood-btn" data-score="3" onclick="VzSanctuaryJournal.setMood(3)">3</button>
+            <button class="vz-mood-btn" data-score="4" onclick="VzSanctuaryJournal.setMood(4)">4</button>
+            <button class="vz-mood-btn" data-score="5" onclick="VzSanctuaryJournal.setMood(5)">5</button>
+            <button class="vz-mood-btn" data-score="6" onclick="VzSanctuaryJournal.setMood(6)">6</button>
+            <button class="vz-mood-btn selected" data-score="7" onclick="VzSanctuaryJournal.setMood(7)">7</button>
+            <button class="vz-mood-btn" data-score="8" onclick="VzSanctuaryJournal.setMood(8)">8</button>
+            <button class="vz-mood-btn" data-score="9" onclick="VzSanctuaryJournal.setMood(9)">9</button>
+            <button class="vz-mood-btn" data-score="10" onclick="VzSanctuaryJournal.setMood(10)">10</button>
+          </div>
+        </div>
+
+        <!-- Prompt Generator -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(34, 211, 238, 0.06); border: 1px dashed rgba(34, 211, 238, 0.3); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <i class="fa-solid fa-lightbulb" style="color: var(--teal-400);"></i>
+            <span id="vzJournalPromptText" style="font-size: 0.85rem; color: var(--text-main); font-style: italic;">What is taking up emotional space in your heart today?</span>
+          </div>
+          <button onclick="VzSanctuaryJournal.randomPrompt()" style="background: none; border: none; color: var(--teal-400); cursor: pointer; padding: 4px 8px; font-size: 0.85rem;" title="New Prompt">
+            <i class="fa-solid fa-shuffle"></i>
+          </button>
+        </div>
+
+        <!-- Editor -->
+        <textarea id="vzJournalText" placeholder="Write freely. Your words never leave this device and are stored in safe privacy." style="height: 110px; margin-bottom: 12px; resize: vertical; background: rgba(0,0,0,0.25); border-radius: 12px; padding: 14px; box-sizing: border-box;"></textarea>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span id="vzJournalSavedBadge" style="display: none; font-size: 0.82rem; color: var(--success);">
+            <i class="fa-solid fa-check"></i> Saved privately to device
+          </span>
+          <button onclick="VzSanctuaryJournal.saveEntry()" class="button primary" style="margin-left: auto; padding: 8px 20px;">
+            Save Reflection
+          </button>
+        </div>
+
+        <!-- Recent Entries Log -->
+        <div style="margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px;">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">RECENT REFLECTIONS</span>
+          <div id="vzJournalList" style="margin-top: 8px;"></div>
+        </div>
+      </article>
+
+    </div>
+
   </main>
 
+  <!-- 7. PANIC SOS 60s MODAL -->
+  <div id="vzPanicModal" class="vz-panic-modal-backdrop" onclick="if(event.target === this) VzPanicSOS.closeModal()">
+    <div class="vz-panic-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <span class="eyebrow" style="color: var(--danger); margin: 0;">ACUTE ANXIETY & PANIC INTERRUPTER</span>
+        <button onclick="VzPanicSOS.closeModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+      </div>
+      <h2 style="margin: 0 0 10px 0; font-size: 1.6rem; color: var(--text-main);">You are safe. Take this breath.</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
+        Follow this physiological sigh proven by Stanford neuroscience to immediately decrease autonomic arousal:
+      </p>
+
+      <div style="background: rgba(255, 107, 107, 0.08); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left;">
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--danger); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">1</div>
+          <p style="margin: 0; font-size: 0.92rem; color: var(--text-main);"><strong>Take two deep inhales through your nose:</strong> one deep breath, then a second top-off breath to pop open alveoli.</p>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--danger); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">2</div>
+          <p style="margin: 0; font-size: 0.92rem; color: var(--text-main);"><strong>Exhale slowly through your mouth:</strong> make the exhale twice as long as the inhale, emptying lungs completely.</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--danger); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">3</div>
+          <p style="margin: 0; font-size: 0.92rem; color: var(--text-main);"><strong>Cold Water Reset:</strong> splash cold water on your temples and cheeks to trigger mammalian dive reflex.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button onclick="VzPanicSOS.closeModal()" class="button primary" style="padding: 10px 24px;">
+          I Feel Calmer Now
+        </button>
+        <a href="safety.html" class="button" style="background: var(--danger); color: #fff; padding: 10px 20px;">
+          <i class="fa-solid fa-phone-volume" style="margin-right: 6px;"></i> 24/7 Crisis Helplines
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top: auto; width: 100%; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--glass-border);">
+    <p style="margin: 0;">© 2026 Vistaraz · Innovate · Heal · Impact. Safe, Private Mental Well-being.</p>
+  </footer>
+
   <script src="assets/dist/app.f302ef53.js"></script>
+  <script src="assets/dist/tools.30324a52.js"></script>
 </body>
 
 </html>

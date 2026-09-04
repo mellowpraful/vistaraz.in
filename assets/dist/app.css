@@ -1924,4 +1924,470 @@ html:not([data-theme="dark"]) .vz-network-online {
   cursor: pointer;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   7. INTERACTIVE WELLNESS TOOLKIT SUITE (tools.html)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Category Filter Tabs ── */
+.vz-tool-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 4px 16px 4px;
+  margin-bottom: 28px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.vz-tool-filters::-webkit-scrollbar { display: none; }
+
+.vz-filter-btn {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--line);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.vz-filter-btn:hover {
+  color: var(--text-main);
+  border-color: var(--accent-primary);
+  background: rgba(34, 211, 238, 0.08);
+}
+.vz-filter-btn.active {
+  background: var(--teal-400);
+  color: #041017;
+  border-color: var(--teal-400);
+  font-weight: 600;
+  box-shadow: 0 4px 16px var(--glow-teal);
+}
+
+/* ── Interactive Breathing Studio ── */
+.vz-breath-studio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vz-pattern-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.vz-pattern-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.vz-pattern-btn:hover {
+  color: var(--text-main);
+  border-color: var(--teal-400);
+}
+.vz-pattern-btn.active {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: var(--teal-400);
+  color: var(--teal-300);
+  font-weight: 600;
+}
+
+.vz-orb-stage {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: grid;
+  place-items: center;
+  margin: 16px 0 28px 0;
+}
+
+.vz-breath-orb {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.85) 0%, rgba(167, 139, 250, 0.4) 60%, rgba(34, 211, 238, 0) 80%);
+  filter: blur(12px);
+  transform: scale(1);
+  transition: transform 1s ease-in-out, background 1s ease;
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.35);
+}
+
+.vz-breath-orb-ring {
+  position: absolute;
+  inset: 15px;
+  border: 2px dashed rgba(34, 211, 238, 0.25);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.5s ease;
+}
+
+.vz-breath-center-content {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.vz-breath-phase-text {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.vz-breath-timer-val {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--teal-300);
+}
+
+.vz-breath-stats {
+  display: flex;
+  gap: 24px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 14px;
+}
+.vz-breath-stats strong {
+  color: var(--text-main);
+}
+
+/* ── Soundscape Synth Studio ── */
+.vz-soundscape-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.vz-sound-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s ease;
+}
+.vz-sound-card.playing {
+  border-color: var(--teal-400);
+  background: rgba(34, 211, 238, 0.06);
+  box-shadow: 0 8px 24px var(--glow-teal);
+}
+
+.vz-sound-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vz-sound-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  color: var(--teal-400);
+  transition: all 0.2s ease;
+}
+.vz-sound-card.playing .vz-sound-icon {
+  background: var(--teal-400);
+  color: #041017;
+}
+
+.vz-sound-play-toggle {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.vz-sound-play-toggle:hover {
+  border-color: var(--teal-400);
+  color: var(--text-main);
+}
+.vz-sound-card.playing .vz-sound-play-toggle {
+  background: var(--teal-400);
+  border-color: var(--teal-400);
+  color: #041017;
+}
+
+.vz-vol-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  outline: none;
+  transition: background 0.2s;
+}
+.vz-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--teal-400);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--glow-teal);
+}
+
+/* ── Thought Defusion Worry Shredder ── */
+.vz-worry-container {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.vz-worry-input {
+  width: 100%;
+  height: 130px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.25s ease;
+}
+.vz-worry-input:focus {
+  outline: none;
+  border-color: var(--purple-400);
+  box-shadow: 0 0 16px var(--glow-purple);
+}
+
+.vz-particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.vz-reframing-card {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  display: none;
+  animation: vzFadeInUp 0.4s ease forwards;
+}
+
+/* ── 5-4-3-2-1 Sensory Grounding Wizard ── */
+.vz-grounding-step-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px;
+  margin-top: 18px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.vz-sensory-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.vz-sensory-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.vz-sensory-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+.vz-sensory-chip.checked {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 500;
+}
+
+.vz-grounding-progress {
+  height: 6px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.vz-grounding-progress-bar {
+  height: 100%;
+  width: 20%;
+  background: linear-gradient(90deg, var(--teal-400), var(--purple-400));
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Somatic Body Scan ── */
+.vz-body-zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.vz-body-zone-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.vz-body-zone-btn:hover {
+  border-color: var(--teal-400);
+  color: var(--text-main);
+}
+.vz-body-zone-btn.active {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: var(--teal-400);
+  color: var(--teal-300);
+  font-weight: 600;
+  box-shadow: 0 4px 14px var(--glow-teal);
+}
+.vz-body-zone-btn.completed {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+/* ── Private Sanctuary Journal ── */
+.vz-mood-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 12px 0 20px 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.vz-mood-btn {
+  flex: 1;
+  min-width: 32px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+.vz-mood-btn:hover {
+  border-color: var(--teal-400);
+  color: var(--text-main);
+}
+.vz-mood-btn.selected {
+  background: var(--teal-400);
+  color: #041017;
+  border-color: var(--teal-400);
+  box-shadow: 0 2px 10px var(--glow-teal);
+}
+
+.vz-journal-entry-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── 60-Second Panic SOS Reset Modal ── */
+.vz-panic-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(4, 9, 13, 0.88);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+.vz-panic-modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.vz-panic-modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 24px;
+  padding: 30px 24px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes vzFadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
 

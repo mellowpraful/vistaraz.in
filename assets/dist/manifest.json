@@ -1,10 +1,12 @@
 {
-  "assets/css/app.css": "assets/dist/app.9583a193.css",
-  "assets/dist/app.css": "assets/dist/app.9583a193.css",
+  "assets/css/app.css": "assets/dist/app.384cd03b.css",
+  "assets/dist/app.css": "assets/dist/app.384cd03b.css",
   "assets/js/api.js": "assets/dist/api.c064a5b3.js",
   "assets/dist/api.js": "assets/dist/api.c064a5b3.js",
   "assets/js/app.js": "assets/dist/app.f302ef53.js",
   "assets/dist/app.js": "assets/dist/app.f302ef53.js",
+  "assets/js/tools.js": "assets/dist/tools.30324a52.js",
+  "assets/dist/tools.js": "assets/dist/tools.30324a52.js",
   "assets/logo.png": "assets/dist/logo.54836105.png",
   "assets/logo.svg": "assets/dist/logo.54836105.png"
 }

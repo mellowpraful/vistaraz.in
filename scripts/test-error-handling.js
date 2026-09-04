@@ -86,6 +86,21 @@ async function runTests() {
     assert(apiContent.includes('normalizeApiError'), 'API JS contains normalizeApiError');
     assert(apiContent.includes('executeResilient'), 'API JS contains executeResilient');
 
+    // Test 7: Interactive tools suite
+    const resTools = await request('/tools.html');
+    assert(resTools.statusCode === 200, 'tools.html returns HTTP 200');
+    assert(resTools.body.includes('Breathing Sanctuary') && resTools.body.includes('Acoustic Soundscapes'), 'tools.html contains interactive tool sections');
+    const toolsFiles = fs.readdirSync(distDir).filter(f => f.startsWith('tools.') && f.endsWith('.js'));
+    assert(toolsFiles.length > 0, 'Hashed tools JS exists in assets/dist');
+    const toolsContent = fs.readFileSync(path.join(distDir, toolsFiles[0]), 'utf8');
+    assert(toolsContent.includes('VzBreathingStudio'), 'tools.js contains VzBreathingStudio');
+    assert(toolsContent.includes('VzSoundscapeSynth'), 'tools.js contains VzSoundscapeSynth');
+    assert(toolsContent.includes('VzWorryShredder'), 'tools.js contains VzWorryShredder');
+    assert(toolsContent.includes('VzGroundingWizard'), 'tools.js contains VzGroundingWizard');
+    assert(toolsContent.includes('VzBodyScan'), 'tools.js contains VzBodyScan');
+    assert(toolsContent.includes('VzSanctuaryJournal'), 'tools.js contains VzSanctuaryJournal');
+    assert(toolsContent.includes('VzPanicSOS'), 'tools.js contains VzPanicSOS');
+
     console.log(`\n📊 Results: ${passed} passed, ${failed} failed`);
   } catch (err) {
     console.error('Test run failed unexpectedly:', err);
