@@ -2,9 +2,7 @@
    VISTARAZ DESIGN SYSTEM — Unified CSS
    Supports: Light (default) and Dark themes via [data-theme="dark"]
    ═══════════════════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap');
-
+/* Fonts are loaded non-blocking via preconnected HTML link tags in <head> */
 /* ── SANCTUARY DESIGN SYSTEM (Default: Midnight Teal Base) ── */
 :root,
 [data-theme="dark"] {
@@ -512,13 +510,14 @@ nav a:hover::after, nav a.active::after,
   -webkit-backdrop-filter: blur(24px);
   border-left: 1px solid var(--line);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
-  padding: 22px;
+  padding: max(22px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom)) 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transform: translateX(100%);
   transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 }
 
@@ -1333,6 +1332,21 @@ input:focus, textarea:focus, select:focus {
 
 /* ── MOBILE RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 860px) {
+  body {
+    background-attachment: scroll !important; /* Huge mobile scroll performance boost */
+  }
+
+  /* Prevent iOS automatic page zooming on form focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  /* Prevent accidental media overflow */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
   .site-header {
     padding: 12px 20px;
   }
@@ -1347,18 +1361,26 @@ input:focus, textarea:focus, select:focus {
   .mobile-nav-toggle,
   [data-vz-drawer-toggle] {
     display: inline-flex !important;
+    min-height: 44px;
+    min-width: 44px;
+    align-items: center;
+    justify-content: center;
   }
 
   .theme-toggle,
   [data-vz-theme-btn] {
     display: inline-flex !important;
+    min-height: 44px;
+    min-width: 44px;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero {
     flex-direction: column;
     text-align: center;
-    padding: 40px 0;
-    gap: 36px;
+    padding: 36px 0;
+    gap: 32px;
     min-height: auto;
   }
 
@@ -1373,10 +1395,11 @@ input:focus, textarea:focus, select:focus {
     width: 100%;
     justify-content: center;
     box-sizing: border-box;
+    min-height: 48px;
   }
 
   .hero-art {
-    height: 240px;
+    height: 220px;
     width: 100%;
   }
 
@@ -1387,16 +1410,16 @@ input:focus, textarea:focus, select:focus {
   .grid-2,
   .grid-3 {
     grid-template-columns: 1fr !important;
-    gap: 20px;
+    gap: 18px;
   }
 
   .community-layout {
     grid-template-columns: 1fr !important;
-    gap: 24px !important;
+    gap: 20px !important;
   }
 
   .glass-card {
-    padding: 20px;
+    padding: 20px 16px;
     border-radius: 16px;
   }
 
@@ -1418,7 +1441,7 @@ input:focus, textarea:focus, select:focus {
   }
 
   .msg {
-    max-width: 86%;
+    max-width: 88%;
   }
 
   .site-footer {
@@ -1426,7 +1449,7 @@ input:focus, textarea:focus, select:focus {
     flex-direction: column;
     gap: 24px;
     align-items: flex-start;
-    margin-top: 60px;
+    margin-top: 50px;
   }
 
   /* Modals & Popups */
@@ -1453,40 +1476,64 @@ input:focus, textarea:focus, select:focus {
   .brand img {
     height: 36px;
     max-height: 36px;
+    width: auto;
   }
 
   h1 {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 7vw, 2.2rem) !important;
     line-height: 1.2;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   h2 {
-    font-size: 1.6rem;
+    font-size: clamp(1.4rem, 5.5vw, 1.7rem) !important;
     line-height: 1.25;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .theme-toggle,
   [data-vz-theme-btn] {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    min-height: 34px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
     font-size: 0.95rem;
   }
 
   .mobile-nav-toggle,
   [data-vz-drawer-toggle] {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
   }
 
   .vz-quick-access {
     font-size: 0.75rem !important;
     padding: 6px 10px !important;
+  }
+
+  .glass-card, .auth-card {
+    padding: 18px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .role-card-btn {
+    padding: 16px 14px !important;
+  }
+
+  .sub-profile-tab {
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .avatar-grid {
+    gap: 8px !important;
+  }
+
+  .mood-btn {
+    padding: 8px 4px !important;
+    font-size: 0.72rem !important;
   }
 }
 

@@ -124,7 +124,7 @@ const VistarazAuth = {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       if (error) {
         console.error('[VistarazAuth.getProfile]', error);
         return null;

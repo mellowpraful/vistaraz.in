@@ -3,19 +3,30 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Get Started — Vistaraz Portal</title>
-  <link rel="stylesheet" href="assets/dist/app.fa935d0c.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dist/app.d45814be.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    .auth-form-card {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: clamp(18px, 4.5vw, 35px);
+      border-radius: 20px;
+      box-sizing: border-box;
+    }
+
     .role-card-btn {
       cursor: pointer;
       border: 2px solid var(--line);
       background: rgba(255, 255, 255, 0.03);
       border-radius: 16px;
-      padding: 24px;
+      padding: 22px 18px;
       text-align: left;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -219,7 +230,7 @@
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- SECTION A: "I NEED HELP" (Seeker) Form Container             -->
     <!-- ══════════════════════════════════════════════════════════════ -->
-    <div id="seeker-auth-container" class="glass-card reveal" style="max-width: 600px; margin: 0 auto; padding: 35px;">
+    <div id="seeker-auth-container" class="glass-card auth-form-card reveal">
 
       <!-- Seeker Register Mode -->
       <div id="seeker-register-box">
@@ -351,8 +362,8 @@
     <!-- ══════════════════════════════════════════════════════════════ -->
     <!-- SECTION B: "I WANT TO HELP" (Provider / Counselor) Container   -->
     <!-- ══════════════════════════════════════════════════════════════ -->
-    <div id="provider-auth-container" class="glass-card reveal"
-      style="display: none; max-width: 600px; margin: 0 auto; padding: 35px; border-color: rgba(167, 139, 250, 0.2);">
+    <div id="provider-auth-container" class="glass-card auth-form-card reveal"
+      style="display: none; border-color: rgba(167, 139, 250, 0.2);">
 
       <!-- Provider Register Mode -->
       <div id="provider-register-box">
@@ -370,7 +381,7 @@
             <input type="text" id="provider-name" required placeholder="e.g. Nidhi Mitchell" style="width: 100%;">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
             <div>
               <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Role /
                 Background</label>
@@ -466,7 +477,7 @@
 
   <!-- Supabase JS & App Logic -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/api.c04c2582.js"></script>
   <script src="assets/dist/app.54837a44.js"></script>
 
   <script>
@@ -752,11 +763,23 @@
         const user = data?.user;
         if (user) {
           const profile = await VistarazAuth.getProfile(user.id);
-          if (profile && profile.role === 'counselor') {
-            window.location.href = 'listener_portal.html';
-          } else {
-            window.location.href = 'client_panel.html';
+          // Check role from profile DB table first, fallback to JWT metadata
+          const dbRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
+          const isCounselor = dbRole === 'counselor';
+          const expectedRoleType = isCounselor ? 'provider' : 'seeker';
+
+          // If user signed in from the wrong tab, show a friendly explanation
+          // on the destination page via sessionStorage
+          if (expectedRoleType !== roleType) {
+            sessionStorage.setItem(
+              'vz-role-mismatch-toast',
+              isCounselor
+                ? "You're registered as a Listener — we've brought you to your Listener Portal."
+                : "You're registered as a Seeker — we've brought you to your Client Dashboard."
+            );
           }
+
+          window.location.href = isCounselor ? 'listener_portal.html' : 'client_panel.html';
         } else {
           resetBtn();
         }

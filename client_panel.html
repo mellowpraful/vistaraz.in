@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>My Care Panel | Vistaraz</title>
@@ -12,12 +12,12 @@
 
   <!-- Supabase (must load before api.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/api.c04c2582.js"></script>
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.fa935d0c.css">
+  <link rel="stylesheet" href="assets/dist/app.d45814be.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -157,11 +157,13 @@
       background: rgba(255, 255, 255, .03);
       color: #f0f4f8;
       border-radius: 12px;
-      padding: 12px 6px;
+      padding: 10px 4px;
       cursor: pointer;
       transition: all .18s ease;
       text-align: center;
       font-size: 0.78rem;
+      touch-action: manipulation;
+      min-height: 48px;
     }
 
     .mood-btn:hover {
@@ -1050,6 +1052,55 @@
 
   <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
   <script src="assets/dist/app.54837a44.js"></script>
+
+  <!-- Role-mismatch toast style -->
+  <style>
+    #vz-role-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      z-index: 9999;
+      background: linear-gradient(135deg, rgba(30,30,40,0.97), rgba(20,20,32,0.97));
+      border: 1px solid rgba(138,180,248,0.35);
+      border-radius: 12px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #c8d8f8;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      max-width: 420px;
+      width: calc(100% - 32px);
+    }
+    #vz-role-toast.vz-toast-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+
+  <script>
+    function vzShowRoleMismatchToast(msg) {
+      let toast = document.getElementById('vz-role-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'vz-role-toast';
+        toast.innerHTML = '<span style="font-size:1.1rem">ℹ️</span><span id="vz-role-toast-msg"></span>';
+        document.body.appendChild(toast);
+      }
+      const msgEl = toast.querySelector('#vz-role-toast-msg');
+      if (msgEl) msgEl.textContent = msg;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('vz-toast-show'));
+      });
+      setTimeout(() => {
+        toast.classList.remove('vz-toast-show');
+      }, 5000);
+    }
+  </script>
   <script>
     // ─── Auth Guard + Real Profile Init ───────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1066,6 +1117,25 @@
 
       // Load real profile from Supabase
       const profile = await VistarazAuth.getProfile(user.id);
+      const effectiveRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
+
+      // Role guard: counselors belong in the listener portal, not here
+      if (effectiveRole === 'counselor') {
+        sessionStorage.setItem(
+          'vz-role-mismatch-toast',
+          "You're registered as a Listener — we've brought you to your Listener Portal."
+        );
+        window.location.replace('listener_portal.html');
+        return;
+      }
+
+      // Show mismatch toast if a redirect message was stored
+      const mismatchMsg = sessionStorage.getItem('vz-role-mismatch-toast');
+      if (mismatchMsg) {
+        sessionStorage.removeItem('vz-role-mismatch-toast');
+        vzShowRoleMismatchToast(mismatchMsg);
+      }
+
       const displayName = (profile && (profile.nickname || profile.full_name)) ||
         user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
       const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🦊';

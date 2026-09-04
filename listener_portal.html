@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Support Listener Portal | Vistaraz</title>
@@ -14,7 +14,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.fa935d0c.css">
+  <link rel="stylesheet" href="assets/dist/app.d45814be.css">
   <!-- Google Fonts: Inter & Fraunces -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1901,8 +1901,57 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.dbdbb757.js"></script>
+  <script src="assets/dist/api.c04c2582.js"></script>
   <script src="assets/dist/app.54837a44.js"></script>
+
+  <!-- Role-mismatch toast style -->
+  <style>
+    #vz-role-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      z-index: 9999;
+      background: linear-gradient(135deg, rgba(30,30,40,0.97), rgba(20,20,32,0.97));
+      border: 1px solid rgba(138,180,248,0.35);
+      border-radius: 12px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #c8d8f8;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      max-width: 420px;
+      width: calc(100% - 32px);
+    }
+    #vz-role-toast.vz-toast-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+
+  <script>
+    function vzShowRoleMismatchToast(msg) {
+      let toast = document.getElementById('vz-role-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'vz-role-toast';
+        toast.innerHTML = '<span style="font-size:1.1rem">ℹ️</span><span id="vz-role-toast-msg"></span>';
+        document.body.appendChild(toast);
+      }
+      const msgEl = toast.querySelector('#vz-role-toast-msg');
+      if (msgEl) msgEl.textContent = msg;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('vz-toast-show'));
+      });
+      setTimeout(() => {
+        toast.classList.remove('vz-toast-show');
+      }, 5000);
+    }
+  </script>
 
   <!-- ═══════════════════════════════════════════════════════════
        JAVASCRIPT LOGIC
@@ -1922,18 +1971,30 @@
 
       // Load real profile from Supabase
       const profile = await VistarazAuth.getProfile(user.id);
+      const effectiveRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
 
-      // If role is not counselor, redirect to client panel
-      if (profile && profile.role === 'user') {
-        window.location.href = 'client_panel.html';
+      // Role guard: seekers/clients belong in the client panel, not here
+      if (effectiveRole !== 'counselor') {
+        sessionStorage.setItem(
+          'vz-role-mismatch-toast',
+          "You're registered as a Seeker — we've brought you to your Client Dashboard."
+        );
+        window.location.replace('client_panel.html');
         return;
       }
 
-      const nickname = (profile && profile.nickname) || user.user_metadata?.nickname || 'Provider';
-      const name = (profile && profile.full_name) || user.user_metadata?.full_name || 'Support Listener';
-      const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🩺';
-      const qualification = (profile && profile.qualification) || user.user_metadata?.qualification || 'Peer Listener';
-      const languages = (profile && profile.languages) ? profile.languages.join(', ') : 'English';
+      // Show mismatch toast if a redirect message was stored (e.g. counselor signed in from seeker tab)
+      const mismatchMsg = sessionStorage.getItem('vz-role-mismatch-toast');
+      if (mismatchMsg) {
+        sessionStorage.removeItem('vz-role-mismatch-toast');
+        vzShowRoleMismatchToast(mismatchMsg);
+      }
+
+      const nickname = profile.nickname || user.user_metadata?.nickname || 'Provider';
+      const name = profile.full_name || user.user_metadata?.full_name || 'Support Listener';
+      const avatar = profile.avatar_url || user.user_metadata?.avatar_url || '🩺';
+      const qualification = profile.qualification || user.user_metadata?.qualification || 'Peer Listener';
+      const languages = profile.languages ? profile.languages.join(', ') : 'English';
 
       const welcomeNameEl = document.getElementById('provider-welcome-name');
       if (welcomeNameEl) welcomeNameEl.textContent = nickname;
