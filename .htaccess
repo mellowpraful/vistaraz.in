@@ -31,3 +31,8 @@
   ExpiresByType image/png "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 year"
 </IfModule>
+
+# Custom Error Documents
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+

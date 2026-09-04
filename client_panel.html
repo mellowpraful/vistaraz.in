@@ -12,12 +12,12 @@
 
   <!-- Supabase (must load before api.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/dist/api.c04c2582.js"></script>
+  <script src="assets/dist/api.c064a5b3.js"></script>
   <!-- Tailwind CSS Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/dist/app.d45814be.css">
+  <link rel="stylesheet" href="assets/dist/app.9583a193.css">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1051,7 +1051,7 @@
   </footer>
 
   <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
-  <script src="assets/dist/app.54837a44.js"></script>
+  <script src="assets/dist/app.f302ef53.js"></script>
 
   <!-- Role-mismatch toast style -->
   <style>
@@ -1288,8 +1288,29 @@
       document.getElementById('breathing-area').classList.add('hidden');
       showToast('Great job! Take a moment to notice how you feel.');
     }
-  </script>
 
+    // ─── Profile Hydration & Auth Check ─────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof VistarazAuth === 'undefined') return;
+      try {
+        const user = await VistarazAuth.getUser();
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          const name = (profile && (profile.nickname || profile.full_name)) || user.user_metadata?.nickname || user.user_metadata?.full_name;
+          const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url;
+          if (name) {
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = name);
+          }
+          if (avatar) {
+            document.querySelectorAll('[data-user-avatar]').forEach(el => el.textContent = avatar);
+          }
+        }
+      } catch (err) {
+        console.warn('[ClientPanel] Auth check deferred:', err);
+      }
+    });
+  </script>
+  <script src="assets/dist/app.f302ef53.js"></script>
 </body>
 
 </html>

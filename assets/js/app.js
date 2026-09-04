@@ -429,10 +429,365 @@ window.handleSignOut = async function(redirectTo = 'index.html') {
     }
     keysToRemove.forEach(k => localStorage.removeItem(k));
     sessionStorage.clear();
-  } catch (e) {}
+  } catch(e) {}
   window.location.replace(redirectTo);
 };
 window.vzSignOut = window.handleSignOut;
+
+// ── RESILIENCE, ERROR HANDLING, LOADING & RETRY SUITE ──────
+
+// 1. GLOBAL ERROR BOUNDARY (Prevent Blank Screens)
+const VzErrorBoundary = (() => {
+  let hasShownError = false;
+
+  function createErrorUI(errorInfo) {
+    if (hasShownError) return;
+    hasShownError = true;
+
+    // Remove any existing boundary
+    const existing = document.getElementById('vzFatalBoundary');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'vzFatalBoundary';
+    overlay.className = 'vz-error-boundary';
+    overlay.setAttribute('role', 'alert');
+
+    const msg = errorInfo.message || 'An unexpected pause occurred in the sanctuary.';
+    const details = errorInfo.stack || errorInfo.error?.stack || errorInfo.source || '';
+
+    overlay.innerHTML = `
+      <div class="vz-error-card">
+        <div class="vz-error-icon-wrap">
+          <i class="fa-solid fa-shield-heart"></i>
+        </div>
+        <h2 class="vz-error-title">Sanctuary Recovery</h2>
+        <p class="vz-error-desc">
+          Something took an unexpected turn, but your space is protected and safe. 
+          We've prevented a blank screen so you can recover without losing your way.
+        </p>
+        <div class="vz-error-actions">
+          <button class="button primary vz-error-btn" onclick="window.location.reload()">
+            <i class="fa-solid fa-rotate-right" style="margin-right: 6px;"></i> Reload Page
+          </button>
+          <a class="button ghost vz-error-btn" href="index.html">
+            <i class="fa-solid fa-house" style="margin-right: 6px;"></i> Return Home
+          </a>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 14px; margin-top: 10px; font-size: 0.82rem;">
+          <a href="safety.html" style="color: var(--danger); text-decoration: underline;">
+            <i class="fa-solid fa-phone-volume"></i> 24/7 Crisis Helplines
+          </a>
+          <button onclick="VzErrorBoundary.clearCacheAndReload()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline; font-size: 0.82rem;">
+            Clear Cache & Restart
+          </button>
+        </div>
+        ${details ? `
+          <details class="vz-error-details">
+            <summary>Diagnostic Details</summary>
+            <pre>${escapeHtml(msg)}\n${escapeHtml(details.slice(0, 500))}</pre>
+          </details>
+        ` : ''}
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function clearCacheAndReload() {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {}
+    window.location.reload(true);
+  }
+
+  function init() {
+    window.addEventListener('error', (event) => {
+      console.error('[Vistaraz Error Boundary caught]', event.error || event.message);
+      // Avoid triggering on trivial CDN cross-origin or image load errors unless page is completely blank
+      if (document.body && document.body.children.length > 0 && !event.message?.includes('Uncaught Error')) {
+        return;
+      }
+      createErrorUI({
+        message: event.message,
+        error: event.error,
+        source: `${event.filename}:${event.lineno}:${event.colno}`
+      });
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('[Vistaraz Unhandled Rejection]', event.reason);
+      // Suppress minor background fetch aborts
+      if (event.reason && (event.reason.name === 'AbortError' || event.reason.message?.includes('aborted'))) {
+        return;
+      }
+    });
+
+    // Blank screen watchdog: If after 6 seconds document body has 0 content or displays infinite spinner
+    setTimeout(() => {
+      if (!document.body || document.body.children.length === 0) {
+        createErrorUI({ message: 'The sanctuary view took too long to render.' });
+      }
+    }, 6000);
+  }
+
+  return { init, show: createErrorUI, clearCacheAndReload };
+})();
+
+// 2. AMBIENT LOADING SYSTEM (Top Bar, Button Spinners, Skeletons)
+const VzLoading = (() => {
+  let progressEl = null;
+  let progressInterval = null;
+  let currentProgress = 0;
+
+  function getProgressBar() {
+    if (!progressEl) {
+      progressEl = document.getElementById('vzTopProgress');
+      if (!progressEl) {
+        progressEl = document.createElement('div');
+        progressEl.id = 'vzTopProgress';
+        document.body.appendChild(progressEl);
+      }
+    }
+    return progressEl;
+  }
+
+  function start() {
+    const bar = getProgressBar();
+    clearInterval(progressInterval);
+    currentProgress = 15;
+    bar.style.width = currentProgress + '%';
+    bar.classList.add('active');
+
+    progressInterval = setInterval(() => {
+      if (currentProgress < 85) {
+        currentProgress += (85 - currentProgress) * 0.15;
+        bar.style.width = currentProgress + '%';
+      }
+    }, 200);
+  }
+
+  function done() {
+    const bar = getProgressBar();
+    clearInterval(progressInterval);
+    currentProgress = 100;
+    bar.style.width = '100%';
+    setTimeout(() => {
+      bar.classList.remove('active');
+      setTimeout(() => {
+        bar.style.width = '0%';
+        currentProgress = 0;
+      }, 250);
+    }, 200);
+  }
+
+  function buttonStart(btn, text = 'Loading...') {
+    if (!btn) return;
+    btn.dataset.vzOrigHtml = btn.innerHTML;
+    btn.classList.add('vz-btn-loading');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="vz-btn-spinner" aria-hidden="true"></span><span>${text}</span>`;
+  }
+
+  function buttonStop(btn) {
+    if (!btn) return;
+    if (btn.dataset.vzOrigHtml) {
+      btn.innerHTML = btn.dataset.vzOrigHtml;
+      delete btn.dataset.vzOrigHtml;
+    }
+    btn.classList.remove('vz-btn-loading');
+    btn.disabled = false;
+  }
+
+  function createSkeleton(type = 'card', count = 1) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      if (type === 'card') {
+        html += `
+          <div class="vz-skeleton-card">
+            <div class="vz-skeleton vz-skeleton-title"></div>
+            <div class="vz-skeleton vz-skeleton-text" style="width: 90%;"></div>
+            <div class="vz-skeleton vz-skeleton-text" style="width: 75%;"></div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <div class="vz-skeleton vz-skeleton-btn"></div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'text') {
+        html += `
+          <div class="vz-skeleton vz-skeleton-text" style="width: 100%;"></div>
+          <div class="vz-skeleton vz-skeleton-text" style="width: 85%;"></div>
+          <div class="vz-skeleton vz-skeleton-text" style="width: 60%;"></div>
+        `;
+      } else if (type === 'row') {
+        html += `
+          <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0;">
+            <div class="vz-skeleton vz-skeleton-circle"></div>
+            <div style="flex: 1;">
+              <div class="vz-skeleton vz-skeleton-title" style="width: 40%; height: 16px; margin-bottom: 6px;"></div>
+              <div class="vz-skeleton vz-skeleton-text" style="width: 70%; margin-bottom: 0;"></div>
+            </div>
+          </div>
+        `;
+      }
+    }
+    return html;
+  }
+
+  return { start, done, buttonStart, buttonStop, createSkeleton };
+})();
+
+// 3. NETWORK STATUS MONITORING
+const VzNetwork = (() => {
+  let toastEl = null;
+  const reconnectCallbacks = [];
+
+  function getToast() {
+    if (!toastEl) {
+      toastEl = document.getElementById('vzNetworkToast');
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.id = 'vzNetworkToast';
+        toastEl.className = 'vz-network-toast';
+        toastEl.setAttribute('role', 'status');
+        toastEl.setAttribute('aria-live', 'polite');
+        document.body.appendChild(toastEl);
+      }
+    }
+    return toastEl;
+  }
+
+  function show(status, message) {
+    const toast = getToast();
+    toast.className = `vz-network-toast show vz-network-${status}`;
+    if (status === 'offline') {
+      toast.innerHTML = `<i class="fa-solid fa-wifi-slash"></i> <span>${message || 'You are currently offline. Sanctuary is using cached data.'}</span>`;
+    } else {
+      toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message || 'Connection restored! Sanctuary is back online.'}</span>`;
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+  }
+
+  function hide() {
+    const toast = getToast();
+    toast.classList.remove('show');
+  }
+
+  function isOnline() {
+    return typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
+  }
+
+  function onReconnect(fn) {
+    if (typeof fn === 'function') {
+      reconnectCallbacks.push(fn);
+    }
+  }
+
+  function init() {
+    window.addEventListener('offline', () => {
+      show('offline');
+    });
+
+    window.addEventListener('online', () => {
+      show('online');
+      // Trigger registered callbacks
+      reconnectCallbacks.forEach(cb => {
+        try { cb(); } catch (e) { console.error('[VzNetwork reconnect callback]', e); }
+      });
+    });
+
+    // Initial check
+    if (!isOnline()) {
+      show('offline');
+    }
+  }
+
+  return { init, show, hide, isOnline, onReconnect };
+})();
+
+// 4. RETRY CONTROLLER & UI CARDS
+const VzRetry = (() => {
+  async function run(asyncFn, options = {}) {
+    const maxRetries = options.maxRetries || 3;
+    const baseDelay = options.baseDelay || 800;
+    const factor = options.factor || 2;
+    const onRetry = options.onRetry || (() => {});
+
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        return await asyncFn();
+      } catch (err) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          throw err;
+        }
+        // Exponential backoff with jitter
+        const jitter = Math.random() * 200;
+        const delay = (baseDelay * Math.pow(factor, attempt - 1)) + jitter;
+        onRetry(attempt, err, delay);
+        await new Promise(res => setTimeout(res, delay));
+      }
+    }
+  }
+
+  function renderCard(container, { title, message, onRetry }) {
+    if (typeof container === 'string') {
+      container = document.querySelector(container);
+    }
+    if (!container) return;
+
+    const retryCard = document.createElement('div');
+    retryCard.className = 'vz-retry-card';
+    retryCard.innerHTML = `
+      <i class="fa-solid fa-cloud-bolt vz-retry-icon"></i>
+      <h4>${title || 'Connection Interrupted'}</h4>
+      <p>${message || 'We could not reach the sanctuary server right now. Your data is safe.'}</p>
+      <button class="button primary vz-retry-btn">
+        <i class="fa-solid fa-rotate-right"></i> Try Again
+      </button>
+    `;
+
+    const btn = retryCard.querySelector('button');
+    btn.addEventListener('click', async () => {
+      VzLoading.buttonStart(btn, 'Retrying...');
+      try {
+        if (onRetry) await onRetry();
+      } catch (e) {
+        console.error('[VzRetry Card Action]', e);
+      } finally {
+        VzLoading.buttonStop(btn);
+      }
+    });
+
+    container.innerHTML = '';
+    container.appendChild(retryCard);
+  }
+
+  return { run, renderCard };
+})();
+
+// Initialize early resilience listeners immediately
+VzErrorBoundary.init();
+
+// Expose globally
+window.VzErrorBoundary = VzErrorBoundary;
+window.VzLoading = VzLoading;
+window.VzNetwork = VzNetwork;
+window.VzRetry = VzRetry;
 
 // ── DOM READY ACTIONS ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -444,6 +799,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize accessibility controls and UI
   VzA11y.initDOM();
+
+  // Initialize network status monitoring
+  VzNetwork.init();
 
   // Intersection Observer for .reveal elements
   const revealObserver = new IntersectionObserver(
@@ -459,3 +817,4 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 });
+

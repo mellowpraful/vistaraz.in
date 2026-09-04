@@ -6,7 +6,9 @@
   "scripts": {
     "build": "node scripts/build-assets.js",
     "serve": "node server.js",
-    "test:cache": "node scripts/test-cache.js"
+    "test:cache": "node scripts/test-cache.js",
+    "test:error": "node scripts/test-error-handling.js",
+    "test": "npm run test:cache && npm run test:error"
   },
   "keywords": [
     "vistaraz",

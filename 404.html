@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Page Not Found (404) — Vistaraz</title>
+  <link rel="stylesheet" href="assets/dist/app.9583a193.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+  <!-- Global Top Progress Bar -->
+  <div id="vzTopProgress" class="vz-top-progress" role="progressbar" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
+      </a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="assessment" href="assessment.html">Check-in</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <a data-i="community" href="community.html">Community</a>
+        <button class="a11y-toggle" id="a11yBtn" onclick="vzA11yToggleModal()" title="Accessibility Settings" aria-label="Accessibility Settings"><span style="font-size: 0.85rem; font-weight: 700;">Aa</span></button>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main style="flex: 1; padding-top: 40px; padding-bottom: 40px; max-width: 1000px; margin: 0 auto; padding-left: 20px; padding-right: 20px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    
+    <section class="section" style="text-align: center; padding-top: 10px; padding-bottom: 24px; max-width: 720px;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(167, 139, 250, 0.15)); border: 1px solid var(--border-glow); margin-bottom: 20px; box-shadow: 0 12px 32px var(--glow-teal);">
+        <i class="fa-solid fa-compass" style="font-size: 2.2rem; color: var(--teal-400);"></i>
+      </div>
+      <span class="eyebrow" style="color: var(--teal-400); letter-spacing: 0.15em; font-weight: 700;">ERROR 404 · PATH NOT FOUND</span>
+      <h1 style="font-size: clamp(2.2rem, 5vw, 3.4rem); margin-top: 8px; margin-bottom: 14px; line-height: 1.15;">
+        This path has found <br><em style="color: var(--teal-300); font-style: italic;">quiet peace.</em>
+      </h1>
+      <p style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.6; margin: 0 auto 24px auto; max-width: 580px;">
+        The page you are looking for may have been moved, renamed, or is taking a restorative rest. Let's guide you back to your sanctuary.
+      </p>
+
+      <!-- Quick Action Buttons -->
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px;">
+        <button onclick="history.back()" class="button ghost" style="padding: 12px 24px;">
+          <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i> Go Back
+        </button>
+        <a href="index.html" class="button primary" style="padding: 12px 28px;">
+          <i class="fa-solid fa-house" style="margin-right: 8px;"></i> Return to Sanctuary
+        </a>
+      </div>
+    </section>
+
+    <!-- Friendly Navigation Exploration Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; max-width: 860px;">
+      
+      <a href="assessment.html" class="glass-card" style="text-decoration: none; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s ease, border-color 0.2s ease;">
+        <div style="font-size: 1.4rem; color: var(--teal-400);"><i class="fa-solid fa-heart-pulse"></i></div>
+        <h4 style="margin: 0; color: var(--text-main); font-size: 1.05rem;">Self Check-in</h4>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Evaluate your mood, stress, and anxiety in safe privacy.</p>
+      </a>
+
+      <a href="support.html" class="glass-card" style="text-decoration: none; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s ease, border-color 0.2s ease;">
+        <div style="font-size: 1.4rem; color: var(--purple-400);"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <h4 style="margin: 0; color: var(--text-main); font-size: 1.05rem;">Support & Circles</h4>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Connect with compassionate listeners and peer support circles.</p>
+      </a>
+
+      <a href="tools.html" class="glass-card" style="text-decoration: none; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s ease, border-color 0.2s ease;">
+        <div style="font-size: 1.4rem; color: var(--success);"><i class="fa-solid fa-spa"></i></div>
+        <h4 style="margin: 0; color: var(--text-main); font-size: 1.05rem;">Wellness Toolkit</h4>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Guided breathing, grounding exercises, and mindfulness logs.</p>
+      </a>
+
+      <a href="safety.html" class="glass-card" style="text-decoration: none; display: flex; flex-direction: column; gap: 8px; border-color: rgba(255, 107, 107, 0.3); background: rgba(255, 107, 107, 0.04); transition: transform 0.2s ease, border-color 0.2s ease;">
+        <div style="font-size: 1.4rem; color: var(--danger);"><i class="fa-solid fa-shield-heart"></i></div>
+        <h4 style="margin: 0; color: var(--text-main); font-size: 1.05rem;">Urgent Safety</h4>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">24/7 verified crisis lines, emergency contacts, and rapid support.</p>
+      </a>
+
+    </div>
+
+  </main>
+
+  <footer style="margin-top: auto; width: 100%; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--glass-border);">
+    <p style="margin: 0;">© 2026 Vistaraz · Innovate · Heal · Impact. Safe, Private Mental Well-being.</p>
+  </footer>
+
+  <script src="assets/dist/app.f302ef53.js"></script>
+</body>
+
+</html>

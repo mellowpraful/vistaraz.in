@@ -1597,3 +1597,331 @@ html:not([data-theme="dark"]) .dialog-card {
   color: var(--text-main) !important;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   ERROR HANDLING, LOADING STATES & RESILIENCE STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. SKELETON LOADERS & SHIMMER ────────────────────────── */
+@keyframes vzShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.vz-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: vzShimmer 1.8s infinite ease-in-out;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+html:not([data-theme="dark"]) .vz-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.04) 25%,
+    rgba(0, 0, 0, 0.09) 50%,
+    rgba(0, 0, 0, 0.04) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.vz-skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+.vz-skeleton-title {
+  height: 24px;
+  width: 60%;
+  margin-bottom: 14px;
+  border-radius: 8px;
+}
+
+.vz-skeleton-circle {
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.vz-skeleton-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vz-skeleton-btn {
+  height: 38px;
+  width: 110px;
+  border-radius: 12px;
+}
+
+/* ── 2. TOP LOADING PROGRESS BAR ──────────────────────────── */
+#vzTopProgress,
+.vz-top-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-violet), var(--accent-coral));
+  box-shadow: 0 0 10px var(--accent-glow), 0 0 5px var(--accent-primary);
+  z-index: 999999;
+  pointer-events: none;
+  opacity: 0;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+#vzTopProgress.active,
+.vz-top-progress.active {
+  opacity: 1;
+}
+
+/* ── 3. BUTTON SPINNERS & LOADING STATES ──────────────────── */
+@keyframes vzSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.vz-btn-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: vzSpin 0.75s linear infinite;
+  vertical-align: -0.15em;
+  margin-right: 8px;
+}
+
+.vz-btn-loading {
+  pointer-events: none !important;
+  opacity: 0.8 !important;
+  cursor: wait !important;
+}
+
+/* ── 4. GLOBAL ERROR BOUNDARY & FALLBACK SCREEN ───────────── */
+.vz-error-boundary {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+}
+
+.vz-error-card {
+  max-width: 540px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 36px 32px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.vz-error-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-coral), var(--accent-violet));
+}
+
+.vz-error-icon-wrap {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  background: rgba(251, 146, 60, 0.12);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: var(--accent-coral);
+}
+
+.vz-error-title {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.vz-error-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.vz-error-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 480px) {
+  .vz-error-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.vz-error-details {
+  margin-top: 16px;
+  text-align: left;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.vz-error-details summary {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  outline: none;
+}
+
+.vz-error-details pre {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  color: var(--danger);
+  margin-top: 8px;
+}
+
+/* ── 5. NETWORK CONNECTIVITY TOAST / BANNER ───────────────── */
+.vz-network-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 9999px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 90vw;
+}
+
+.vz-network-toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.vz-network-offline {
+  background: rgba(28, 20, 15, 0.94);
+  border: 1px solid rgba(251, 146, 60, 0.4);
+  color: #fdba74;
+}
+
+html:not([data-theme="dark"]) .vz-network-offline {
+  background: rgba(255, 247, 237, 0.96);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  color: #c2410c;
+}
+
+.vz-network-online {
+  background: rgba(10, 28, 22, 0.94);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #6ee7b7;
+}
+
+html:not([data-theme="dark"]) .vz-network-online {
+  background: rgba(236, 253, 245, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #047857;
+}
+
+.vz-network-toast i {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+/* ── 6. COMPONENT RETRY CARD ──────────────────────────────── */
+.vz-retry-card {
+  background: var(--bg-card);
+  border: 1px dashed var(--line);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.vz-retry-icon {
+  font-size: 2rem;
+  color: var(--accent-coral);
+  margin-bottom: 4px;
+}
+
+.vz-retry-card h4 {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.vz-retry-card p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.vz-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+
