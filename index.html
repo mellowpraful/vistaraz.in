@@ -1,169 +1,30 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Vistaraz — Mental Wellbeing Made Human</title>
+    <meta name="description" content="A private, judgement-free youth wellbeing platform to pause, talk things through, and find the kind of support that fits." />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <title>Vistaraz — Mental Wellbeing Made Human</title>
-<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-
-<body>
-  <div class="announce">
-    <i class="fas fa-sparkles" style="color: var(--bg-dark)"></i>
-    <b>New:</b> Your first support conversation is on us.
-  </div>
-
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a class="brand" href="index.html"><img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact"
-          height="44"></a>
-      <nav>
-        <a class="active" data-i="home" href="index.html">Home</a>
-        <a data-i="assessment" href="assessment.html">Check-in</a>
-        <a data-i="support" href="support.html">Support</a>
-        <a data-i="tools" href="tools.html">Tools</a>
-        <a data-i="community" href="community.html">Community</a>
-        <a href="dashboard.html" class="button ghost vz-quick-access" style="padding: 6px 14px; font-size: 0.8rem;">Dashboard</a>
-        <button class="a11y-toggle" id="a11yBtn" onclick="vzA11yToggleModal()" title="Accessibility Settings" aria-label="Accessibility Settings"><span style="font-size: 0.85rem; font-weight: 700;">Aa</span></button>
-        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
-          aria-label="Switch Theme">🌙</button>
-        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
-          <div class="hamburger-icon">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="hero-content reveal">
-        <span class="eyebrow" style="color: var(--accent-primary);">MENTAL WELLBEING, MADE HUMAN</span>
-        <h1>A little more <em>room</em><br>to feel like you.</h1>
-        <p>A private, judgement-free space for young people to pause, talk things through, and find the kind of support
-          that fits.</p>
-        <div class="hero-actions" style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <a class="button coral" href="register.html?role=seeker" style="padding: 14px 28px; font-weight: 600;">
-            🌿 I Need Help <i class="fas fa-arrow-right" style="margin-left: 8px"></i>
-          </a>
-          <a class="button ghost" href="register.html?role=provider"
-            style="padding: 14px 24px;">
-            🤝 I Want to Help (Listener)
-          </a>
-        </div>
-      </div>
-      <div class="hero-art reveal">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="glass-card breathe-soft" style="position: relative; z-index: 10; text-align: center; max-width: 310px; border-color: rgba(251, 146, 60, 0.22); box-shadow: 0 16px 40px -10px rgba(0,0,0,0.5), 0 0 24px -6px var(--coral-glow);">
-          <i class="fas fa-leaf" style="font-size: 2rem; color: var(--accent-coral); margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--coral-glow));"></i>
-          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Take a breath</h3>
-          <p style="font-size: 0.92rem; margin-bottom: 0; color: var(--text-secondary);">You don’t have to have it all figured out right now.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="reveal" style="margin-bottom: 50px;">
-        <span class="eyebrow">A PATH THAT ADAPTS TO YOU</span>
-        <h2>Start small.<br><em>Go at your pace.</em></h2>
-        <p>You decide what you need, and how visible you want to be. We make the next step feel lighter.</p>
-      </div>
-
-      <div class="grid-3">
-        <article class="glass-card reveal">
-          <span class="eyebrow" style="color: var(--accent-primary)">01</span>
-          <h3>Check in</h3>
-          <p>A simple, click-based reflection to help find a helpful next step. Not a diagnosis.</p>
-        </article>
-        <article class="glass-card reveal" style="transition-delay: 0.1s;">
-          <span class="eyebrow" style="color: var(--accent-secondary)">02</span>
-          <h3>Choose identity</h3>
-          <p>Use an anonymous avatar with others, or a private profile when professional care needs it.</p>
-        </article>
-        <article class="glass-card reveal" style="transition-delay: 0.2s;">
-          <span class="eyebrow" style="color: var(--success)">03</span>
-          <h3>Meet the right human</h3>
-          <p>Start with a listener, move to a video call, or choose qualified professional care.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" style="border-top: 1px solid var(--line);">
-      <div class="grid-2 reveal">
-        <div>
-          <span class="eyebrow">THE SUPPORT LADDER</span>
-          <h2>Human support,<br><em>at the right level.</em></h2>
-          <p>Vistaraz is not another AI chat. It is a bridge to the appropriate human support—without pretending every
-            need requires the same answer.</p>
-          <ul style="list-style: none; padding: 0; margin: 30px 0;">
-            <li style="padding: 15px 0; border-bottom: 1px solid var(--line); display: flex; gap: 15px;"><i
-                class="fas fa-comment-dots" style="color: var(--accent-primary); margin-top: 5px;"></i> 01 · Trained
-              support listeners (Chat)</li>
-            <li style="padding: 15px 0; border-bottom: 1px solid var(--line); display: flex; gap: 15px;"><i
-                class="fas fa-video" style="color: var(--accent-secondary); margin-top: 5px;"></i> 02 · Private voice or
-              video support</li>
-            <li style="padding: 15px 0; display: flex; gap: 15px;"><i class="fas fa-user-md"
-                style="color: var(--success); margin-top: 5px;"></i> 03 · Verified qualified professionals</li>
-          </ul>
-          <a class="button ghost" href="support.html">Explore support options</a>
-        </div>
-        <div class="glass-card"
-          style="display: grid; place-items: center; background: linear-gradient(135deg, rgba(138, 180, 248, 0.05), rgba(195, 155, 119, 0.05));">
-          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=480&q=75&fm=webp"
-            alt="Person feeling relaxed and supported"
-            loading="lazy"
-            decoding="async"
-            width="480"
-            height="320"
-            style="width: 100%; height: auto; max-height: 380px; object-fit: cover; border-radius: 12px; opacity: 0.85; filter: grayscale(40%) contrast(1.15);">
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-bottom-nav">
-    <div class="site-bottom-nav-inner">
-      <div class="site-footer-brand">
-        <a class="brand" href="index.html">
-          <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="40">
-        </a>
-        <span class="site-footer-copyright">© 2026 Vistaraz · Innovate · Heal · Impact. Safe, Private Mental Well-being.</span>
-      </div>
-      <div class="site-footer-nav">
-        <a href="safety.html" class="vz-social-btn" aria-label="Safety" title="Safety Resources" style="--btn-color: var(--danger);">
-          <i class="fa-solid fa-shield-heart"></i>
-          <span>Safety</span>
-        </a>
-        <a href="https://www.youtube.com/@Vistaraz26" target="_blank" rel="noopener noreferrer" class="vz-social-btn youtube" aria-label="YouTube" title="Vistaraz on YouTube">
-          <i class="fa-brands fa-youtube"></i>
-          <span>YouTube</span>
-        </a>
-        <a href="https://www.instagram.com/vistaraz/" target="_blank" rel="noopener noreferrer" class="vz-social-btn instagram" aria-label="Instagram" title="Vistaraz on Instagram">
-          <i class="fa-brands fa-instagram"></i>
-          <span>Instagram</span>
-        </a>
-        <a href="https://www.linkedin.com/company/vistaraz/" target="_blank" rel="noopener noreferrer" class="vz-social-btn linkedin" aria-label="LinkedIn" title="Vistaraz on LinkedIn">
-          <i class="fa-brands fa-linkedin"></i>
-          <span>LinkedIn</span>
-        </a>
-        <a href="https://mail.google.com/mail/?view=cm&to=vistaraz26@gmail.com&body=Hi%20Vistaraz%20team%2C" target="_blank" rel="noopener noreferrer" class="vz-social-btn email" aria-label="Email Us" title="Email Vistaraz">
-          <i class="fa-solid fa-envelope"></i>
-          <span>vistaraz26@gmail.com</span>
-        </a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="assets/dist/app.f302ef53.js"></script>
-</body>
-
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    
+    <!-- FontAwesome for existing icon compatibility -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46Zmdt5jmhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

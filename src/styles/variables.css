@@ -1,0 +1,122 @@
+/**
+ * VISTARAZ DESIGN TOKENS & SYSTEM VARIABLES
+ * Visual Source of Truth: Vistaraz Reference Design
+ * Brand: Vistaraz ("A better way to reach out")
+ * Theme: Premium, modern, calm, human-centered, youth-friendly
+ */
+
+:root {
+  /* --- Surfaces & Backgrounds --- */
+  --vz-bg-canvas: #faf8f5;
+  --vz-bg-surface: #ffffff;
+  --vz-bg-subtle: #f4f0eb;
+  --vz-bg-muted: #ece7df;
+  --vz-bg-dark: #121316;
+  --vz-bg-overlay: rgba(18, 19, 22, 0.45);
+
+  /* --- Typography & Text --- */
+  --vz-font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --vz-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --vz-text-primary: #18191d;
+  --vz-text-secondary: #4d525c;
+  --vz-text-muted: #7f8592;
+  --vz-text-light: #a4aab5;
+  --vz-text-inverse: #ffffff;
+
+  /* --- Primary & Brand Accents (Violet / Indigo) --- */
+  --vz-primary: #4f46e5;
+  --vz-primary-hover: #4338ca;
+  --vz-primary-light: #eef2ff;
+  --vz-primary-dark: #3730a3;
+  --vz-primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+
+  /* --- Dark Hero & Pill Button Accents --- */
+  --vz-dark-pill: #131418;
+  --vz-dark-pill-hover: #262930;
+
+  /* --- Restrained Supporting Pastel Colors --- */
+  /* Pink / Rose (Very Low mood / urgent) */
+  --vz-pastel-pink-bg: #fde8ed;
+  --vz-pastel-pink-border: #fbcfe8;
+  --vz-pastel-pink-text: #b91c1c;
+  --vz-pastel-pink-icon: #e11d48;
+
+  /* Peach / Orange (Low mood) */
+  --vz-pastel-peach-bg: #feeedf;
+  --vz-pastel-peach-border: #fed7aa;
+  --vz-pastel-peach-text: #c2410c;
+  --vz-pastel-peach-icon: #f97316;
+
+  /* Yellow / Amber (Okay mood) */
+  --vz-pastel-yellow-bg: #fef9c3;
+  --vz-pastel-yellow-border: #fde047;
+  --vz-pastel-yellow-text: #854d0e;
+  --vz-pastel-yellow-icon: #ca8a04;
+
+  /* Mint / Green (Good mood / online listener) */
+  --vz-pastel-mint-bg: #e2f8ec;
+  --vz-pastel-mint-border: #a7f3d0;
+  --vz-pastel-mint-text: #065f46;
+  --vz-pastel-mint-icon: #10b981;
+
+  /* Sky Blue (Really Good mood / info) */
+  --vz-pastel-sky-bg: #e0f2fe;
+  --vz-pastel-sky-border: #bae6fd;
+  --vz-pastel-sky-text: #0369a1;
+  --vz-pastel-sky-icon: #0284c7;
+
+  /* Lavender / Purple (Assessment & introspection) */
+  --vz-pastel-lavender-bg: #f1edff;
+  --vz-pastel-lavender-border: #ddd6fe;
+  --vz-pastel-lavender-text: #5b21b6;
+  --vz-pastel-lavender-icon: #7c3aed;
+
+  /* --- Semantic Status --- */
+  --vz-status-online: #10b981;
+  --vz-status-busy: #f59e0b;
+  --vz-status-offline: #94a3b8;
+
+  /* --- Borders --- */
+  --vz-border-light: #ece7e0;
+  --vz-border-subtle: #ded8ce;
+  --vz-border-focus: #4f46e5;
+
+  /* --- Rounded Radii --- */
+  --vz-radius-xs: 6px;
+  --vz-radius-sm: 10px;
+  --vz-radius-md: 14px;
+  --vz-radius-lg: 18px;
+  --vz-radius-xl: 24px;
+  --vz-radius-2xl: 32px;
+  --vz-radius-full: 9999px;
+
+  /* --- Organic Subtle Shadows --- */
+  --vz-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --vz-shadow-card: 0 2px 8px rgba(24, 25, 29, 0.03), 0 1px 3px rgba(24, 25, 29, 0.02);
+  --vz-shadow-md: 0 6px 16px -2px rgba(24, 25, 29, 0.05), 0 2px 6px -2px rgba(24, 25, 29, 0.03);
+  --vz-shadow-lg: 0 16px 32px -4px rgba(24, 25, 29, 0.08), 0 6px 12px -2px rgba(24, 25, 29, 0.04);
+  --vz-shadow-hover: 0 12px 24px -4px rgba(79, 70, 229, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+
+  /* --- Spacing Scale --- */
+  --vz-space-1: 4px;
+  --vz-space-2: 8px;
+  --vz-space-3: 12px;
+  --vz-space-4: 16px;
+  --vz-space-5: 20px;
+  --vz-space-6: 24px;
+  --vz-space-8: 32px;
+  --vz-space-10: 40px;
+  --vz-space-12: 48px;
+  --vz-space-16: 64px;
+  --vz-space-20: 80px;
+
+  /* --- Layout Sizing --- */
+  --vz-container-max: 1200px;
+  --vz-header-height: 72px;
+  --vz-sidebar-width: 250px;
+
+  /* --- Transitions --- */
+  --vz-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --vz-transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --vz-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}

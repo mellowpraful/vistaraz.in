@@ -1,0 +1,98 @@
+/**
+ * VISTARAZ RESPONSIVE LAYOUT & BREAKPOINTS
+ */
+
+/* Breakpoint Mixins / Rules */
+/* Mobile First Approach */
+
+.vz-grid {
+  display: grid;
+  gap: var(--vz-space-6);
+}
+
+.vz-grid-2 {
+  grid-template-columns: 1fr;
+}
+
+.vz-grid-3 {
+  grid-template-columns: 1fr;
+}
+
+.vz-grid-4 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .vz-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vz-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .vz-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vz-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .vz-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Two-column layout with sidebar */
+.vz-dashboard-layout {
+  display: flex;
+  min-height: calc(100vh - var(--vz-header-height));
+  width: 100%;
+}
+
+.vz-dashboard-sidebar-area {
+  width: var(--vz-sidebar-width);
+  flex-shrink: 0;
+  display: none;
+}
+
+.vz-dashboard-main-area {
+  flex: 1;
+  min-width: 0;
+  padding: var(--vz-space-6);
+}
+
+@media (min-width: 900px) {
+  .vz-dashboard-sidebar-area {
+    display: block;
+  }
+}
+
+/* Responsive Container Adjustments */
+@media (max-width: 768px) {
+  .vz-container {
+    padding-left: var(--vz-space-4);
+    padding-right: var(--vz-space-4);
+  }
+}
+
+/* Responsive Hide/Show Helpers */
+.vz-hide-mobile {
+  display: block;
+}
+
+.vz-show-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .vz-hide-mobile {
+    display: none !important;
+  }
+  .vz-show-mobile {
+    display: block !important;
+  }
+}
