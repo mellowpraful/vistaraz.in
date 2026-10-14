@@ -1,3 +1,4 @@
+
 # Vistaraz
 
 Vistaraz is a fresh, static product front-end for a youth wellbeing support platform. Open `index.html` in a browser to preview it; no build step is required.
