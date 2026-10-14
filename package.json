@@ -1,35 +1,20 @@
 {
   "name": "vistaraz-site",
   "version": "1.0.0",
-  "description": "Vistaraz - Youth Wellbeing Support Platform (React Foundation)",
+  "description": "Vistaraz - Youth Wellbeing Support Platform with production-grade cache invalidation",
   "main": "server.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "node scripts/build-assets.js",
     "serve": "node server.js",
-    "build:legacy": "node scripts/build-assets.js",
     "test:cache": "node scripts/test-cache.js",
     "test:error": "node scripts/test-error-handling.js",
     "test": "npm run test:cache && npm run test:error"
   },
   "keywords": [
     "vistaraz",
-    "react",
-    "vite",
-    "mental-health",
-    "youth-wellbeing"
+    "cache-invalidation",
+    "static-site"
   ],
   "author": "Vistaraz",
-  "license": "ISC",
-  "dependencies": {
-    "lucide-react": "^1.56.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "react-router-dom": "^7.18.4"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.2",
-    "vite": "^8.3.4"
-  }
+  "license": "ISC"
 }
