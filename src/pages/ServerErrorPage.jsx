@@ -1,45 +1,102 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { Sparkles, RefreshCw, Home, Shield } from 'lucide-react';
+import Card from '../components/common/Card';
+import { RefreshCw, Home, Wifi, WifiOff, Phone } from 'lucide-react';
+import './ServerErrorPage.css';
 
 /**
  * ServerErrorPage
  * Assigned to: Developer 2
  * Source: 500.html
  * Route: /error-500
+ *
+ * Resilient server error sanctuary page with connectivity monitoring.
  */
 export default function ServerErrorPage() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [retrying, setRetrying] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  function handleRetry() {
+    setRetrying(true);
+    setTimeout(() => {
+      window.location.reload();
+    }, 700);
+  }
+
   return (
     <AppLayout>
-      <div className="vz-container" style={{ padding: '80px 24px', maxWidth: '640px', textAlign: 'center' }}>
-        <span className="vz-chip peach" style={{ marginBottom: '16px' }}>
-          <Sparkles size={14} /> Developer 2 Assignment (500)
-        </span>
-        <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>☕</div>
-        <h1 style={{ fontSize: '2.2rem', marginBottom: '12px' }}>A Gentle Pause</h1>
-        <p style={{ fontSize: '1.05rem', marginBottom: '32px' }}>
-          Our server encountered a momentary hiccup. Take a deep breath — your data is safe and our systems are gently resetting.
+      <div className="err500-page">
+        {/* Icon */}
+        <div className="err500-icon-wrap" aria-hidden="true">
+          <span className="err500-icon">🌿</span>
+        </div>
+
+        {/* Eyebrow */}
+        <span className="err500-eyebrow">TEMPORARY PAUSE · 500 SERVER REST</span>
+
+        {/* Title */}
+        <h1 className="err500-title">
+          Taking a brief <br />
+          <em className="err500-em">mindful breath.</em>
+        </h1>
+
+        {/* Description */}
+        <p className="err500-desc">
+          Our sanctuary servers encountered a momentary ripple while processing your request.
+          Your account and personal data remain completely safe and protected.
         </p>
 
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '40px' }}>
+        {/* Connection Status */}
+        <div className={`err500-status ${isOnline ? 'err500-status--online' : 'err500-status--offline'}`}>
+          {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
+          <span>
+            {isOnline
+              ? 'Internet connected · System stands ready'
+              : 'Device is offline · Check connection'}
+          </span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="err500-actions">
           <Button
             variant="primary"
-            onClick={() => window.location.reload()}
-            icon={<RefreshCw size={16} />}
+            onClick={handleRetry}
+            disabled={retrying}
+            icon={<RefreshCw size={16} className={retrying ? 'err500-spin' : ''} />}
+            iconPosition="left"
           >
-            Try Refreshing
+            {retrying ? 'Reconnecting...' : 'Reconnect & Retry'}
           </Button>
-          <Button to="/" variant="outline" icon={<Home size={16} />}>
-            Back to Home
+          <Button to="/" variant="ghost" icon={<Home size={16} />} iconPosition="left">
+            Home
           </Button>
         </div>
 
-        <Card variant="default" padding="md" style={{ textAlign: 'left' }}>
-          <p style={{ fontSize: '0.88rem', color: 'var(--vz-text-secondary)' }}>
-            <strong>Developer 2 Notice:</strong> Migrated from <code>500.html</code>. Includes server resilience diagnostics, retry mechanism, connectivity status monitoring, and error reporting.
-          </p>
+        {/* Crisis Safety Bar */}
+        <Card variant="pink" padding="md" className="err500-crisis-bar">
+          <div className="err500-crisis-content">
+            <div className="err500-crisis-left">
+              <Phone size={20} className="err500-crisis-icon" />
+              <span className="err500-crisis-text">
+                If you are experiencing an urgent crisis, help is available 24/7.
+              </span>
+            </div>
+            <Button to="/safety" variant="primary" size="sm" className="err500-crisis-btn">
+              Crisis Helplines
+            </Button>
+          </div>
         </Card>
       </div>
     </AppLayout>

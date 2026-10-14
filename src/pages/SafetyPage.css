@@ -1,0 +1,282 @@
+/**
+ * SafetyPage.css
+ * Page-specific styles for /safety — Crisis Resources & Helpline Directory
+ * Developer 2 Assignment
+ */
+
+.safety-page {
+  max-width: var(--vz-container-max);
+  margin: 0 auto;
+  padding: var(--vz-space-12) var(--vz-space-6);
+}
+
+/* ── Hero ── */
+.safety-hero {
+  text-align: center;
+  margin-bottom: var(--vz-space-12);
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.safety-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vz-space-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vz-pastel-pink-text);
+  background: var(--vz-pastel-pink-bg);
+  border: 1px solid var(--vz-pastel-pink-border);
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full);
+  margin-bottom: var(--vz-space-5);
+}
+
+.safety-hero__title {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  margin-bottom: var(--vz-space-4);
+  color: var(--vz-text-primary);
+}
+
+.safety-hero__em {
+  color: var(--vz-pastel-pink-text);
+  font-style: italic;
+}
+
+.safety-hero__desc {
+  font-size: 1.05rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.65;
+}
+
+/* ── Grid Layout ── */
+.safety-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vz-space-6);
+}
+
+/* ── Emergency Card ── */
+.safety-emergency-card {
+  border: 1px solid var(--vz-pastel-pink-border) !important;
+  background: var(--vz-pastel-pink-bg) !important;
+}
+
+.safety-emergency-card__icon-row {
+  margin-bottom: var(--vz-space-4);
+}
+
+.safety-emergency-icon {
+  font-size: 2.4rem;
+}
+
+.safety-emergency-card__title {
+  font-size: 1.3rem;
+  color: var(--vz-text-primary);
+  margin-bottom: var(--vz-space-3);
+}
+
+.safety-emergency-card__body {
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary);
+  margin-bottom: var(--vz-space-6);
+  line-height: 1.65;
+}
+
+.safety-emergency-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vz-space-2);
+  background: #be185d;
+  color: #ffffff;
+  padding: 13px 24px;
+  border-radius: var(--vz-radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background var(--vz-transition-fast), transform var(--vz-transition-fast);
+  width: 100%;
+  justify-content: center;
+}
+
+.safety-emergency-btn:hover {
+  background: #9d174d;
+  transform: translateY(-1px);
+}
+
+/* ── First Sentences Card ── */
+.safety-sentences-card__title {
+  font-size: 1.3rem;
+  margin-bottom: var(--vz-space-3);
+  color: var(--vz-text-primary);
+}
+
+.safety-sentences-card__body {
+  color: var(--vz-text-secondary);
+  margin-bottom: var(--vz-space-5);
+}
+
+.safety-quote {
+  background: var(--vz-bg-subtle);
+  border-left: 3px solid;
+  padding: var(--vz-space-4) var(--vz-space-4);
+  border-radius: 0 var(--vz-radius-sm) var(--vz-radius-sm) 0;
+  margin-bottom: var(--vz-space-3);
+  font-size: 0.92rem;
+  color: var(--vz-text-primary);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.safety-quote:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Helplines Section ── */
+.safety-helplines {
+  grid-column: 1 / -1;
+}
+
+.safety-helplines__header {
+  margin-bottom: var(--vz-space-6);
+}
+
+.safety-helplines__header h2 {
+  margin: var(--vz-space-2) 0;
+}
+
+.safety-helplines__header p {
+  color: var(--vz-text-secondary);
+}
+
+.safety-helpline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vz-space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--vz-space-3);
+  transition: box-shadow var(--vz-transition-base);
+}
+
+.safety-helpline-row:last-child {
+  margin-bottom: 0;
+}
+
+.safety-helpline-row--called {
+  box-shadow: 0 0 0 2px var(--vz-primary);
+}
+
+.safety-helpline-info {
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-4);
+  flex: 1;
+}
+
+.safety-helpline-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.safety-helpline-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vz-text-primary);
+  margin-bottom: 3px;
+}
+
+.safety-helpline-timing {
+  font-size: 0.8rem;
+  color: var(--vz-text-muted);
+  margin: 0;
+}
+
+.safety-call-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vz-space-2);
+  background: var(--vz-primary);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--vz-radius-md);
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background var(--vz-transition-fast), transform var(--vz-transition-fast);
+}
+
+.safety-call-btn:hover {
+  background: var(--vz-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ── Protocol Card ── */
+.safety-protocol-card {
+  grid-column: 1 / -1;
+}
+
+.safety-protocol-card__title {
+  font-size: 1.3rem;
+  color: var(--vz-text-primary);
+  margin: var(--vz-space-3) 0;
+}
+
+.safety-protocol-card__body {
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--vz-space-6);
+}
+
+.safety-protocol-actions {
+  display: flex;
+  gap: var(--vz-space-4);
+  flex-wrap: wrap;
+}
+
+/* ── Eyebrow label ── */
+.safety-eyebrow {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vz-text-muted);
+  margin-bottom: var(--vz-space-2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .safety-page {
+    padding: var(--vz-space-10) var(--vz-space-4);
+  }
+
+  .safety-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .safety-helpline-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .safety-call-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .safety-hero__title {
+    font-size: 2rem;
+  }
+
+  .safety-emergency-btn {
+    font-size: 0.85rem;
+  }
+}

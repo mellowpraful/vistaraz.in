@@ -244,6 +244,7 @@ const VistarazAuth = {
   async getProfile(userId) {
     const sb = getClient();
     if (!sb || !userId) return null;
+    try {
       const res = await executeResilient(async () => {
         return await sb
           .from('profiles')
