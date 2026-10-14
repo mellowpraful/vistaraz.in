@@ -1,6 +1,12 @@
 [build]
-  publish = "."
-  command = "node scripts/build-assets.js"
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 
 # 1. Immutable content-hashed assets (cached aggressively for 1 year)
 [[headers]]
