@@ -1,0 +1,287 @@
+/**
+ * Vistaraz Login Gate Modal Styles
+ * Aligned with the Vistaraz Design System and Privacy-by-Design Principles.
+ */
+
+/* Modal Backdrop Overlay */
+.vz-login-gate-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--vz-bg-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: var(--vz-space-4);
+  animation: vzLoginGateFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modal Card */
+.vz-login-gate-card {
+  position: relative;
+  background-color: var(--vz-bg-surface);
+  border: 1px solid var(--vz-border-light);
+  border-radius: var(--vz-radius-2xl);
+  box-shadow: var(--vz-shadow-lg);
+  padding: 36px 32px 32px;
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+  text-align: center;
+  animation: vzLoginGateScaleIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Close Button */
+.vz-login-gate__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vz-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vz-text-muted);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--vz-transition-fast);
+}
+
+.vz-login-gate__close:hover {
+  background-color: var(--vz-bg-subtle);
+  color: var(--vz-text-primary);
+}
+
+.vz-login-gate__close:focus-visible {
+  outline: 2px solid var(--vz-primary);
+  outline-offset: 2px;
+}
+
+/* Header Avatar Circle & Chip */
+.vz-login-gate__header-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vz-space-2);
+  margin-bottom: var(--vz-space-4);
+}
+
+.vz-login-gate__avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--vz-radius-full);
+  background: linear-gradient(135deg, var(--vz-primary-light) 0%, #f1edff 100%);
+  border: 2px solid #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--vz-shadow-sm);
+}
+
+.vz-login-gate__hero-icon {
+  color: var(--vz-primary);
+}
+
+.vz-login-gate__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--vz-radius-full);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--vz-primary-light);
+  color: var(--vz-primary);
+}
+
+/* Content */
+.vz-login-gate__content {
+  margin-bottom: var(--vz-space-4);
+}
+
+.vz-login-gate__title {
+  font-family: var(--vz-font-sans);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--vz-text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  margin-bottom: var(--vz-space-2);
+}
+
+.vz-login-gate__desc {
+  font-family: var(--vz-font-body);
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.55;
+  margin: 0 auto;
+  max-width: 360px;
+}
+
+/* Privacy Assurance Pill */
+.vz-login-gate__privacy-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full);
+  background-color: var(--vz-bg-subtle);
+  border: 1px solid var(--vz-border-light);
+  color: var(--vz-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-bottom: var(--vz-space-6);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.vz-login-gate__privacy-icon {
+  color: var(--vz-status-online);
+  flex-shrink: 0;
+}
+
+/* Actions List */
+.vz-login-gate__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vz-space-3);
+  width: 100%;
+}
+
+/* Buttons Base */
+.vz-login-gate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: var(--vz-radius-full);
+  font-family: var(--vz-font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--vz-transition-fast);
+  box-sizing: border-box;
+}
+
+.vz-login-gate-btn:focus-visible {
+  outline: 2px solid var(--vz-primary);
+  outline-offset: 2px;
+}
+
+/* Google Action Button */
+.vz-login-gate-btn--google {
+  background-color: #ffffff;
+  color: var(--vz-text-primary);
+  border: 1px solid var(--vz-border-subtle);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.vz-login-gate-btn--google:hover {
+  background-color: #fbfbfb;
+  border-color: #d1d5db;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.vz-login-gate-btn--google:active {
+  transform: translateY(0);
+}
+
+.vz-login-gate__icon-google {
+  flex-shrink: 0;
+}
+
+/* Email Action Button */
+.vz-login-gate-btn--email {
+  background-color: var(--vz-dark-pill);
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+.vz-login-gate-btn--email:hover {
+  background-color: var(--vz-dark-pill-hover);
+  box-shadow: 0 4px 12px rgba(19, 20, 24, 0.15);
+  transform: translateY(-1px);
+}
+
+.vz-login-gate-btn--email:active {
+  transform: translateY(0);
+}
+
+/* Ghost / Alternative Action */
+.vz-login-gate-btn--ghost {
+  background-color: transparent;
+  color: var(--vz-text-muted);
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+.vz-login-gate-btn--ghost:hover {
+  color: var(--vz-text-primary);
+  background-color: var(--vz-bg-subtle);
+}
+
+/* Non-intrusive status notice */
+.vz-login-gate__notice {
+  font-size: 0.82rem;
+  color: var(--vz-primary);
+  background-color: var(--vz-primary-light);
+  border: 1px solid #c7d2fe;
+  padding: 8px 12px;
+  border-radius: var(--vz-radius-md);
+  text-align: center;
+  line-height: 1.4;
+  animation: vzLoginGateFadeIn 180ms ease forwards;
+}
+
+/* Keyframes */
+@keyframes vzLoginGateFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vzLoginGateScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .vz-login-gate-card {
+    padding: 28px 20px 24px;
+    border-radius: var(--vz-radius-xl);
+  }
+
+  .vz-login-gate__title {
+    font-size: 1.35rem;
+  }
+
+  .vz-login-gate__desc {
+    font-size: 0.9rem;
+  }
+
+  .vz-login-gate-btn {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}

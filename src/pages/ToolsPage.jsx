@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import LoginGate from '../components/common/LoginGate';
+import { useAuth } from '../context/AuthContext';
 import {
   Wind,
   Volume2,
@@ -32,8 +34,10 @@ const BREATH_PRESETS = {
 };
 
 export default function ToolsPage() {
+  const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [showPanicModal, setShowPanicModal] = useState(false);
+  const [showLoginGate, setShowLoginGate] = useState(false);
 
   // 1. Breathing Studio State
   const [patternKey, setPatternKey] = useState('box');
@@ -193,6 +197,10 @@ export default function ToolsPage() {
   const [savedNotice, setSavedNotice] = useState(false);
 
   const handleSaveJournal = () => {
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
     if (!journalEntry.trim()) return;
     setSavedEntries([
       { id: Date.now(), text: journalEntry, date: 'Just now' },
@@ -201,6 +209,22 @@ export default function ToolsPage() {
     setJournalEntry('');
     setSavedNotice(true);
     setTimeout(() => setSavedNotice(false), 2000);
+  };
+
+  const handlePromptClick = (text) => {
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
+    setJournalEntry(text);
+  };
+
+  const handleFilterClick = (tabId) => {
+    if (tabId === 'journal' && !isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
+    setActiveTab(tabId);
   };
 
   const filterButtons = [
@@ -252,7 +276,7 @@ export default function ToolsPage() {
                   key={fb.id}
                   type="button"
                   className={`vz-tools-filter-btn ${activeTab === fb.id ? 'active' : ''}`}
-                  onClick={() => setActiveTab(fb.id)}
+                  onClick={() => handleFilterClick(fb.id)}
                 >
                   <Icon size={16} />
                   <span>{fb.label}</span>
@@ -474,24 +498,48 @@ export default function ToolsPage() {
               </p>
 
               <div className="vz-journal-prompts">
-                <button type="button" onClick={() => setJournalEntry("One kind thing someone said to me recently: ")}>
+                <button type="button" onClick={() => handlePromptClick("One kind thing someone said to me recently: ")}>
                   Kind word
                 </button>
-                <button type="button" onClick={() => setJournalEntry("Right now, my body is asking for: ")}>
+                <button type="button" onClick={() => handlePromptClick("Right now, my body is asking for: ")}>
                   Body need
                 </button>
-                <button type="button" onClick={() => setJournalEntry("Even though things feel overwhelming, I know that: ")}>
+                <button type="button" onClick={() => handlePromptClick("Even though things feel overwhelming, I know that: ")}>
                   Grounding reminder
                 </button>
               </div>
 
-              <textarea
-                className="vz-journal-input"
-                rows={3}
-                placeholder="Write your private reflections here..."
-                value={journalEntry}
-                onChange={(e) => setJournalEntry(e.target.value)}
-              />
+              {isAuthenticated ? (
+                <textarea
+                  className="vz-journal-input"
+                  rows={3}
+                  placeholder="Write your private reflections here..."
+                  value={journalEntry}
+                  onChange={(e) => setJournalEntry(e.target.value)}
+                />
+              ) : (
+                <div className="vz-journal-locked-wrap">
+                  <textarea
+                    className="vz-journal-input"
+                    rows={3}
+                    placeholder="Sign in to write in your private Sanctuary Journal..."
+                    readOnly
+                    aria-label="Journal locked — sign in to write"
+                  />
+                  <div className="vz-journal-locked-overlay">
+                    <BookOpen size={22} className="vz-journal-locked-icon" />
+                    <p>Your Sanctuary Journal is private &amp; encrypted.</p>
+                    <button
+                      type="button"
+                      id="journal-sign-in-btn"
+                      className="vz-journal-locked-btn"
+                      onClick={() => setShowLoginGate(true)}
+                    >
+                      Sign in to unlock
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
                 {savedNotice ? (
@@ -571,6 +619,16 @@ export default function ToolsPage() {
           </div>
         )}
       </div>
+
+      {/* Login Gate Modal (Only for Sanctuary Journal) */}
+      <LoginGate
+        isOpen={showLoginGate}
+        onClose={() => setShowLoginGate(false)}
+        title="Continue Your Journey"
+        description="Sign in to access your private, encrypted Sanctuary Journal."
+        badgeText="Sanctuary Journal"
+      />
     </AppLayout>
   );
 }
+

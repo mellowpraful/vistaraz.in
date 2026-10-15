@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import LoginGate from '../components/common/LoginGate';
 import {
   ArrowRight,
   ArrowLeft,
@@ -159,6 +160,7 @@ export default function AssessmentPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showLoginGate, setShowLoginGate] = useState(false);
 
   const question = ASSESSMENT_QUESTIONS[currentStep];
   const progressPercent = Math.round(((currentStep + 1) / ASSESSMENT_QUESTIONS.length) * 100);
@@ -189,6 +191,7 @@ export default function AssessmentPage() {
     setAnswers({});
     setCurrentStep(0);
     setIsCompleted(false);
+    setShowLoginGate(false);
   };
 
   // Score calculation
@@ -381,9 +384,29 @@ export default function AssessmentPage() {
 
               {/* Actions */}
               <div className="vz-results-actions">
-                <Button to={resultTier.actionRoute} variant="primary" size="lg" icon={<ArrowRight size={18} />}>
-                  {resultTier.actionLabel}
-                </Button>
+                {resultTier.actionRoute === '/community' ? (
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    icon={<ArrowRight size={18} />}
+                    onClick={() => setShowLoginGate(true)}
+                  >
+                    {resultTier.actionLabel}
+                  </Button>
+                ) : (
+                  <>
+                    <Button to={resultTier.actionRoute} variant="primary" size="lg" icon={<ArrowRight size={18} />}>
+                      {resultTier.actionLabel}
+                    </Button>
+                    <Button
+                      variant="soft"
+                      size="lg"
+                      onClick={() => setShowLoginGate(true)}
+                    >
+                      Explore Community Circles
+                    </Button>
+                  </>
+                )}
                 <Button to="/support" variant="outline" size="lg">
                   Browse Support Listeners
                 </Button>
@@ -399,6 +422,15 @@ export default function AssessmentPage() {
           </div>
         )}
       </div>
+
+      {/* Login Gate Modal */}
+      <LoginGate
+        isOpen={showLoginGate}
+        onClose={() => setShowLoginGate(false)}
+        title="Continue Your Journey"
+        description="Sign in to explore Community Circles and continue your Vistaraz journey."
+        badgeText="Community Circles"
+      />
     </AppLayout>
   );
 }

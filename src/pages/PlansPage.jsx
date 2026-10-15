@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import LoginGate from '../components/common/LoginGate';
+import { useAuth } from '../context/AuthContext';
 import {
   Check,
   Sparkles,
@@ -66,10 +68,12 @@ const PLANS_DATA = [
 
 export default function PlansPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [paymentTab, setPaymentTab] = useState('card'); // 'card', 'upi', 'netbanking'
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [showLoginGate, setShowLoginGate] = useState(false);
 
   // Form states
   const [cardNumber, setCardNumber] = useState('');
@@ -78,6 +82,10 @@ export default function PlansPage() {
   const [upiId, setUpiId] = useState('');
 
   const handleOpenPayment = (plan) => {
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
     setSelectedPlan(plan);
     setPaymentSuccess(false);
     setIsProcessing(false);
@@ -326,6 +334,15 @@ export default function PlansPage() {
           </div>
         )}
       </div>
+
+      {/* Login Gate Modal */}
+      <LoginGate
+        isOpen={showLoginGate}
+        onClose={() => setShowLoginGate(false)}
+        title="Continue Your Journey"
+        description="Sign in to choose a care membership and continue your Vistaraz journey."
+        badgeText="Care Membership"
+      />
     </AppLayout>
   );
 }

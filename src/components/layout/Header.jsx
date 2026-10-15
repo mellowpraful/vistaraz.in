@@ -3,13 +3,16 @@ import { Link, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Button from '../common/Button';
 import { Menu, X, ArrowRight, Search, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 /**
  * Vistaraz Header Component
  * Fixed/Sticky top navigation bar matching the design reference.
+ * Hides Dashboard navigation link for guest users across desktop and mobile.
  */
 export default function Header() {
+  const { isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -34,12 +37,14 @@ export default function Header() {
 
         {/* Header Right Actions */}
         <div className="vz-header__actions">
-          <Link
-            to="/dashboard"
-            className="vz-header__login-link vz-hide-mobile"
-          >
-            Dashboard
-          </Link>
+          {isAuthenticated && (
+            <Link
+              to="/dashboard"
+              className="vz-header__login-link vz-hide-mobile"
+            >
+              Dashboard
+            </Link>
+          )}
 
           <Button
             to="/register"
@@ -70,13 +75,15 @@ export default function Header() {
           <div className="vz-header__mobile-drawer-inner">
             <Navbar direction="column" onItemClick={closeMobileMenu} />
             <div className="vz-header__mobile-drawer-footer">
-              <Link
-                to="/dashboard"
-                className="vz-header__mobile-secondary-link"
-                onClick={closeMobileMenu}
-              >
-                Dashboard
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/dashboard"
+                  className="vz-header__mobile-secondary-link"
+                  onClick={closeMobileMenu}
+                >
+                  Dashboard
+                </Link>
+              )}
               <Button
                 to="/register"
                 variant="primary"
