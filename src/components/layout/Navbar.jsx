@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 const DEFAULT_NAV_ITEMS = [
@@ -14,6 +15,7 @@ const DEFAULT_NAV_ITEMS = [
 /**
  * Vistaraz Navbar Component
  * Reusable navigation bar with active route detection and responsive modes.
+ * Automatically excludes Dashboard for guest/unauthenticated users.
  */
 export default function Navbar({
   items = DEFAULT_NAV_ITEMS,
@@ -21,10 +23,13 @@ export default function Navbar({
   onItemClick,
   className = '',
 }) {
+  const { isAuthenticated } = useAuth();
+  const visibleItems = items.filter((item) => item.to !== '/dashboard' || isAuthenticated);
+
   return (
     <nav className={`vz-navbar vz-navbar--${direction} ${className}`} aria-label="Main Navigation">
       <ul className="vz-navbar__list">
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <li key={item.to} className="vz-navbar__item">
             <NavLink
               to={item.to}

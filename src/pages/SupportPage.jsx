@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import LoginGate from '../components/common/LoginGate';
+import { useAuth } from '../context/AuthContext';
 import {
   MessageSquare,
   Video,
@@ -108,9 +110,56 @@ const PROFESSIONALS = [
 ];
 
 export default function SupportPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'listeners', 'psychologists', 'psychiatrists', 'counselors'
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [showLoginGate, setShowLoginGate] = useState(false);
+  const [gateContent, setGateContent] = useState({
+    title: 'Continue Your Journey',
+    description: 'Sign in to continue and explore more of Vistaraz.',
+    badgeText: 'Sanctuary Access',
+  });
+
+  const handleStartChat = () => {
+    if (!isAuthenticated) {
+      setGateContent({
+        title: 'Continue Your Journey',
+        description: 'Sign in to start a free, confidential chat session with a peer listener.',
+        badgeText: 'Peer Chat Support',
+      });
+      setShowLoginGate(true);
+      return;
+    }
+    navigate('/chat');
+  };
+
+  const handleConfirmBooking = () => {
+    if (!isAuthenticated) {
+      setGateContent({
+        title: 'Continue Your Journey',
+        description: 'Sign in to confirm your consultation booking with a verified clinician.',
+        badgeText: 'Clinical Consultation',
+      });
+      setShowLoginGate(true);
+      return;
+    }
+    setBookingSuccess(true);
+  };
+
+  const handleVideoConsultation = () => {
+    if (!isAuthenticated) {
+      setGateContent({
+        title: 'Continue Your Journey',
+        description: 'Sign in to start a live video consultation session.',
+        badgeText: 'Video Consultation',
+      });
+      setShowLoginGate(true);
+      return;
+    }
+    navigate('/video-call');
+  };
 
   const filterTabs = [
     { id: 'all', label: 'All Support' },
@@ -212,7 +261,7 @@ export default function SupportPage() {
                     <div style={{ fontSize: '0.82rem', color: 'var(--vz-text-muted)' }}>
                       ★ {listener.rating} ({listener.sessionsCount} chats)
                     </div>
-                    <Button to="/chat" variant="primary" size="sm" icon={<ArrowRight size={14} />}>
+                    <Button onClick={handleStartChat} variant="primary" size="sm" icon={<ArrowRight size={14} />}>
                       Start Free Chat
                     </Button>
                   </div>
@@ -272,7 +321,7 @@ export default function SupportPage() {
                       >
                         View Profile & Book
                       </Button>
-                      <Button to="/video-call" variant="outline" size="sm" icon={<Video size={14} />} title="Video Consultation" />
+                      <Button onClick={handleVideoConsultation} variant="outline" size="sm" icon={<Video size={14} />} title="Video Consultation" />
                     </div>
                   </Card>
                 ))}
@@ -340,7 +389,7 @@ export default function SupportPage() {
                     fullWidth
                     size="lg"
                     icon={<Calendar size={18} />}
-                    onClick={() => setBookingSuccess(true)}
+                    onClick={handleConfirmBooking}
                   >
                     Confirm Consultation Booking
                   </Button>
@@ -363,6 +412,15 @@ export default function SupportPage() {
           </div>
         )}
       </div>
+
+      {/* Login Gate Modal */}
+      <LoginGate
+        isOpen={showLoginGate}
+        onClose={() => setShowLoginGate(false)}
+        title={gateContent.title}
+        description={gateContent.description}
+        badgeText={gateContent.badgeText}
+      />
     </AppLayout>
   );
 }

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import LoginGate from '../components/common/LoginGate';
+import { useAuth } from '../context/AuthContext';
 import {
   MessageSquare,
   Heart,
@@ -75,6 +77,8 @@ const INITIAL_POSTS = [
 ];
 
 export default function CommunityPage() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [selectedTopic, setSelectedTopic] = useState('All');
   const [newTitle, setNewTitle] = useState('');
@@ -82,6 +86,33 @@ export default function CommunityPage() {
   const [newTopic, setNewTopic] = useState('Connection');
   const [activeReplyPostId, setActiveReplyPostId] = useState(null);
   const [replyText, setReplyText] = useState('');
+
+  // Page-level guest gate: guests are redirected back on dismiss
+  const handleGuestDismiss = () => {
+    // Navigate back to previous page, or home if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
+  // If guest, show the login gate over an empty layout and do not render community content
+  if (!isAuthenticated) {
+    return (
+      <AppLayout>
+        <LoginGate
+          isOpen={true}
+          onClose={handleGuestDismiss}
+          title="Join the Conversation"
+          description="Sign in to explore Community Circles — our nickname-first, moderated space for real conversations and kind support."
+          badgeText="Community Circles"
+          dismissText="Maybe Later"
+        />
+      </AppLayout>
+    );
+  }
+
 
   const topics = [
     'All',
@@ -128,6 +159,10 @@ export default function CommunityPage() {
     setNewBody('');
   };
 
+  const handleReplyClick = (postId) => {
+    setActiveReplyPostId(activeReplyPostId === postId ? null : postId);
+  };
+
   const handleAddReply = (postId) => {
     if (!replyText.trim()) return;
     setPosts(
@@ -151,6 +186,10 @@ export default function CommunityPage() {
     );
     setReplyText('');
     setActiveReplyPostId(null);
+  };
+
+  const handleViewMorePosts = () => {
+    // Authenticated load-more (future implementation)
   };
 
   const filteredPosts = posts.filter((p) => {
@@ -322,9 +361,7 @@ export default function CommunityPage() {
                     <button
                       type="button"
                       className="vz-post-action-btn"
-                      onClick={() =>
-                        setActiveReplyPostId(activeReplyPostId === post.id ? null : post.id)
-                      }
+                      onClick={() => handleReplyClick(post.id)}
                     >
                       <MessageSquare size={16} />
                       <span>{post.replies.length} replies</span>
@@ -332,10 +369,24 @@ export default function CommunityPage() {
                   </div>
                 </Card>
               ))}
+
+              {/* View More Posts Trigger */}
+              <div style={{ textAlign: 'center', marginTop: '24px', paddingBottom: '16px' }}>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={handleViewMorePosts}
+                >
+                  View More Posts
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Login Gate Modal (for authenticated users' in-page actions) */}
+      {/* Note: Guest full-page gate is handled before this render via early return above */}
     </AppLayout>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import AppRoutes from './routes/AppRoutes';
+import { AuthProvider } from './context/AuthContext';
 import './styles/variables.css';
 import './styles/global.css';
 import './styles/responsive.css';
@@ -10,8 +11,11 @@ import './styles/responsive.css';
  */
 export default function App() {
   return (
-    <div className="vistaraz-app">
-      <AppRoutes />
-    </div>
+    <AuthProvider>
+      <div className="vistaraz-app">
+        <AppRoutes />
+      </div>
+    </AuthProvider>
   );
 }
+
