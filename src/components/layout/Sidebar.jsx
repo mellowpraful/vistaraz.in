@@ -13,6 +13,7 @@ import {
   Shield,
   LifeBuoy
 } from 'lucide-react';
+import logoImg from '../../assets/images/logo.png';
 import './Sidebar.css';
 
 const DEFAULT_SIDEBAR_LINKS = [
@@ -43,9 +44,12 @@ export default function Sidebar({
   return (
     <aside className={`vz-sidebar ${className}`} aria-label="Portal Sidebar Navigation">
       <div className="vz-sidebar__header">
-        <NavLink to="/" className="vz-sidebar__brand">
-          <span className="vz-sidebar__logo-text">{title}</span>
-          <span className="vz-sidebar__sprout">🌱</span>
+        <NavLink to="/" className="vz-sidebar__brand" aria-label="Vistaraz Home">
+          <img
+            src={logoImg}
+            alt={title || "Vistaraz"}
+            className="vz-sidebar__logo-img"
+          />
         </NavLink>
         {headerExtra}
       </div>

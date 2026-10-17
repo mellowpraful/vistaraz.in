@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldAlert, Heart, Mail, ExternalLink } from 'lucide-react';
+import logoImg from '../../assets/images/logo.png';
 import './Footer.css';
 
 /**
@@ -33,11 +34,13 @@ export default function Footer() {
         <div className="vz-footer__grid">
           {/* Brand Column */}
           <div className="vz-footer__brand-col">
-            <div className="vz-footer__brand">
-              <span className="vz-footer__logo">Vistaraz</span>
-              <span className="vz-footer__sprout">🌱</span>
-            </div>
-            <p className="vz-footer__tagline">A better way to reach out.</p>
+            <Link to="/" className="vz-footer__brand" aria-label="Vistaraz Home">
+              <img
+                src={logoImg}
+                alt="Vistaraz — A better way to reach out"
+                className="vz-footer__logo-img"
+              />
+            </Link>
             <p className="vz-footer__mission">
               A private, judgement-free space for young people to pause, talk things through, and access compassionate support.
             </p>

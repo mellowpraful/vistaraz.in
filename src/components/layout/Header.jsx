@@ -4,6 +4,7 @@ import Navbar from './Navbar';
 import Button from '../common/Button';
 import { Menu, X, ArrowRight, Search, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import logoImg from '../../assets/images/logo.png';
 import './Header.css';
 
 /**
@@ -24,10 +25,11 @@ export default function Header() {
       <div className="vz-container vz-header__inner">
         {/* Brand Logo */}
         <Link to="/" className="vz-header__brand" onClick={closeMobileMenu}>
-          <div className="vz-header__brand-mark">
-            <span className="vz-header__logo-text">Vistaraz</span>
-            <span className="vz-header__sprout">🌱</span>
-          </div>
+          <img
+            src={logoImg}
+            alt="Vistaraz"
+            className="vz-header__logo-img"
+          />
         </Link>
 
         {/* Desktop Navbar */}

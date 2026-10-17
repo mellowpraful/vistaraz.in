@@ -11,7 +11,8 @@
     "build:legacy": "node scripts/build-assets.js",
     "test:cache": "node scripts/test-cache.js",
     "test:error": "node scripts/test-error-handling.js",
-    "test": "npm run test:cache && npm run test:error"
+    "test": "npm run test:cache && npm run test:error",
+    "sync": "node scripts/git-sync.js"
   },
   "keywords": [
     "vistaraz",

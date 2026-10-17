@@ -84,10 +84,19 @@
 }
 
 .vz-footer__brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: var(--vz-space-2);
+  margin-bottom: var(--vz-space-3);
+  text-decoration: none;
+}
+
+.vz-footer__logo-img {
+  height: 56px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block;
 }
 
 .vz-footer__logo {

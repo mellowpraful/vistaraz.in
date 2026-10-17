@@ -24,6 +24,14 @@
   text-decoration: none;
 }
 
+.vz-sidebar__logo-img {
+  height: 42px;
+  width: auto;
+  max-width: 170px;
+  object-fit: contain;
+  display: block;
+}
+
 .vz-sidebar__logo-text {
   font-family: var(--vz-font-sans);
   font-size: 1.45rem;

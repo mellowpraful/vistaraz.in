@@ -25,6 +25,14 @@
   text-decoration: none;
 }
 
+.vz-header__logo-img {
+  height: 48px;
+  width: auto;
+  max-width: 190px;
+  object-fit: contain;
+  display: block;
+}
+
 .vz-header__brand-mark {
   display: flex;
   align-items: center;
