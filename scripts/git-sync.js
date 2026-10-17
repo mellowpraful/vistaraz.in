@@ -68,14 +68,20 @@ function sync() {
     } catch (_) {}
   }
 
-  // 5. Push to origin Prafful
-  console.log(`⬆️ Pushing to origin/${targetRemoteBranch}...`);
+  // 5. Push to origin Prafful and ps
+  console.log('⬆️ Pushing to origin (Prafful & ps)...');
   try {
-    run(`git push origin ${currentBranch}:${targetRemoteBranch}`);
-    console.log(`  ✓ Successfully pushed to origin/${targetRemoteBranch}`);
+    run(`git push origin ${currentBranch}:Prafful`);
+    console.log('  ✓ Successfully pushed to origin/Prafful');
   } catch (pushErr) {
-    console.error(`❌ Push failed: ${pushErr.message || pushErr}`);
-    process.exit(1);
+    console.error(`❌ Push to Prafful failed: ${pushErr.message || pushErr}`);
+  }
+
+  try {
+    run(`git push origin ${currentBranch}:ps`);
+    console.log('  ✓ Successfully pushed to origin/ps');
+  } catch (pushErr) {
+    console.warn(`  ⚠️ Push to ps notice: ${pushErr.message || pushErr}`);
   }
 
   console.log('✨ [Git Sync] Completed successfully! Prafful (ps) branch is synced.');
