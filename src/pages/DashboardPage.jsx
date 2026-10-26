@@ -21,14 +21,18 @@ import {
 } from 'lucide-react';
 import './DashboardPage.css';
 
+import { useAuth } from '../context/AuthContext';
+
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [showWearableBanner, setShowWearableBanner] = useState(true);
-  const [userName, setUserName] = useState('Friend');
+  const userName = user?.name || 'Friend';
   const [userPlan, setUserPlan] = useState('Silver');
 
   const handleSignOut = () => {
-    navigate('/');
+    logout();
+    navigate('/login', { replace: true });
   };
 
   return (
