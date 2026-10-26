@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>10-Area Mental Health Assessment | Vistaraz</title>
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Fraunces', 'serif']
+          },
+          colors: {
+            surface: 'var(--bg-dark)',
+            card: 'var(--bg-card)',
+            border: 'var(--border-color)',
+            muted: 'var(--text-muted)',
+            accent: 'var(--accent-primary)',
+            secondary: 'var(--accent-secondary)',
+            success: 'var(--success)',
+            danger: 'var(--danger)',
+            warning: 'var(--warning)',
+          }
+        }
+      }
+    }
+  </script>
+
+</head>
+
+<body class="font-sans min-h-screen flex flex-col antialiased">
+
+  <!-- Header with logo.png -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand flex-shrink-0" href="index.html">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="assessment.html" class="active">Check-in</a>
+        <a href="support.html">Support</a>
+        <a href="tools.html">Tools</a>
+        <a href="dashboard.html"
+          class="vz-quick-access bg-accent/10 border border-accent/30 text-accent px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all">Dashboard</a>
+        <button class="theme-toggle" data-vz-theme-btn
+          onclick="vzToggleTheme()"
+          title="Switch Theme" aria-label="Switch Theme">
+          🌙
+        </button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 flex flex-col justify-center">
+
+    <!-- Questionnaire Container -->
+    <div id="quizContainer"
+      class="bg-card border border-border rounded-3xl p-6 sm:p-10 backdrop-blur-xl shadow-2xl relative">
+
+      <!-- Progress Bar & Step Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between text-xs text-muted font-medium mb-2">
+          <span id="areaBadge"
+            class="bg-accent/10 border border-accent/20 text-accent px-3 py-1 rounded-full font-semibold">Area 1 of 10:
+            Current Mood</span>
+          <span id="stepCounter">Question 1 / 10</span>
+        </div>
+        <div class="w-full h-2 bg-surface rounded-full overflow-hidden border border-border">
+          <div id="progressFill"
+            class="h-full bg-gradient-to-r from-accent to-blue-400 rounded-full transition-all duration-300"
+            style="width: 10%;"></div>
+        </div>
+      </div>
+
+      <!-- Form Steps -->
+      <form id="assessmentForm" onsubmit="event.preventDefault();">
+
+        <!-- Q1: Primary Challenge -->
+        <fieldset data-step="1" class="step-fieldset space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">1. What kind of <em>mental issue or challenge</em>
+              are you facing?</h2>
+            <p class="text-xs text-muted">Select the option that best describes your situation. This helps your helper
+              understand you better.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('currentMood', 'Relationship Issues', 50, 'fa-heart', '#ff6b6b', 'Struggling')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg">
+                <i class="fa-solid fa-heart"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Relationship Issues</p>
+                <p class="text-xs text-muted">Family, friends, partner, or social conflicts</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('currentMood', 'Academic & Career Stress', 60, 'fa-graduation-cap', '#8ab4f8', 'Struggling')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-graduation-cap"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Academic & Career Stress</p>
+                <p class="text-xs text-muted">Workload, exams, job search, performance</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('currentMood', 'Financial Stress', 70, 'fa-wallet', '#f59e0b', 'Struggling')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-wallet"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Financial Stress</p>
+                <p class="text-xs text-muted">Expenses, debt, stability, or cost of living</p>
+              </div>
+            </div>
+            <div id="q1-other-opt" onclick="selectQ1Other()"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-circle-question"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Other Issue</p>
+                <p class="text-xs text-muted">Describe your custom situation below</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing bar for Other Option -->
+          <div id="q1-other-container" class="hidden space-y-3 pt-3 border-t border-border/40">
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Describe the challenge you
+              are facing:</label>
+            <div class="flex gap-2">
+              <input id="q1-other-input" type="text" placeholder="Type your issue here..."
+                class="flex-grow bg-surface border border-border text-gray-100 text-sm p-3 rounded-xl focus:outline-none focus:border-accent">
+              <button onclick="submitQ1Other()"
+                class="bg-accent hover:bg-blue-600 text-black font-bold px-5 py-3 rounded-xl text-xs transition-colors flex-shrink-0">
+                Continue
+              </button>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q2: Stress and Anxiety -->
+        <fieldset data-step="2" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">2. How noticeable are your <em>stress &
+                anxiety</em> levels?</h2>
+            <p class="text-xs text-muted">Focus on physical tension, racing thoughts, or feeling jittery.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('stressAnxiety', 'Minimal Stress', 20, 'fa-bolt', '#4cd964', 'Low')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-feather"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Very Low / Calm</p>
+                <p class="text-xs text-muted">Feeling relaxed and in control</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('stressAnxiety', 'Moderate Tension', 50, 'fa-bolt', '#8ab4f8', 'Moderate')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-cloud"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Occasional Tension</p>
+                <p class="text-xs text-muted">Manageable stress under deadlines</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('stressAnxiety', 'High Anxiety & Racing Thoughts', 85, 'fa-bolt', '#ff6b6b', 'High')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-bolt"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">High & Persistent</p>
+                <p class="text-xs text-muted">Racing thoughts, tightness, worry</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('stressAnxiety', 'Severe Panic / Acute Overwhelm', 95, 'fa-bolt', '#ff6b6b', 'Critical')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/20 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-triangle-exclamation"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Severe / Panic Attacks</p>
+                <p class="text-xs text-muted">Frequent panic or overwhelm</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q3: Academic/Career Pressure -->
+        <fieldset data-step="3" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">3. How is your <em>academic or career
+                pressure</em>?</h2>
+            <p class="text-xs text-muted">Assess workload, exams, job search, or performance expectations.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div
+              onclick="recordAnswer('academicPressure', 'Comfortable Pace', 20, 'fa-graduation-cap', '#4cd964', 'Low')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Comfortable Workload</p>
+                <p class="text-xs text-muted">On top of assignments and goals</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('academicPressure', 'Busy but Managing', 45, 'fa-graduation-cap', '#8ab4f8', 'Managing')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-book-open"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Busy & Demanding</p>
+                <p class="text-xs text-muted">Stretched, but keeping pace</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('academicPressure', 'Heavy Pressure & Exam Fear', 80, 'fa-graduation-cap', '#f59e0b', 'High')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-clock flex-shrink-0"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Intense Deadline Fear</p>
+                <p class="text-xs text-muted">Scared of failure or falling behind</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('academicPressure', 'Crushing Overload / Burnout', 95, 'fa-graduation-cap', '#ff6b6b', 'Burnout')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-fire"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Complete Burnout</p>
+                <p class="text-xs text-muted">Unable to focus or continue work</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q4: Relationships -->
+        <fieldset data-step="4" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">4. How are your <em>relationships</em> (family,
+              friends, partner)?</h2>
+            <p class="text-xs text-muted">Think about emotional safety, conflict, or support systems.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('relationships', 'Strong & Supported', 15, 'fa-heart', '#4cd964', 'Strong')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-heart"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Deeply Supported</p>
+                <p class="text-xs text-muted">Warm, trusting connections</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('relationships', 'Fair with Minor Friction', 40, 'fa-heart', '#8ab4f8', 'Managing')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-user-group"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Mostly Fine</p>
+                <p class="text-xs text-muted">Minor misunderstandings, overall good</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('relationships', 'Frequent Conflict / Strained', 75, 'fa-heart', '#f59e0b', 'Strained')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-heart-crack"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Strained & Tense</p>
+                <p class="text-xs text-muted">Arguments, friction, or feeling judged</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('relationships', 'Isolated / Unsupported', 90, 'fa-heart', '#ff6b6b', 'Distressed')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-user-xmark"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Disconnected / Hurt</p>
+                <p class="text-xs text-muted">Feeling alone even around others</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q5: Loneliness -->
+        <fieldset data-step="5" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">5. Do you feel a sense of <em>loneliness or
+                isolation</em>?</h2>
+            <p class="text-xs text-muted">Whether living alone or feeling emotionally unheard.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('loneliness', 'Well Connected', 15, 'fa-user-slash', '#4cd964', 'Low')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-people-roof"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Rarely Lonely</p>
+                <p class="text-xs text-muted">Surrounded by caring people</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('loneliness', 'Occasional Isolation', 40, 'fa-user-slash', '#8ab4f8', 'Mild')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-user"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Sometimes Alone</p>
+                <p class="text-xs text-muted">Passing feelings of isolation</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('loneliness', 'Frequently Isolated', 80, 'fa-user-slash', '#f59e0b', 'High')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-person-walking-arrow-right"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Often Lonely</p>
+                <p class="text-xs text-muted">Missing deep or genuine connection</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('loneliness', 'Severe Chronic Isolation', 95, 'fa-user-slash', '#ff6b6b', 'Severe')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-ghost"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Completely Isolated</p>
+                <p class="text-xs text-muted">Nobody to talk to or confide in</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q6: Sleep -->
+        <fieldset data-step="6" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">6. How has your <em>sleep quality</em> been
+              recently?</h2>
+            <p class="text-xs text-muted">Factor in time to fall asleep, nighttime awakenings, and restfulness.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('sleep', 'Deep & Restful', 15, 'fa-moon', '#4cd964', 'Restful')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-moon"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Deep & Restful</p>
+                <p class="text-xs text-muted">Sleeping 7–8 hours effortlessly</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('sleep', 'Slightly Irregular', 45, 'fa-moon', '#8ab4f8', 'Fair')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-bed"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Slightly Disturbed</p>
+                <p class="text-xs text-muted">Take a while to fall asleep</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('sleep', 'Frequent Insomnia / Late Nights', 80, 'fa-moon', '#ff6b6b', 'Insomnia Risk')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-eye"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Frequent Insomnia</p>
+                <p class="text-xs text-muted">Nighttime overthinking, waking often</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('sleep', 'Severe Sleep Deprivation', 95, 'fa-moon', '#ff6b6b', 'Severe Insomnia')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/20 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-battery-empty"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Severe Sleep Loss</p>
+                <p class="text-xs text-muted">Exhausted daily, unable to rest</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q7: Motivation -->
+        <fieldset data-step="7" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">7. How is your <em>daily motivation & drive</em>?
+            </h2>
+            <p class="text-xs text-muted">Getting started on tasks, routine, or personal projects.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('motivation', 'High & Driven', 15, 'fa-compass', '#4cd964', 'Driven')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-rocket"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">High & Excited</p>
+                <p class="text-xs text-muted">Looking forward to tasks and goals</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('motivation', 'Moderate / Steady', 40, 'fa-compass', '#8ab4f8', 'Steady')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-compass"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Steady Routine</p>
+                <p class="text-xs text-muted">Getting things done normally</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('motivation', 'Low Energy & Procrastination', 70, 'fa-compass', '#f59e0b', 'Low Drive')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-hourglass-start"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Procrastinating Often</p>
+                <p class="text-xs text-muted">Pushing tasks away, low enthusiasm</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('motivation', 'Complete Apathy / Avolition', 90, 'fa-compass', '#ff6b6b', 'Apathy')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-ban"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Zero Motivation</p>
+                <p class="text-xs text-muted">Hard to get out of bed or start anything</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q8: Concentration -->
+        <fieldset data-step="8" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">8. How is your <em>concentration & mental
+                focus</em>?</h2>
+            <p class="text-xs text-muted">Attention span while reading, studying, working, or conversing.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('concentration', 'Sharp & Focused', 15, 'fa-brain', '#4cd964', 'Sharp')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Sharp & Clear</p>
+                <p class="text-xs text-muted">Easily maintain focus for hours</p>
+              </div>
+            </div>
+            <div onclick="recordAnswer('concentration', 'Normal Attention', 35, 'fa-brain', '#8ab4f8', 'Normal')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-brain"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Occasional Distraction</p>
+                <p class="text-xs text-muted">Minor mind wandering, but fine</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('concentration', 'Brain Fog & Distraction', 75, 'fa-brain', '#f59e0b', 'Brain Fog')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-smog"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Frequent Brain Fog</p>
+                <p class="text-xs text-muted">Rereading pages, forgetful, easily distracted</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('concentration', 'Severe Cognitive Fatigue', 90, 'fa-brain', '#ff6b6b', 'Severe Fatigue')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-head-side-virus"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Severe Focus Exhaustion</p>
+                <p class="text-xs text-muted">Unable to concentrate on basic tasks</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q9: Social Wellbeing -->
+        <fieldset data-step="9" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">9. How do you feel about your <em>social wellbeing
+                & comfort</em>?</h2>
+            <p class="text-xs text-muted">Interacting in groups, attending gatherings, or opening up to others.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div onclick="recordAnswer('socialWellbeing', 'Socially Confident', 15, 'fa-users', '#4cd964', 'Confident')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Outgoing & Comfortable</p>
+                <p class="text-xs text-muted">Enjoy social interactions</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('socialWellbeing', 'Selective Socialization', 35, 'fa-users', '#8ab4f8', 'Selective')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-user-group"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Selective Comfort</p>
+                <p class="text-xs text-muted">Prefer small circles or close friends</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('socialWellbeing', 'Social Anxiety & Avoidance', 75, 'fa-users', '#f59e0b', 'Anxious')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-person-shelter"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Social Anxiety / Dread</p>
+                <p class="text-xs text-muted">Self-conscious or avoiding events</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('socialWellbeing', 'Extreme Social Withdrawal', 90, 'fa-users', '#ff6b6b', 'Withdrawn')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/10 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-door-closed"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Complete Social Withdrawal</p>
+                <p class="text-xs text-muted">Avoiding human contact entirely</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q10: General Emotional State -->
+        <fieldset data-step="10" class="step-fieldset hidden space-y-5">
+          <div class="space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">10. Overall, how would you rate your <em>general
+                emotional state</em>?</h2>
+            <p class="text-xs text-muted">Your baseline mood, emotional resilience, and optimism for the future.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+            <div
+              onclick="recordAnswer('generalEmotionalState', 'Resilient & Hopeful', 15, 'fa-shield-heart', '#4cd964', 'Resilient')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-success flex items-center justify-center text-lg">
+                <i class="fa-solid fa-sun"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Resilient & Hopeful</p>
+                <p class="text-xs text-muted">Confident in handling life</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('generalEmotionalState', 'Coping Fine', 40, 'fa-shield-heart', '#8ab4f8', 'Coping')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-shield-heart"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Generally Coping</p>
+                <p class="text-xs text-muted">Handling challenges reasonably well</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('generalEmotionalState', 'Vulnerable & Sensitive', 75, 'fa-shield-heart', '#f59e0b', 'Vulnerable')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-warning flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-cloud-showers-heavy"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Fragile / Vulnerable</p>
+                <p class="text-xs text-muted">Easily overwhelmed or tearful</p>
+              </div>
+            </div>
+            <div
+              onclick="recordAnswer('generalEmotionalState', 'Critical Distress', 95, 'fa-shield-heart', '#ff6b6b', 'Critical')"
+              class="option-card bg-surface border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-red-500/20 text-danger flex items-center justify-center text-lg"><i
+                  class="fa-solid fa-heart-circle-bolt"></i></div>
+              <div>
+                <p class="text-sm font-semibold text-gray-100">Severe Emotional Pain</p>
+                <p class="text-xs text-muted">In urgent need of empathetic support</p>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+      </form>
+
+      <!-- Step Navigation Buttons -->
+      <div class="flex items-center justify-between mt-8 pt-6 border-t border-border">
+        <button id="prevBtn" onclick="navigateStep(-1)"
+          class="hidden bg-surface hover:bg-white/5 border border-border text-muted px-4 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center gap-2">
+          <i class="fa-solid fa-arrow-left"></i> Previous
+        </button>
+        <span class="text-[11px] text-muted font-mono">Confidential 10-Area Check-in</span>
+      </div>
+
+    </div>
+
+    <!-- Result Screen (Initially Hidden) -->
+    <div id="resultScreen"
+      class="hidden bg-card border border-border rounded-3xl p-6 sm:p-10 backdrop-blur-xl shadow-2xl space-y-6">
+
+      <div class="text-center max-w-xl mx-auto space-y-3">
+        <div
+          class="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 text-accent flex items-center justify-center text-2xl mx-auto shadow-lg shadow-accent/10">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-accent">Assessment Complete</span>
+        <h2 class="text-2xl sm:text-3xl font-serif text-gray-100">Your 10-Area Mental Health Profile</h2>
+        <p class="text-xs sm:text-sm text-muted">Your profile has been saved. You can now request support from verified
+          peer listeners on Vistaraz.</p>
+      </div>
+
+      <!-- Overall Score & Summary Box -->
+      <div
+        class="bg-surface/80 border border-border rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Computed Support Index</span>
+          <div class="flex items-center gap-3 mt-1">
+            <span id="resOverallScore" class="text-3xl font-bold text-accent">72/100</span>
+            <span id="resOverallBadge"
+              class="text-xs font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Moderate
+              Need</span>
+          </div>
+        </div>
+        <div class="text-left sm:text-right">
+          <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Primary Distress Focus</span>
+          <p id="resPrimaryConcern" class="text-xs font-semibold text-gray-200 mt-1">Academic Pressure & Sleep
+            Disturbance</p>
+        </div>
+      </div>
+
+      <!-- Dynamic Recommendations Box -->
+      <div id="dynamicRecommendationBox" class="bg-surface/50 border border-border rounded-2xl p-5 space-y-4">
+        <h3 class="text-xs font-bold uppercase text-gray-300 tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-compass text-accent"></i> Recommended Next Steps & Analysis
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="space-y-1">
+            <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Stress Analysis</span>
+            <p id="recStressLevel" class="text-gray-200 font-medium">Analyzing your stress levels...</p>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Suggested Support Level</span>
+            <p id="recSupportLevel" class="text-gray-200 font-medium">Computing recommended support...</p>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-border/30">
+          <span class="text-[10px] text-muted uppercase font-bold tracking-wider">Specific Action Plan</span>
+          <p id="recActionPlan" class="text-xs text-gray-300 mt-1 leading-relaxed">Calculating action steps...</p>
+        </div>
+      </div>
+
+      <!-- 10 Areas Breakdown Grid -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-bold uppercase text-gray-300 tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-accent"></i> 10-Point Score Breakdown
+        </h3>
+        <div id="resAreasGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
+        <button onclick="location.reload();" class="text-xs text-muted hover:text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i> Retake Assessment
+        </button>
+
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+          <a href="dashboard.html"
+            class="bg-surface hover:bg-white/10 border border-border text-gray-200 font-semibold px-4 py-2.5 rounded-xl text-xs transition-colors">
+            Go to My Dashboard
+          </a>
+
+          <a href="support.html"
+            class="bg-gradient-to-r from-accent to-blue-500 hover:from-blue-500 hover:to-accent text-black font-bold px-6 py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20">
+            Connect with Support Listener <i class="fa-solid fa-headset"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="text-center pt-2">
+        <span class="text-[11px] text-muted">You can update your check-in at any time.</span>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/dist/api.ed7a4966.js"></script>
+  <script src="assets/dist/app.f302ef53.js"></script>
+
+
+  <footer class="border-t border-border bg-surface/50 py-4 mt-8">
+    <div class="max-w-4xl mx-auto px-4 flex items-center justify-between text-xs text-muted">
+      <span>&copy; 2026 Vistaraz Care Support.</span>
+      <span class="font-mono text-[11px]">Innovate · Heal · Impact</span>
+    </div>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    const areaTitles = {
+      1: 'Area 1 of 10: Primary Challenge',
+      2: 'Area 2 of 10: Stress & Anxiety',
+      3: 'Area 3 of 10: Academic / Career Pressure',
+      4: 'Area 4 of 10: Relationships',
+      5: 'Area 5 of 10: Loneliness',
+      6: 'Area 6 of 10: Sleep Quality',
+      7: 'Area 7 of 10: Daily Motivation',
+      8: 'Area 8 of 10: Concentration & Focus',
+      9: 'Area 9 of 10: Social Wellbeing',
+      10: 'Area 10 of 10: General Emotional State'
+    };
+
+    function selectQ1Other() {
+      document.querySelectorAll('.step-fieldset[data-step="1"] .option-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('q1-other-opt').classList.add('selected');
+      document.getElementById('q1-other-container').classList.remove('hidden');
+      document.getElementById('q1-other-input').focus();
+    }
+
+    function submitQ1Other() {
+      const val = document.getElementById('q1-other-input').value.trim();
+      if (!val) {
+        alert('Please describe the issue or choose one of the main options.');
+        return;
+      }
+      recordAnswer('currentMood', 'Other: ' + val, 75, 'fa-circle-question', '#c39b77', 'Struggling');
+    }
+
+    let currentStep = 1;
+    const assessmentProfile = {
+      id: 'req-' + Date.now().toString().slice(-4),
+      clientName: 'Anonymous_User_' + Math.floor(1000 + Math.random() * 9000),
+      isRealUser: true,
+      timestamp: 'Just Now',
+      age: 22,
+      sessionType: 'Video / Audio',
+      overallScore: 0,
+      overallBadge: 'Moderate Need',
+      primaryConcern: '',
+      areaScores: {},
+      notes: 'User completed the 10-area mental health check-in questionnaire.'
+    };
+
+    function recordAnswer(areaKey, label, score, icon, color, status) {
+      assessmentProfile.areaScores[areaKey] = {
+        title: areaKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+        label: label,
+        score: score,
+        icon: icon,
+        color: color,
+        status: status
+      };
+
+      if (currentStep < 10) {
+        currentStep++;
+        updateStepView();
+      } else {
+        finishAssessment();
+      }
+    }
+
+    function navigateStep(direction) {
+      if (currentStep + direction >= 1 && currentStep + direction <= 10) {
+        currentStep += direction;
+        updateStepView();
+      }
+    }
+
+    function updateStepView() {
+      // Hide all fieldsets
+      document.querySelectorAll('.step-fieldset').forEach(fs => fs.classList.add('hidden'));
+
+      // Show current fieldset
+      const activeFieldset = document.querySelector(`.step-fieldset[data-step="${currentStep}"]`);
+      if (activeFieldset) activeFieldset.classList.remove('hidden');
+
+      // Update progress bar & counters
+      const fill = document.getElementById('progressFill');
+      const badge = document.getElementById('areaBadge');
+      const counter = document.getElementById('stepCounter');
+      const prevBtn = document.getElementById('prevBtn');
+
+      if (fill) fill.style.width = (currentStep * 10) + '%';
+      if (badge) badge.textContent = areaTitles[currentStep] || `Area ${currentStep} of 10`;
+      if (counter) counter.textContent = `Question ${currentStep} / 10`;
+
+      if (prevBtn) {
+        if (currentStep > 1) prevBtn.classList.remove('hidden');
+        else prevBtn.classList.add('hidden');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function finishAssessment() {
+      // Calculate overall score
+      let total = 0;
+      let count = 0;
+      let highestDistressArea = '';
+      let maxScore = -1;
+
+      Object.keys(assessmentProfile.areaScores).forEach(key => {
+        const item = assessmentProfile.areaScores[key];
+        total += item.score;
+        count++;
+        if (item.score > maxScore) {
+          maxScore = item.score;
+          highestDistressArea = item.title;
+        }
+      });
+
+      const avgScore = Math.round(total / (count || 1));
+      assessmentProfile.overallScore = avgScore;
+      assessmentProfile.primaryConcern = highestDistressArea + ' (' + (maxScore >= 70 ? 'High Focus' : 'Moderate Focus') + ')';
+
+      if (avgScore >= 80) assessmentProfile.overallBadge = 'High Support Need';
+      else if (avgScore >= 55) assessmentProfile.overallBadge = 'Moderate Support Need';
+      else assessmentProfile.overallBadge = 'Mild Support Need';
+
+      // Save to localStorage
+      localStorage.setItem('vistaraz_user_assessment_profile', JSON.stringify(assessmentProfile));
+
+      // Save to Supabase DB if client initialized
+      if (window.VistarazDB) {
+        VistarazDB.saveAssessment({
+          score: avgScore,
+          category: highestDistressArea || 'General',
+          answers: assessmentProfile.areaScores || {},
+          notes: assessmentProfile.primaryConcern || ''
+        }).then(({ error }) => {
+          if (error) {
+            console.error('Error saving assessment to Supabase:', error);
+          } else {
+            console.log('Assessment saved to Supabase successfully');
+          }
+        }).catch(err => {
+          console.error('Failed to save assessment:', err);
+        });
+      }
+
+      // Append to listener requests queue
+      let existingRequests = [];
+      try {
+        existingRequests = JSON.parse(localStorage.getItem('vistaraz_listener_requests') || '[]');
+      } catch (e) { console.warn(e); }
+
+      existingRequests.unshift(assessmentProfile);
+      localStorage.setItem('vistaraz_listener_requests', JSON.stringify(existingRequests));
+
+      // Display results
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+
+      document.getElementById('resOverallScore').textContent = `${avgScore}/100`;
+      document.getElementById('resOverallBadge').textContent = assessmentProfile.overallBadge;
+      document.getElementById('resPrimaryConcern').textContent = assessmentProfile.primaryConcern;
+
+      // Populate Dynamic Recommendations
+      const stressEl = document.getElementById('recStressLevel');
+      const supportEl = document.getElementById('recSupportLevel');
+      const actionEl = document.getElementById('recActionPlan');
+
+      if (avgScore >= 80) {
+        stressEl.innerHTML = '<span class="text-danger">🔴 High Distress</span>: Severe stress and anxiety patterns identified. Burnout or emotional overwhelm may be impacting daily functioning.';
+        supportEl.innerHTML = '<span class="text-danger">Professional Care Suggested</span>: Verified therapists or counselor-led sessions recommended for clinical support.';
+        actionEl.textContent = 'Action Step: We strongly suggest connecting with a qualified therapist or mental health professional. Explore immediate safety guidelines on our Safety page and use the 4-7-8 breathing exercise in Care Tools to ease acute panic.';
+      } else if (avgScore >= 55) {
+        stressEl.innerHTML = '<span class="text-warning">🟡 Moderate Distress</span>: Elevated stress levels detected. Career, relationship, or academic challenges are causing noticeable emotional tension.';
+        supportEl.innerHTML = '<span class="text-accent">Peer Support Suggested</span>: Structured conversations with our trained peer listeners via chat or video call.';
+        actionEl.textContent = 'Action Step: Schedule a session with a supportive peer listener on the Support page to talk things through. Try logging your mood daily and practice 5-4-3-2-1 grounding exercises when feeling overwhelmed.';
+      } else {
+        stressEl.innerHTML = '<span class="text-success">🟢 Mild Distress</span>: Normal/stable baseline stress. Good emotional resilience with minor, manageable fluctuations.';
+        supportEl.innerHTML = '<span class="text-success">Self-Guided Care Suggested</span>: Daily reflections, grounding tool kits, and optional peer check-in chats.';
+        actionEl.textContent = 'Action Step: Continue utilizing our self-guided Care Tools to maintain your wellbeing. Use the Daily Check-in occasionally to keep track of your mental space.';
+      }
+
+      const grid = document.getElementById('resAreasGrid');
+      grid.innerHTML = '';
+
+      Object.keys(assessmentProfile.areaScores).forEach(key => {
+        const item = assessmentProfile.areaScores[key];
+        const card = document.createElement('div');
+        card.className = 'bg-surface border border-border rounded-xl p-3 text-xs space-y-1.5';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid ${item.icon}" style="color: ${item.color}"></i>
+              <span class="font-semibold text-gray-200">${item.title}</span>
+            </div>
+            <span class="font-bold px-2 py-0.5 rounded-full text-[10px]" style="background:${item.color}22; color:${item.color}; border:1px solid ${item.color}">
+              ${item.status}
+            </span>
+          </div>
+          <p class="text-muted text-[11px]">${item.label}</p>
+          <div class="w-full h-1 bg-black/40 rounded-full overflow-hidden">
+            <div class="h-full rounded-full" style="width: ${item.score}%; background: ${item.color};"></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+
+</html>

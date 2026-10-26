@@ -1,0 +1,298 @@
+/**
+ * AssessmentPage Styles matching Vistaraz reference design
+ */
+
+.vz-assessment-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 16px 60px;
+}
+
+.vz-assessment-wizard {
+  background-color: var(--vz-bg-surface);
+  border: 1px solid var(--vz-border-light);
+  border-radius: var(--vz-radius-2xl);
+  padding: var(--vz-space-8) var(--vz-space-10);
+  box-shadow: var(--vz-shadow-card);
+}
+
+@media (max-width: 768px) {
+  .vz-assessment-wizard {
+    padding: var(--vz-space-6) var(--vz-space-4);
+  }
+}
+
+.vz-assessment-wizard__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--vz-space-4);
+  margin-bottom: var(--vz-space-6);
+  flex-wrap: wrap;
+}
+
+.vz-assessment-wizard__title {
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  font-weight: 800;
+  color: var(--vz-text-primary);
+  margin: var(--vz-space-2) 0;
+  line-height: 1.25;
+}
+
+.vz-assessment-wizard__subtitle {
+  font-size: 0.98rem;
+  color: var(--vz-text-secondary);
+  max-width: 620px;
+}
+
+.vz-assessment-wizard__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-4);
+}
+
+.vz-assessment-counter {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--vz-primary);
+  background-color: var(--vz-primary-light);
+  padding: 4px 12px;
+  border-radius: var(--vz-radius-full);
+}
+
+.vz-assessment-exit-btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--vz-text-muted);
+  cursor: pointer;
+}
+
+.vz-assessment-exit-btn:hover {
+  color: var(--vz-text-primary);
+}
+
+/* Progress bar */
+.vz-assessment-progress-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--vz-bg-subtle);
+  border-radius: var(--vz-radius-full);
+  overflow: hidden;
+  margin-bottom: var(--vz-space-8);
+}
+
+.vz-assessment-progress-bar {
+  height: 100%;
+  background: var(--vz-primary-gradient);
+  border-radius: var(--vz-radius-full);
+  transition: width 300ms ease;
+}
+
+/* 5 Emotion options grid */
+.vz-assessment-options-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--vz-space-3);
+  margin-bottom: var(--vz-space-8);
+}
+
+@media (max-width: 900px) {
+  .vz-assessment-options-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+}
+
+.vz-assessment-option-card {
+  padding: var(--vz-space-5) var(--vz-space-3);
+  border-radius: var(--vz-radius-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--vz-transition-base);
+  border: 1.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 160px;
+  user-select: none;
+}
+
+.vz-assessment-option-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--vz-shadow-hover);
+}
+
+.vz-assessment-option-card--selected {
+  border-color: var(--vz-primary) !important;
+  box-shadow: 0 0 0 3px var(--vz-primary-light), var(--vz-shadow-md) !important;
+  transform: translateY(-2px);
+}
+
+/* Pastel Card Variations */
+.vz-assessment-option-card--pink {
+  background-color: var(--vz-pastel-pink-bg);
+  border-color: var(--vz-pastel-pink-border);
+}
+.vz-assessment-option-card--peach {
+  background-color: var(--vz-pastel-peach-bg);
+  border-color: var(--vz-pastel-peach-border);
+}
+.vz-assessment-option-card--yellow {
+  background-color: var(--vz-pastel-yellow-bg);
+  border-color: var(--vz-pastel-yellow-border);
+}
+.vz-assessment-option-card--mint {
+  background-color: var(--vz-pastel-mint-bg);
+  border-color: var(--vz-pastel-mint-border);
+}
+.vz-assessment-option-card--sky {
+  background-color: var(--vz-pastel-sky-bg);
+  border-color: var(--vz-pastel-sky-border);
+}
+
+.vz-assessment-option-card__emoji {
+  font-size: 2.2rem;
+  margin-bottom: var(--vz-space-2);
+  line-height: 1;
+}
+
+.vz-assessment-option-card__label {
+  font-size: 0.95rem;
+  color: var(--vz-text-primary);
+  margin-bottom: var(--vz-space-1);
+}
+
+.vz-assessment-option-card__desc {
+  font-size: 0.76rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.vz-assessment-wizard__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--vz-border-light);
+  padding-top: var(--vz-space-6);
+  flex-wrap: wrap;
+  gap: var(--vz-space-4);
+}
+
+/* Results Screen */
+.vz-results-card {
+  border-radius: var(--vz-radius-2xl);
+  overflow: hidden;
+}
+
+.vz-results-header {
+  border-radius: var(--vz-radius-xl);
+  padding: var(--vz-space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-8);
+  margin-bottom: var(--vz-space-8);
+}
+
+@media (max-width: 640px) {
+  .vz-results-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.vz-results-score-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 4px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--vz-shadow-sm);
+}
+
+.vz-results-score-number {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.vz-results-score-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--vz-text-muted);
+  margin-top: 2px;
+}
+
+.vz-results-breakdown {
+  margin-bottom: var(--vz-space-8);
+}
+
+.vz-results-area-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--vz-space-4);
+}
+
+@media (max-width: 640px) {
+  .vz-results-area-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vz-results-area-item {
+  background-color: var(--vz-bg-subtle);
+  border-radius: var(--vz-radius-md);
+  padding: 12px 16px;
+}
+
+.vz-results-area-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.vz-results-area-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--vz-text-secondary);
+}
+
+.vz-results-area-meter {
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: var(--vz-radius-full);
+  overflow: hidden;
+}
+
+.vz-results-area-meter-fill {
+  height: 100%;
+  background-color: var(--vz-primary);
+  border-radius: var(--vz-radius-full);
+}
+
+.vz-results-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vz-space-3);
+  background-color: var(--vz-primary-light);
+  border-radius: var(--vz-radius-md);
+  padding: var(--vz-space-4) var(--vz-space-5);
+  margin-bottom: var(--vz-space-8);
+  font-size: 0.88rem;
+  color: #3730a3;
+  line-height: 1.5;
+}
+
+.vz-results-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-4);
+  flex-wrap: wrap;
+}

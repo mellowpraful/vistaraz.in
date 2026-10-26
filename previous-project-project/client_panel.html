@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>My Care Panel | Vistaraz</title>
+  <meta name="description"
+    content="Vistaraz Client Care Dashboard — track your mental wellness, connect with peer listeners, manage sessions, and access care tools.">
+
+  <!-- Supabase (must load before api.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/dist/api.ed7a4966.js"></script>
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Fraunces', 'serif']
+          },
+          colors: {
+            surface: 'var(--bg-dark)',
+            card: 'var(--bg-card)',
+            border: 'var(--border-color)',
+            muted: 'var(--text-muted)',
+            accent: 'var(--accent-primary)',
+            secondary: 'var(--accent-secondary)',
+            success: 'var(--success)',
+            danger: 'var(--danger)',
+            warning: 'var(--warning)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ── Custom Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0f12;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .15);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, .25);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeUp .3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* ── Toast ── */
+    #globalToast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(20, 30, 35, .95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, .15);
+      color: #f0f4f8;
+      font-size: .85rem;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #globalToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, .75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      transform: translateY(16px);
+      transition: transform .22s ease;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .5);
+    }
+
+    .modal-backdrop.open .modal-box {
+      transform: translateY(0);
+    }
+
+    /* ── Mood Buttons ── */
+    .mood-btn {
+      border: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(255, 255, 255, .03);
+      color: #f0f4f8;
+      border-radius: 12px;
+      padding: 10px 4px;
+      cursor: pointer;
+      transition: all .18s ease;
+      text-align: center;
+      font-size: 0.78rem;
+      touch-action: manipulation;
+      min-height: 48px;
+    }
+
+    .mood-btn:hover {
+      border-color: #8ab4f8;
+      background: rgba(138, 180, 248, .08);
+      transform: translateY(-2px);
+    }
+
+    .mood-btn.selected {
+      border-color: #8ab4f8;
+      background: rgba(138, 180, 248, .14);
+      box-shadow: 0 0 16px rgba(138, 180, 248, .15);
+    }
+
+    /* ── Session Row ── */
+    .session-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .session-row:last-child {
+      border-bottom: 0;
+    }
+
+    /* ── Care Tool Item ── */
+    .care-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      transition: background .15s ease;
+      border-radius: 8px;
+    }
+
+    .care-item:last-child {
+      border-bottom: 0;
+    }
+
+    /* ── Wellbeing Bar ── */
+    .wbar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .wbar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width .6s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    /* ── Stat Card ── */
+    .stat-card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(138, 180, 248, .3);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col antialiased text-[0.9rem]">
+
+  <!-- ═══════════════ SITE HEADER ═══════════════ -->
+  <header class="site-header">
+    <div class="site-header-inner">
+
+      <!-- Brand -->
+      <a class="brand flex-shrink-0" href="index.html">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="site-nav hidden lg:flex">
+        <a id="nav-home" onclick="switchView('home')" class="active">Home</a>
+        <a id="nav-sessions" onclick="switchView('sessions')">Sessions</a>
+        <a id="nav-checkin" onclick="switchView('checkin')">Check-in</a>
+        <a id="nav-community" onclick="switchView('community')">Community</a>
+        <a id="nav-tools" onclick="switchView('tools')">Care Tools</a>
+        <a id="nav-profile" onclick="switchView('profile')">Profile</a>
+        <button class="theme-toggle" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">
+          🌙
+        </button>
+      </nav>
+
+      <!-- Right Cluster -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+
+        <!-- Wellbeing Quick Badge (desktop/tablet) -->
+        <div
+          class="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-accent flex-shrink-0"></span>
+          <span class="text-accent" id="wellbeingLabel">Wellness Active</span>
+        </div>
+
+        <!-- Avatar / Profile quick trigger -->
+        <button id="client-avatar-btn" onclick="switchView('profile')" title="My Profile"
+          class="vz-quick-access w-8 h-8 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent hover:bg-accent hover:text-black transition-all flex-shrink-0 text-sm">
+          👤
+        </button>
+
+        <!-- Theme toggle (visible directly on mobile) -->
+        <button class="theme-toggle lg:hidden" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">
+          🌙
+        </button>
+
+        <!-- Sign Out (desktop only, in drawer on mobile) -->
+        <button onclick="handleSignOut()" title="Sign Out"
+          class="hidden lg:flex w-8 h-8 rounded-full bg-white/5 border border-white/10 items-center justify-center text-gray-400 hover:text-danger hover:border-danger/30 transition-all flex-shrink-0">
+          <i class="fa-solid fa-sign-out-alt text-xs"></i>
+        </button>
+
+        <!-- Mobile Drawer Toggle (☰ hamburger) -->
+        <button onclick="toggleMobileDrawer()"
+          class="mobile-nav-toggle lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0"
+          aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ MOBILE DRAWER (Same as index.html) ═══════════════ -->
+  <div id="mobileDrawer" class="mobile-nav-drawer lg:hidden">
+    <div class="mobile-nav-panel">
+      <div>
+        <div class="mobile-nav-header">
+          <a class="brand" href="index.html" onclick="toggleMobileDrawer()">
+            <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="38">
+          </a>
+          <button onclick="toggleMobileDrawer()" class="mobile-nav-close" aria-label="Close menu">&times;</button>
+        </div>
+
+        <nav class="mobile-nav-links">
+          <a id="mob-nav-home" onclick="switchView('home'); toggleMobileDrawer();" class="active">
+            <i class="fa-solid fa-house"></i> <span>Home</span>
+          </a>
+          <a id="mob-nav-sessions" onclick="switchView('sessions'); toggleMobileDrawer();">
+            <i class="fa-solid fa-calendar-check"></i> <span>Sessions</span>
+          </a>
+          <a id="mob-nav-checkin" onclick="switchView('checkin'); toggleMobileDrawer();">
+            <i class="fa-solid fa-heart-pulse"></i> <span>Check-in</span>
+          </a>
+          <a id="mob-nav-community" onclick="switchView('community'); toggleMobileDrawer();">
+            <i class="fa-solid fa-users"></i> <span>Community</span>
+          </a>
+          <a id="mob-nav-tools" onclick="switchView('tools'); toggleMobileDrawer();">
+            <i class="fa-solid fa-kit-medical"></i> <span>Care Tools</span>
+          </a>
+          <a id="mob-nav-profile" onclick="switchView('profile'); toggleMobileDrawer();">
+            <i class="fa-solid fa-id-card"></i> <span>Profile</span>
+          </a>
+          <a onclick="handleSignOut(); toggleMobileDrawer();" style="color: var(--danger); cursor: pointer;">
+            <i class="fa-solid fa-sign-out-alt" style="color: var(--danger);"></i> <span>Sign Out</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="mobile-nav-footer">
+        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin: 0;">Your safe care space.
+          Confidential & private.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+
+    <!-- ══════════════════════════════════════════
+         VIEW 1: HOME
+    ═══════════════════════════════════════════ -->
+    <section id="view-home" class="fade-in flex flex-col gap-6">
+
+      <!-- Hero Welcome Banner -->
+      <div class="relative rounded-2xl overflow-hidden border border-white/10 p-6 sm:p-8"
+        style="background: linear-gradient(110deg, rgba(138,180,248,.12) 0%, rgba(195,155,119,.07) 60%, rgba(10,15,18,.0) 100%);">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-accent">YOUR PRIVATE CARE SPACE</span>
+            <h1 class="mt-2 text-2xl sm:text-3xl font-serif text-gray-100">Welcome back, <em id="client-name"
+                class="text-accent not-italic">Friend</em> 👋</h1>
+            <p class="mt-2 text-sm text-muted max-w-lg">You don't have to carry everything alone. Connect with a
+              listener, run a check-in, or explore your care tools at your own pace.</p>
+          </div>
+          <div class="flex flex-wrap gap-2 flex-shrink-0">
+            <button onclick="switchView('checkin')"
+              class="bg-accent hover:bg-blue-400 text-black font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-accent/20">
+              <i class="fa-solid fa-heart-pulse"></i> Start Check-in
+            </button>
+            <button onclick="requestListener()"
+              class="bg-white/5 hover:bg-white/10 border border-white/15 text-gray-200 font-semibold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2">
+              <i class="fa-solid fa-hand-holding-heart text-accent"></i> Find Support
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="stat-card flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted">Sessions</span>
+            <i class="fa-solid fa-video text-accent text-xs"></i>
+          </div>
+          <p class="text-2xl font-bold text-gray-100">4</p>
+          <p class="text-[11px] text-muted">Total this month</p>
+        </div>
+        <div class="stat-card flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted">Check-ins</span>
+            <i class="fa-solid fa-clipboard-check text-success text-xs"></i>
+          </div>
+          <p class="text-2xl font-bold text-gray-100">7</p>
+          <p class="text-[11px] text-muted">Reflections logged</p>
+        </div>
+        <div class="stat-card flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted">Wellbeing</span>
+            <i class="fa-solid fa-chart-line text-warning text-xs"></i>
+          </div>
+          <p class="text-2xl font-bold text-accent">68<span class="text-base text-muted font-medium">%</span></p>
+          <p class="text-[11px] text-muted">Support Index</p>
+        </div>
+        <div class="stat-card flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted">Plan</span>
+            <i class="fa-solid fa-shield-heart text-secondary text-xs"></i>
+          </div>
+          <p class="text-base font-bold text-gray-100" id="client-plan">Free</p>
+          <span class="text-[11px] text-muted">Active Member</span>
+        </div>
+      </div>
+
+      <!-- Mood & Upcoming Sessions Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- Quick Mood Check -->
+        <div class="bg-card border border-border rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-success">RIGHT NOW</span>
+              <h2 class="text-base font-semibold text-gray-100 mt-0.5">How are you feeling?</h2>
+            </div>
+            <i class="fa-solid fa-face-smile text-success text-xl"></i>
+          </div>
+          <p class="text-xs text-muted mb-4">Choose a word that feels closest. Private — no right answer.</p>
+          <div class="grid grid-cols-5 gap-2">
+            <button class="mood-btn" onclick="selectMood(this,'low')"><span
+                class="block text-lg mb-1">🌧️</span>Low</button>
+            <button class="mood-btn" onclick="selectMood(this,'tense')"><span
+                class="block text-lg mb-1">🌊</span>Tense</button>
+            <button class="mood-btn" onclick="selectMood(this,'okay')"><span
+                class="block text-lg mb-1">🌿</span>Okay</button>
+            <button class="mood-btn" onclick="selectMood(this,'good')"><span
+                class="block text-lg mb-1">☀️</span>Good</button>
+            <button class="mood-btn" onclick="selectMood(this,'bright')"><span
+                class="block text-lg mb-1">✨</span>Bright</button>
+          </div>
+          <p id="mood-message" class="text-xs text-accent mt-3 min-h-[16px]"></p>
+        </div>
+
+        <!-- Upcoming Sessions Preview -->
+        <div class="bg-card border border-border rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-accent">YOUR SUPPORT</span>
+              <h2 class="text-base font-semibold text-gray-100 mt-0.5">Upcoming sessions</h2>
+            </div>
+            <button onclick="switchView('sessions')" class="text-xs text-accent hover:underline">View all →</button>
+          </div>
+          <div class="session-row">
+            <div>
+              <strong class="block text-sm text-gray-100">Peer Listening Session</strong>
+              <span class="text-xs text-muted">Tomorrow · 4:00 PM · Video</span>
+            </div>
+            <span
+              class="text-[11px] font-bold text-success bg-success/10 border border-success/20 px-2.5 py-1 rounded-full">Confirmed</span>
+          </div>
+          <div class="session-row">
+            <div>
+              <strong class="block text-sm text-gray-100">Open Chat Support</strong>
+              <span class="text-xs text-muted">Available when you're ready</span>
+            </div>
+            <button onclick="showToast('Connecting you to chat support…')"
+              class="text-xs text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-full hover:bg-accent hover:text-black transition-all font-semibold">
+              Open Chat
+            </button>
+          </div>
+          <button onclick="requestListener()"
+            class="mt-4 w-full border border-dashed border-white/15 text-muted hover:border-accent hover:text-accent rounded-xl py-2.5 text-xs font-medium transition-all">
+            + Request a new listener session
+          </button>
+        </div>
+      </div>
+
+      <!-- Wellbeing Snapshot -->
+      <div class="bg-card border border-border rounded-2xl p-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-secondary">RECENT REFLECTIONS</span>
+            <h2 class="text-base font-semibold text-gray-100 mt-0.5">Your wellbeing snapshot</h2>
+          </div>
+          <a href="assessment.html"
+            class="text-xs text-accent bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-right text-[10px]"></i> Update Check-in
+          </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <div class="flex justify-between text-xs mb-1.5"><span class="text-muted">Mood</span><span
+                class="text-accent font-semibold">Good</span></div>
+            <div class="wbar-bg">
+              <div class="wbar-fill bg-accent" style="width:72%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1.5"><span class="text-muted">Sleep</span><span
+                class="text-warning font-semibold">Fair</span></div>
+            <div class="wbar-bg">
+              <div class="wbar-fill bg-warning" style="width:55%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1.5"><span class="text-muted">Stress</span><span
+                class="text-success font-semibold">Low</span></div>
+            <div class="wbar-bg">
+              <div class="wbar-fill bg-success" style="width:30%"></div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-muted mt-4">Your last check-in suggested giving yourself more rest and a little room to
+          talk things through.</p>
+      </div>
+
+      <!-- Safety Card -->
+      <div class="bg-card border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+        style="border-color: rgba(255,107,107,.25); background: linear-gradient(110deg, rgba(255,107,107,.06), rgba(10,15,18,.0));">
+        <div
+          class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-danger flex-shrink-0">
+          <i class="fa-solid fa-life-ring"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-gray-100">Immediate safety</p>
+          <p class="text-xs text-muted mt-0.5">If you may hurt yourself or someone else, please contact emergency
+            services now. Vistaraz is not an emergency service.</p>
+        </div>
+        <a href="safety.html"
+          class="text-xs font-semibold text-danger border border-danger/30 px-4 py-2 rounded-lg hover:bg-danger hover:text-black transition-all flex-shrink-0">
+          Safety Resources
+        </a>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VIEW 2: SESSIONS
+    ═══════════════════════════════════════════ -->
+    <section id="view-sessions" class="hidden fade-in flex flex-col gap-6">
+
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-accent">YOUR SUPPORT SESSIONS</span>
+          <h1 class="text-xl font-serif text-gray-100 mt-1">Session History & Upcoming</h1>
+        </div>
+        <button onclick="requestListener()"
+          class="bg-accent hover:bg-blue-400 text-black font-bold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Request New Session
+        </button>
+      </div>
+
+      <!-- Session Tabs -->
+      <div class="flex gap-2 border-b border-border pb-0 overflow-x-auto">
+        <button id="sessTabBtn-upcoming" onclick="switchSessionTab('upcoming')"
+          class="px-3 py-2.5 text-xs font-semibold text-gray-100 border-b-2 border-accent whitespace-nowrap">Upcoming</button>
+        <button id="sessTabBtn-active" onclick="switchSessionTab('active')"
+          class="px-3 py-2.5 text-xs font-medium text-muted hover:text-white whitespace-nowrap border-b-2 border-transparent transition-colors">Active
+          Now</button>
+        <button id="sessTabBtn-completed" onclick="switchSessionTab('completed')"
+          class="px-3 py-2.5 text-xs font-medium text-muted hover:text-white whitespace-nowrap border-b-2 border-transparent transition-colors">Completed</button>
+      </div>
+
+      <!-- Upcoming Sessions -->
+      <div id="sessGroup-upcoming" class="flex flex-col gap-3">
+        <!-- Session Card -->
+        <div
+          class="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div
+            class="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0 text-lg">
+            <i class="fa-solid fa-video"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <p class="text-sm font-semibold text-gray-100">Peer Listening Session</p>
+              <span
+                class="text-[10px] bg-success/10 border border-success/20 text-success px-2 py-0.5 rounded-full font-bold">Confirmed</span>
+            </div>
+            <p class="text-xs text-muted">Tomorrow · 4:00 PM IST · Video call · Listener: Priya S.</p>
+          </div>
+          <div class="flex gap-2">
+            <a href="video-call.html"
+              class="bg-accent hover:bg-blue-400 text-black font-bold px-4 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-video text-[10px]"></i> Join Room
+            </a>
+            <button onclick="showToast('Session cancelled. You will receive a confirmation.')"
+              class="bg-surface hover:bg-white/10 border border-border text-muted px-3 py-2 rounded-xl text-xs transition-all">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Session Card 2 -->
+        <div
+          class="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div
+            class="w-11 h-11 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary flex-shrink-0 text-lg">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <p class="text-sm font-semibold text-gray-100">Open Chat Support</p>
+              <span
+                class="text-[10px] bg-warning/10 border border-warning/20 text-warning px-2 py-0.5 rounded-full font-bold">Pending</span>
+            </div>
+            <p class="text-xs text-muted">Scheduled · Thursday · 2:30 PM IST · Chat · Listener: Arjun M.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="showToast('Waiting room is ready 5 minutes before your session.')"
+              class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 px-4 py-2 rounded-xl text-xs font-semibold transition-all">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Sessions (normally empty) -->
+      <div id="sessGroup-active" class="hidden flex flex-col gap-3">
+        <div class="bg-card border border-border rounded-2xl p-8 text-center">
+          <i class="fa-solid fa-circle-notch fa-spin text-accent text-2xl mb-3"></i>
+          <p class="text-sm font-semibold text-gray-100">No active sessions</p>
+          <p class="text-xs text-muted mt-1">An active session will appear here while it's in progress.</p>
+        </div>
+      </div>
+
+      <!-- Completed Sessions -->
+      <div id="sessGroup-completed" class="hidden flex flex-col gap-3">
+        <div
+          class="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
+          <div
+            class="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success flex-shrink-0 text-lg">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <p class="text-sm font-semibold text-gray-100">Peer Listening Session</p>
+              <span
+                class="text-[10px] bg-success/10 border border-success/20 text-success px-2 py-0.5 rounded-full font-bold">Completed</span>
+            </div>
+            <p class="text-xs text-muted">Aug 18, 2026 · 3:00 PM IST · 45 min · Video</p>
+          </div>
+          <button onclick="showToast('Session notes are private and not stored.')"
+            class="text-xs text-muted hover:text-white border border-border px-3 py-2 rounded-xl transition-colors">
+            View Notes
+          </button>
+        </div>
+        <div
+          class="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 opacity-70">
+          <div
+            class="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success flex-shrink-0 text-lg">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <p class="text-sm font-semibold text-gray-100">Chat Support Session</p>
+              <span
+                class="text-[10px] bg-success/10 border border-success/20 text-success px-2 py-0.5 rounded-full font-bold">Completed</span>
+            </div>
+            <p class="text-xs text-muted">Aug 12, 2026 · 6:00 PM IST · 30 min · Chat</p>
+          </div>
+          <button onclick="showToast('Session notes are private and not stored.')"
+            class="text-xs text-muted hover:text-white border border-border px-3 py-2 rounded-xl transition-colors">
+            View Notes
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VIEW 3: CHECK-IN
+    ═══════════════════════════════════════════ -->
+    <section id="view-checkin" class="hidden fade-in flex flex-col gap-6">
+
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-success">MENTAL WELLNESS</span>
+        <h1 class="text-xl font-serif text-gray-100 mt-1">Your daily check-in</h1>
+        <p class="text-sm text-muted mt-1">A private moment to notice how you're doing. Nothing is right or wrong.</p>
+      </div>
+
+      <!-- Full Mood Selector -->
+      <div class="bg-card border border-border rounded-2xl p-6">
+        <p class="text-xs font-bold uppercase tracking-wider text-muted mb-4">How do you feel right now?</p>
+        <div class="grid grid-cols-5 gap-3">
+          <button class="mood-btn" onclick="selectMood(this,'low')"><span class="block text-2xl mb-2">🌧️</span><span
+              class="text-xs">Low</span></button>
+          <button class="mood-btn" onclick="selectMood(this,'tense')"><span class="block text-2xl mb-2">🌊</span><span
+              class="text-xs">Tense</span></button>
+          <button class="mood-btn" onclick="selectMood(this,'okay')"><span class="block text-2xl mb-2">🌿</span><span
+              class="text-xs">Okay</span></button>
+          <button class="mood-btn" onclick="selectMood(this,'good')"><span class="block text-2xl mb-2">☀️</span><span
+              class="text-xs">Good</span></button>
+          <button class="mood-btn" onclick="selectMood(this,'bright')"><span class="block text-2xl mb-2">✨</span><span
+              class="text-xs">Bright</span></button>
+        </div>
+        <p id="mood-message-2" class="text-xs text-accent mt-4 min-h-[16px]"></p>
+      </div>
+
+      <!-- Wellbeing sliders (visual, not functional tracking) -->
+      <div class="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <p class="text-xs font-bold uppercase tracking-wider text-muted">Rate each area today</p>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs mb-2"><span class="text-gray-300 font-medium">Energy
+                level</span><span id="energy-val" class="text-accent font-semibold">6 / 10</span></div>
+            <input type="range" min="0" max="10" value="6" class="w-full accent-[#8ab4f8] cursor-pointer"
+              oninput="document.getElementById('energy-val').textContent=this.value+' / 10'">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-2"><span class="text-gray-300 font-medium">Stress
+                level</span><span id="stress-val" class="text-warning font-semibold">4 / 10</span></div>
+            <input type="range" min="0" max="10" value="4" class="w-full accent-[#f59e0b] cursor-pointer"
+              oninput="document.getElementById('stress-val').textContent=this.value+' / 10'">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-2"><span class="text-gray-300 font-medium">Sleep
+                quality</span><span id="sleep-val" class="text-success font-semibold">7 / 10</span></div>
+            <input type="range" min="0" max="10" value="7" class="w-full accent-[#4cd964] cursor-pointer"
+              oninput="document.getElementById('sleep-val').textContent=this.value+' / 10'">
+          </div>
+        </div>
+        <div class="pt-2">
+          <button onclick="saveCheckin()"
+            class="bg-accent hover:bg-blue-400 text-black font-bold px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2">
+            <i class="fa-solid fa-check"></i> Save Today's Check-in
+          </button>
+        </div>
+      </div>
+
+      <!-- Full 10-Area Assessment CTA -->
+      <div
+        class="bg-card border border-border rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div
+          class="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-lg flex-shrink-0">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-gray-100">Full 10-Area Mental Health Assessment</p>
+          <p class="text-xs text-muted mt-0.5">A deeper look at mood, sleep, stress, relationships, and more. Takes
+            about 3 minutes.</p>
+        </div>
+        <a href="assessment.html"
+          class="bg-gradient-to-r from-accent to-blue-400 text-black font-bold px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 flex-shrink-0 shadow-lg shadow-accent/20">
+          Take Assessment <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </a>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VIEW 4: COMMUNITY
+    ═══════════════════════════════════════════ -->
+    <section id="view-community" class="hidden fade-in flex flex-col gap-6">
+
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-secondary">PEER COMMUNITY</span>
+        <h1 class="text-xl font-serif text-gray-100 mt-1">Community spaces</h1>
+        <p class="text-sm text-muted mt-1">Anonymous safe spaces to share, read, and feel less alone.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Community Cards -->
+        <div class="bg-card border border-border rounded-2xl p-5 hover:border-accent/30 transition-colors">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-sm">
+              <i class="fa-solid fa-comments"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-100">Open Forum</p>
+              <p class="text-[11px] text-muted">Anonymous · 124 members active</p>
+            </div>
+          </div>
+          <p class="text-xs text-muted mb-4">A safe space to share what you're going through and read from others.</p>
+          <button onclick="showToast('Community forums are opening soon. Stay tuned!')"
+            class="w-full border border-accent/30 text-accent hover:bg-accent hover:text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all">
+            Enter Forum
+          </button>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-5 hover:border-success/30 transition-colors">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-9 h-9 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success text-sm">
+              <i class="fa-solid fa-leaf"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-100">Mindfulness Circle</p>
+              <p class="text-[11px] text-muted">Guided · Weekly sessions</p>
+            </div>
+          </div>
+          <p class="text-xs text-muted mb-4">Gentle group sessions on breathing, grounding, and calm.</p>
+          <button onclick="showToast('Mindfulness Circle — next session: Sunday 6 PM IST.')"
+            class="w-full border border-success/30 text-success hover:bg-success hover:text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all">
+            Join Circle
+          </button>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-5 hover:border-secondary/30 transition-colors">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary text-sm">
+              <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-100">Story Space</p>
+              <p class="text-[11px] text-muted">Anonymous · Read & share</p>
+            </div>
+          </div>
+          <p class="text-xs text-muted mb-4">Read real stories from people who've been where you are.</p>
+          <button onclick="showToast('Story Space is opening soon — thank you for your patience!')"
+            class="w-full border border-secondary/30 text-secondary hover:bg-secondary hover:text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all">
+            Read Stories
+          </button>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-5 hover:border-warning/30 transition-colors">
+          <div class="flex items-center gap-3 mb-3">
+            <div
+              class="w-9 h-9 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center text-warning text-sm">
+              <i class="fa-solid fa-people-group"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-100">Support Groups</p>
+              <p class="text-[11px] text-muted">Topic-based · Small groups</p>
+            </div>
+          </div>
+          <p class="text-xs text-muted mb-4">Connect with people facing similar challenges in small guided groups.</p>
+          <button onclick="showToast('Support groups feature launching soon!')"
+            class="w-full border border-warning/30 text-warning hover:bg-warning hover:text-black font-semibold px-4 py-2 rounded-xl text-xs transition-all">
+            Find a Group
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VIEW 5: CARE TOOLS
+    ═══════════════════════════════════════════ -->
+    <section id="view-tools" class="hidden fade-in flex flex-col gap-6">
+
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-accent">SELF-CARE TOOLKIT</span>
+        <h1 class="text-xl font-serif text-gray-100 mt-1">Care tools & resources</h1>
+        <p class="text-sm text-muted mt-1">Gentle tools for when you need a moment to yourself.</p>
+      </div>
+
+      <!-- Grounding Tools -->
+      <div class="bg-card border border-border rounded-2xl p-5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-success">GROUNDING EXERCISES</span>
+        <h2 class="text-base font-semibold text-gray-100 mt-1.5 mb-4">Quick calm techniques</h2>
+        <div class="space-y-0">
+          <div class="care-item">
+            <div
+              class="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0 text-sm">
+              <i class="fa-solid fa-wind"></i>
+            </div>
+            <div class="flex-1">
+              <strong class="block text-sm text-gray-100 mb-0.5">4-7-8 Breathing</strong>
+              <span class="text-xs text-muted">Inhale 4s · Hold 7s · Exhale 8s. Repeat 3 times to feel grounded.</span>
+            </div>
+            <button onclick="startBreathing()"
+              class="text-xs text-accent border border-accent/30 px-3 py-1.5 rounded-lg hover:bg-accent hover:text-black transition-all font-semibold flex-shrink-0">Start</button>
+          </div>
+          <div class="care-item">
+            <div
+              class="w-9 h-9 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center text-success flex-shrink-0 text-sm">
+              <i class="fa-solid fa-eye"></i>
+            </div>
+            <div class="flex-1">
+              <strong class="block text-sm text-gray-100 mb-0.5">5-4-3-2-1 Grounding</strong>
+              <span class="text-xs text-muted">Name 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you
+                taste.</span>
+            </div>
+            <button onclick="showToast('Take a slow breath. Name 5 things you can see right now…')"
+              class="text-xs text-success border border-success/30 px-3 py-1.5 rounded-lg hover:bg-success hover:text-black transition-all font-semibold flex-shrink-0">Try</button>
+          </div>
+          <div class="care-item">
+            <div
+              class="w-9 h-9 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary flex-shrink-0 text-sm">
+              <i class="fa-solid fa-spa"></i>
+            </div>
+            <div class="flex-1">
+              <strong class="block text-sm text-gray-100 mb-0.5">Body Scan Relaxation</strong>
+              <span class="text-xs text-muted">Slowly relax each part of your body from head to toe. 5 minutes.</span>
+            </div>
+            <button
+              onclick="showToast('Close your eyes. Start at the top of your head and slowly let go of tension downward…')"
+              class="text-xs text-secondary border border-secondary/30 px-3 py-1.5 rounded-lg hover:bg-secondary hover:text-black transition-all font-semibold flex-shrink-0">Guide</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resources -->
+      <div class="bg-card border border-border rounded-2xl p-5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-accent">READING & GUIDES</span>
+        <h2 class="text-base font-semibold text-gray-100 mt-1.5 mb-4">Support resources</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <a href="safety.html"
+            class="block bg-surface border border-border hover:border-danger/30 rounded-xl p-4 transition-all group">
+            <i class="fa-solid fa-life-ring text-danger mb-2"></i>
+            <p class="text-sm font-semibold text-gray-100 group-hover:text-danger transition-colors">Safety Resources
+            </p>
+            <p class="text-xs text-muted mt-0.5">Emergency lines and crisis support.</p>
+          </a>
+          <a href="support.html"
+            class="block bg-surface border border-border hover:border-accent/30 rounded-xl p-4 transition-all group">
+            <i class="fa-solid fa-headset text-accent mb-2"></i>
+            <p class="text-sm font-semibold text-gray-100 group-hover:text-accent transition-colors">Find a Listener</p>
+            <p class="text-xs text-muted mt-0.5">Browse available peer support.</p>
+          </a>
+          <a href="tools.html"
+            class="block bg-surface border border-border hover:border-secondary/30 rounded-xl p-4 transition-all group">
+            <i class="fa-solid fa-leaf text-secondary mb-2"></i>
+            <p class="text-sm font-semibold text-gray-100 group-hover:text-secondary transition-colors">Self-Care Tools
+            </p>
+            <p class="text-xs text-muted mt-0.5">Exercises, breathing & grounding.</p>
+          </a>
+        </div>
+      </div>
+
+      <!-- Breathing Exercise Modal Inline Trigger Area -->
+      <div id="breathing-area" class="hidden bg-card border border-accent/30 rounded-2xl p-8 text-center">
+        <div id="breathing-circle"
+          class="w-24 h-24 rounded-full border-4 border-accent mx-auto flex items-center justify-center text-accent font-bold text-lg transition-all duration-[4000ms]"
+          style="box-shadow: 0 0 0 0 rgba(138,180,248,0.4);">
+          <span id="breath-label">Inhale</span>
+        </div>
+        <p id="breath-instruction" class="text-xs text-muted mt-4">Breathe in for 4 seconds…</p>
+        <button onclick="stopBreathing()"
+          class="mt-5 text-xs text-muted hover:text-white border border-border px-4 py-2 rounded-lg transition-colors">Stop
+          Exercise</button>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VIEW 6: PROFILE
+    ═══════════════════════════════════════════ -->
+    <section id="view-profile" class="hidden fade-in flex flex-col gap-6">
+
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted">YOUR ACCOUNT</span>
+        <h1 class="text-xl font-serif text-gray-100 mt-1">My profile & settings</h1>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="bg-card border border-border rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div
+            class="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-3xl flex-shrink-0"
+            id="profile-avatar-large">👤</div>
+          <div class="flex-1">
+            <p class="text-lg font-bold text-gray-100" id="profile-name-display">Seeker Profile</p>
+            <p class="text-xs text-muted mt-0.5" id="profile-plan-display">Free Membership · Since Aug 2026</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span
+                class="text-[10px] bg-accent/10 border border-accent/20 text-accent px-2.5 py-1 rounded-full font-bold">Active
+                Client</span>
+              <span
+                class="text-[10px] bg-success/10 border border-success/20 text-success px-2.5 py-1 rounded-full font-bold">4
+                Sessions</span>
+            </div>
+          </div>
+          <button onclick="showToast('Profile editing is coming in the next update!')"
+            class="bg-surface border border-border text-muted px-4 py-2 rounded-xl text-xs font-semibold hover:text-white hover:border-accent/30 transition-all flex-shrink-0">
+            <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings & Preferences -->
+      <div class="bg-card border border-border rounded-2xl p-5 space-y-1">
+        <p class="text-xs font-bold uppercase tracking-wider text-muted mb-3">Preferences & Privacy</p>
+
+        <div class="flex items-center justify-between py-3 border-b border-border">
+          <div>
+            <p class="text-sm text-gray-100">Anonymous mode</p>
+            <p class="text-xs text-muted">Hide your name from listeners</p>
+          </div>
+          <button onclick="showToast('Anonymous mode toggled.')"
+            class="relative w-10 h-5 bg-accent rounded-full transition-all"><span
+              class="absolute left-5.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+        </div>
+        <div class="flex items-center justify-between py-3 border-b border-border">
+          <div>
+            <p class="text-sm text-gray-100">Session reminders</p>
+            <p class="text-xs text-muted">Get notified before upcoming sessions</p>
+          </div>
+          <button onclick="showToast('Reminders setting updated.')"
+            class="relative w-10 h-5 bg-accent rounded-full transition-all"><span
+              class="absolute left-5.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+        </div>
+        <div class="flex items-center justify-between py-3 border-b border-border">
+          <div>
+            <p class="text-sm text-gray-100">Email notifications</p>
+            <p class="text-xs text-muted">Receive important care updates</p>
+          </div>
+          <button onclick="showToast('Email notification setting updated.')"
+            class="relative w-10 h-5 bg-white/10 border border-white/20 rounded-full transition-all"><span
+              class="absolute left-0.5 top-0.5 w-4 h-4 bg-muted rounded-full shadow transition-all"></span></button>
+        </div>
+        <div class="flex items-center justify-between py-3">
+          <div>
+            <p class="text-sm text-gray-100">Data & privacy</p>
+            <p class="text-xs text-muted">Your data is private and encrypted</p>
+          </div>
+          <button onclick="showToast('Vistaraz stores no personal session data on our servers.')"
+            class="text-xs text-accent hover:underline">Learn more</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="bg-card border rounded-2xl p-5" style="border-color: rgba(255,107,107,.2);">
+        <p class="text-xs font-bold uppercase tracking-wider text-danger mb-3">Account Actions</p>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="handleSignOut()"
+            class="border border-danger/30 text-danger hover:bg-danger hover:text-black px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-sign-out-alt text-[10px]"></i> Sign Out
+          </button>
+          <button onclick="showToast('Please contact support@vistaraz.in to delete your account.')"
+            class="border border-border text-muted hover:text-danger hover:border-danger/30 px-4 py-2 rounded-xl text-xs font-semibold transition-all">
+            Delete Account
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="globalToast">
+    <i class="fa-solid fa-circle-info text-accent"></i>
+    <span id="toastText">Notification message</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-border bg-card mt-4">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-7 w-auto opacity-60">
+        <span class="text-[10px] text-muted font-mono">Innovate · Heal · Impact</span>
+      </div>
+      <p class="text-[11px] text-muted">© 2026 Vistaraz Care Support — Client Panel. Private & Confidential.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+  <script src="assets/dist/app.f302ef53.js"></script>
+
+  <!-- Role-mismatch toast style -->
+  <style>
+    #vz-role-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      z-index: 9999;
+      background: linear-gradient(135deg, rgba(30,30,40,0.97), rgba(20,20,32,0.97));
+      border: 1px solid rgba(138,180,248,0.35);
+      border-radius: 12px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #c8d8f8;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      max-width: 420px;
+      width: calc(100% - 32px);
+    }
+    #vz-role-toast.vz-toast-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+
+  <script>
+    function vzShowRoleMismatchToast(msg) {
+      let toast = document.getElementById('vz-role-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'vz-role-toast';
+        toast.innerHTML = '<span style="font-size:1.1rem">ℹ️</span><span id="vz-role-toast-msg"></span>';
+        document.body.appendChild(toast);
+      }
+      const msgEl = toast.querySelector('#vz-role-toast-msg');
+      if (msgEl) msgEl.textContent = msg;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('vz-toast-show'));
+      });
+      setTimeout(() => {
+        toast.classList.remove('vz-toast-show');
+      }, 5000);
+    }
+  </script>
+  <script>
+    // ─── Auth Guard + Real Profile Init ───────
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Auth guard: redirect to login if no active session
+      if (typeof VistarazAuth === 'undefined') {
+        window.location.href = 'register.html?action=login';
+        return;
+      }
+      const user = await VistarazAuth.getUser();
+      if (!user) {
+        window.location.href = 'register.html?action=login';
+        return;
+      }
+
+      // Load real profile from Supabase
+      const profile = await VistarazAuth.getProfile(user.id);
+      const effectiveRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
+
+      // Role guard: counselors belong in the listener portal, not here
+      if (effectiveRole === 'counselor') {
+        sessionStorage.setItem(
+          'vz-role-mismatch-toast',
+          "You're registered as a Listener — we've brought you to your Listener Portal."
+        );
+        window.location.replace('listener_portal.html');
+        return;
+      }
+
+      // Show mismatch toast if a redirect message was stored
+      const mismatchMsg = sessionStorage.getItem('vz-role-mismatch-toast');
+      if (mismatchMsg) {
+        sessionStorage.removeItem('vz-role-mismatch-toast');
+        vzShowRoleMismatchToast(mismatchMsg);
+      }
+
+      const displayName = (profile && (profile.nickname || profile.full_name)) ||
+        user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
+      const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '🦊';
+      const plan = (profile && profile.plan) || 'Free';
+      const joinYear = new Date(user.created_at || Date.now()).getFullYear();
+
+      // Populate UI
+      const clientName = document.getElementById('client-name');
+      const profileNameDisplay = document.getElementById('profile-name-display');
+      const clientPlan = document.getElementById('client-plan');
+      const profilePlanDisplay = document.getElementById('profile-plan-display');
+
+      if (clientName) clientName.textContent = displayName;
+      if (profileNameDisplay) profileNameDisplay.textContent = displayName;
+      if (clientPlan) clientPlan.textContent = plan;
+      if (profilePlanDisplay) profilePlanDisplay.textContent = `${plan} Membership · Since ${joinYear}`;
+
+      // Set avatar badge if element exists
+      const avatarEl = document.getElementById('client-avatar');
+      if (avatarEl) avatarEl.textContent = avatar;
+    });
+
+    // ─── View Switching ────────────────────────
+    const views = ['home', 'sessions', 'checkin', 'community', 'tools', 'profile'];
+
+    function switchView(targetView) {
+      if (!views.includes(targetView)) return;
+      views.forEach(v => {
+        const vEl = document.getElementById('view-' + v);
+        const nEl = document.getElementById('nav-' + v);
+        const mEl = document.getElementById('mob-nav-' + v);
+        if (vEl) vEl.classList.add('hidden');
+        if (nEl) nEl.classList.remove('active');
+        if (mEl) mEl.classList.remove('active');
+      });
+      const activeView = document.getElementById('view-' + targetView);
+      const activeNav = document.getElementById('nav-' + targetView);
+      const activeMobNav = document.getElementById('mob-nav-' + targetView);
+      if (activeView) { activeView.classList.remove('hidden'); activeView.classList.add('fade-in'); }
+      if (activeNav) activeNav.classList.add('active');
+      if (activeMobNav) activeMobNav.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ─── Mobile Drawer ─────────────────────────
+    function toggleMobileDrawer() {
+      if (window.vzToggleDrawer) {
+        window.vzToggleDrawer();
+      } else {
+        document.getElementById('mobileDrawer').classList.toggle('open');
+      }
+    }
+
+    // ─── Sessions Tab ─────────────────────────
+    function switchSessionTab(group) {
+      ['upcoming', 'active', 'completed'].forEach(g => {
+        const btn = document.getElementById('sessTabBtn-' + g);
+        const grp = document.getElementById('sessGroup-' + g);
+        if (btn) btn.className = 'px-3 py-2.5 text-xs font-medium text-muted hover:text-white whitespace-nowrap border-b-2 border-transparent transition-colors';
+        if (grp) grp.classList.add('hidden');
+      });
+      const activeBtn = document.getElementById('sessTabBtn-' + group);
+      const activeGrp = document.getElementById('sessGroup-' + group);
+      if (activeBtn) activeBtn.className = 'px-3 py-2.5 text-xs font-semibold text-gray-100 border-b-2 border-accent whitespace-nowrap';
+      if (activeGrp) activeGrp.classList.remove('hidden');
+    }
+
+    // ─── Mood Selector ─────────────────────────
+    const moodMessages = {
+      low: '💙 Thank you for being honest. Connecting you to a listener can really help.',
+      tense: "🌿 It's okay to feel tense. Try a quick breathing exercise in Care Tools.",
+      okay: '✅ "Okay" is a valid and good place to be. Keep checking in.',
+      good: '😊 Glad to hear it! Keep nurturing that feeling.',
+      bright: "✨ That's wonderful. Share your light in the Community space!"
+    };
+
+    function selectMood(btn, mood) {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const msg1 = document.getElementById('mood-message');
+      const msg2 = document.getElementById('mood-message-2');
+      const text = moodMessages[mood] || 'Thank you for checking in.';
+      if (msg1) msg1.textContent = text;
+      if (msg2) msg2.textContent = text;
+    }
+
+    // ─── Check-in Save ─────────────────────────
+    function saveCheckin() {
+      showToast('✅ Check-in saved. Your reflection is private and stored only here.');
+    }
+
+    // ─── Request Listener ──────────────────────
+    function requestListener() {
+      showToast('🎧 Your support request has been added to the queue. A listener will connect soon.');
+    }
+
+    // ─── Sign Out ─────────────────────────────
+    async function handleSignOut() {
+      showToast('Signing out…');
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
+      } else {
+        window.location.replace('index.html');
+      }
+    }
+
+    // ─── Toast ────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('globalToast');
+      const text = document.getElementById('toastText');
+      text.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ─── Breathing Exercise ────────────────────
+    let breathInterval;
+    function startBreathing() {
+      document.getElementById('breathing-area').classList.remove('hidden');
+      document.getElementById('breathing-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const phases = [
+        { label: 'Inhale', instruction: 'Breathe in slowly for 4 seconds…', dur: 4000, scale: 'scale-150', shadow: '0 0 0 30px rgba(138,180,248,.1)' },
+        { label: 'Hold', instruction: 'Hold your breath for 7 seconds…', dur: 7000, scale: 'scale-150', shadow: '0 0 0 40px rgba(138,180,248,.05)' },
+        { label: 'Exhale', instruction: 'Breathe out slowly for 8 seconds…', dur: 8000, scale: 'scale-100', shadow: '0 0 0 0 rgba(138,180,248,0)' },
+      ];
+      let i = 0;
+      const circle = document.getElementById('breathing-circle');
+      const lbl = document.getElementById('breath-label');
+      const instr = document.getElementById('breath-instruction');
+
+      function runPhase() {
+        const p = phases[i % 3];
+        lbl.textContent = p.label;
+        instr.textContent = p.instruction;
+        circle.style.boxShadow = p.shadow;
+        circle.style.transform = p.scale;
+        i++;
+        breathInterval = setTimeout(runPhase, p.dur);
+      }
+      clearTimeout(breathInterval);
+      runPhase();
+    }
+
+    function stopBreathing() {
+      clearTimeout(breathInterval);
+      document.getElementById('breathing-area').classList.add('hidden');
+      showToast('Great job! Take a moment to notice how you feel.');
+    }
+
+    // ─── Profile Hydration & Auth Check ─────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof VistarazAuth === 'undefined') return;
+      try {
+        const user = await VistarazAuth.getUser();
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          const name = (profile && (profile.nickname || profile.full_name)) || user.user_metadata?.nickname || user.user_metadata?.full_name;
+          const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url;
+          if (name) {
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = name);
+          }
+          if (avatar) {
+            document.querySelectorAll('[data-user-avatar]').forEach(el => el.textContent = avatar);
+          }
+        }
+      } catch (err) {
+        console.warn('[ClientPanel] Auth check deferred:', err);
+      }
+    });
+  </script>
+  <script src="assets/dist/app.f302ef53.js"></script>
+</body>
+
+</html>

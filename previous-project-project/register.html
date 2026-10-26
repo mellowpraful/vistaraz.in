@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Get Started — Vistaraz Portal</title>
+<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .auth-form-card {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: clamp(18px, 4.5vw, 35px);
+      border-radius: 20px;
+      box-sizing: border-box;
+    }
+
+    .role-card-btn {
+      cursor: pointer;
+      border: 2px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 22px 18px;
+      text-align: left;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-card-btn:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+      background: rgba(138, 180, 248, 0.05);
+    }
+
+    .role-card-btn.active {
+      border-color: var(--accent-primary);
+      background: rgba(138, 180, 248, 0.08);
+      box-shadow: 0 0 25px rgba(138, 180, 248, 0.15);
+    }
+
+    .role-card-btn.active::after {
+      content: '✓ Selected';
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      background: rgba(138, 180, 248, 0.15);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .auth-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-tab-btn.active {
+      background: var(--accent-primary);
+      color: #000;
+    }
+
+    .sub-profile-tab {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      color: var(--text-muted);
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .sub-profile-tab.active {
+      background: rgba(138, 180, 248, 0.1);
+      border-color: var(--accent-primary);
+      color: var(--text-main);
+    }
+        .terms-checkbox {
+        margin: 18px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .terms-checkbox label {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        line-height: 1.5;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        margin-top: 2px;
+        flex-shrink: 0;
+        accent-color: #5b5bd6;
+        cursor: pointer;
+    }
+
+    .terms-checkbox a {
+        color: #5b5bd6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .terms-checkbox a:hover {
+        text-decoration: underline;
+    }
+
+    .terms-checkbox input[type="checkbox"]:focus {
+        outline: 2px solid rgba(91, 91, 214, 0.3);
+        outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="assessment" href="assessment.html">Check-in</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main
+    style="padding-top: 30px; padding-bottom: 60px; max-width: 960px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
+
+    <!-- Top Header -->
+    <section style="text-align: center; margin-bottom: 30px;">
+      <span class="eyebrow">CHOOSE YOUR PATHWAY</span>
+      <h1 style="font-size: clamp(2rem, 5vw, 2.8rem); margin-bottom: 10px;">Welcome to <em>Vistaraz</em></h1>
+      <p style="color: var(--text-muted); max-width: 550px; margin: 0 auto; font-size: 0.95rem;">
+        Whether you are seeking a safe, confidential space or looking to offer compassionate support as a listener,
+        select your pathway below.
+      </p>
+    </section>
+
+    <!-- STEP 1: Two Role Cards (I Need Help vs I Want to Help) -->
+    <div
+      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 30px;">
+
+      <!-- Option 1: I Need Help (Seeker) -->
+      <div id="role-seeker-card" class="role-card-btn active" onclick="selectRolePathway('seeker')">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+          <div
+            style="width: 44px; height: 44px; border-radius: 12px; background: rgba(138, 180, 248, 0.15); display: grid; place-items: center; font-size: 1.3rem;">
+            🌿
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #fff;">I Need Help</h3>
+            <span
+              style="font-size: 0.75rem; color: var(--accent-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Youth
+              & Students</span>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+          Private emotional support, 2-min check-in, free breathing tools, and 1-on-1 chat/video sessions with verified
+          listeners.
+        </p>
+      </div>
+
+      <!-- Option 2: I Want to Help (Provider) -->
+      <div id="role-provider-card" class="role-card-btn" onclick="selectRolePathway('provider')">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+          <div
+            style="width: 44px; height: 44px; border-radius: 12px; background: rgba(167, 139, 250, 0.15); display: grid; place-items: center; font-size: 1.3rem;">
+            🤝
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #fff;">I Want to Help</h3>
+            <span
+              style="font-size: 0.75rem; color: var(--accent-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Listeners
+              & Counselors</span>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+          For psychology trainees, students & certified listeners. Manage live incoming queue, audio/video sessions, and
+          schedules.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Auth Mode Toggle (Sign In vs Register) -->
+    <div style="text-align: center; margin-bottom: 30px;">
+      <div
+        style="display: inline-flex; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 30px; border: 1px solid var(--line);">
+        <button id="auth-tab-register" class="auth-tab-btn active" onclick="setAuthAction('register')">Create
+          Account</button>
+        <button id="auth-tab-login" class="auth-tab-btn" onclick="setAuthAction('login')">Sign In</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION A: "I NEED HELP" (Seeker) Form Container             -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="seeker-auth-container" class="glass-card auth-form-card reveal">
+
+      <!-- Seeker Register Mode -->
+      <div id="seeker-register-box">
+        <div style="margin-bottom: 20px;">
+          <span class="eyebrow" style="color: var(--accent-primary)">SEEKER ONBOARDING</span>
+          <h2 style="font-size: 1.8rem; margin: 5px 0 10px;">How would you like to appear?</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Privacy is our core foundation. Choose
+            your comfort level.</p>
+        </div>
+
+        <!-- Identity Sub-Tabs: Anonymous vs Private -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;">
+          <div id="tab-anon-btn" class="sub-profile-tab active" onclick="setSeekerProfileType('anon')">
+            <span style="font-size: 1.1rem;">🦊</span>
+            <div>
+              <div style="font-weight: 600; font-size: 0.85rem;">Anonymous Profile</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">Avatar + Nickname</div>
+            </div>
+          </div>
+          <div id="tab-private-btn" class="sub-profile-tab" onclick="setSeekerProfileType('private')">
+            <span style="font-size: 1.1rem;">🔒</span>
+            <div>
+              <div style="font-weight: 600; font-size: 0.85rem;">Private Profile</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">Real Name (Confidential)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form for Seeker -->
+        <form onsubmit="handleSeekerRegister(event)" id="seeker-reg-form">
+          <!-- Anonymous Inputs -->
+          <div id="seeker-anon-fields">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px;">Choose an
+              Avatar</label>
+            <div class="avatar-grid" style="margin-bottom: 20px;">
+              <div class="avatar-item selected" onclick="selectSeekerAvatar(this, '🦊')">🦊</div>
+              <div class="avatar-item" onclick="selectSeekerAvatar(this, '🦉')">🦉</div>
+              <div class="avatar-item" onclick="selectSeekerAvatar(this, '🌿')">🌿</div>
+              <div class="avatar-item" onclick="selectSeekerAvatar(this, '🌙')">🌙</div>
+              <div class="avatar-item" onclick="selectSeekerAvatar(this, '🌊')">🌊</div>
+              <div class="avatar-item" onclick="selectSeekerAvatar(this, '✨')">✨</div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Nickname
+                / Handle</label>
+              <input type="text" id="seeker-anon-nickname" placeholder="e.g. moonlit_wanderer" style="width: 100%;">
+            </div>
+          </div>
+
+          <!-- Private Inputs (Hidden by default) -->
+          <div id="seeker-private-fields" style="display: none;">
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Full
+                Name</label>
+              <input type="text" id="seeker-private-name" placeholder="Your full name" style="width: 100%;">
+            </div>
+          </div>
+
+          <!-- Shared Email & Password -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Email
+              Address</label>
+            <input type="email" id="seeker-email" required placeholder="you@exam..com" style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 25px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Create
+              Password</label>
+            <input type="password" id="seeker-password" required placeholder="••••••••" style="width: 100%;">
+          </div>
+
+          <div id="seeker-error"
+            style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
+          </div>
+                            <div class="terms-checkbox">
+    <label>
+        <input type="checkbox" id="terms" name="terms" required>
+        <span>
+            I agree to the
+            <a href="/rules.html" target="_blank" rel="noopener noreferrer">
+                Terms &amp; Conditions</span>
+            </a>
+            
+        </span>
+    </label>
+</div>
+
+          <button type="submit" id="seeker-submit-btn" class="button primary" style="width: 100%;">
+            <span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Seeker Login Mode -->
+      <div id="seeker-login-box" style="display: none;">
+        <div style="margin-bottom: 20px;">
+          <span class="eyebrow" style="color: var(--accent-primary)">CLIENT SIGN IN</span>
+          <h2 style="font-size: 1.8rem; margin: 5px 0 10px;">Welcome back</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Access your wellbeing dashboard, chat
+            logs, and upcoming appointments.</p>
+        </div>
+
+        <form onsubmit="handleUniversalLogin(event, 'seeker')" id="seeker-login-form">
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Email
+              Address</label>
+            <input type="email" id="seeker-login-email" required placeholder="you@example.com" style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 25px;">
+            <label
+              style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Password</label>
+            <input type="password" id="seeker-login-password" required placeholder="••••••••" style="width: 100%;">
+          </div>
+
+          <div id="seeker-login-error"
+            style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
+          </div>
+
+          <button type="submit" id="seeker-login-btn" class="button primary" style="width: 100%;">
+            <span>Sign In to Dashboard</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- SECTION B: "I WANT TO HELP" (Provider / Counselor) Container   -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div id="provider-auth-container" class="glass-card auth-form-card reveal"
+      style="display: none; border-color: rgba(167, 139, 250, 0.2);">
+
+      <!-- Provider Register Mode -->
+      <div id="provider-register-box">
+        <div style="margin-bottom: 20px;">
+          <span class="eyebrow" style="color: var(--accent-secondary)">LISTENER ONBOARDING</span>
+          <h2 style="font-size: 1.8rem; margin: 5px 0 10px;">Join the Support Network</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Connect with youth, conduct empathetic
+            listening sessions, and manage your schedule.</p>
+        </div>
+
+        <form onsubmit="handleProviderRegister(event)" id="provider-reg-form">
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Full
+              Name</label>
+            <input type="text" id="provider-name" required placeholder="e.g. Nidhi Mitchell" style="width: 100%;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Role /
+                Background</label>
+              <select id="provider-qualification"
+                style="width: 100%; background: #111827; border: 1px solid var(--line); color: #f0f4f8; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+                <option value="Psychology Student / Intern">Psychology Student / Intern</option>
+                <option value="Trained Peer Listener">Trained Peer Listener</option>
+                <option value="Certified Counselor">Certified Counselor</option>
+                <option value="Licensed Psychologist">Licensed Psychologist</option>
+              </select>
+            </div>
+            <div>
+              <label
+                style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Languages</label>
+              <input type="text" id="provider-languages" placeholder="e.g. English, Hindi" value="English, Hindi"
+                style="width: 100%;">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label
+              style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Professional /
+              University Email</label>
+            <input type="email" id="provider-email" required placeholder="counselor@university.edu"
+              style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 25px;">
+            <label
+              style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Password</label>
+            <input type="password" id="provider-password" required placeholder="••••••••" style="width: 100%;">
+          </div>
+
+          <div id="provider-error"
+            style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
+          </div>
+                  <div class="terms-checkbox">
+    <label>
+        <input type="checkbox" id="terms" name="terms" required>
+        <span>
+            I agree to the
+            <a href="/rules.html" target="_blank" rel="noopener noreferrer">
+                Terms &amp; Conditions </span>
+            </a>
+        </span>
+    </label>
+</div>
+
+          <button type="submit" id="provider-submit-btn" class="button primary"
+            style="width: 100%; background: var(--accent-secondary); color: #fff;">
+            <span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Provider Login Mode -->
+      <div id="provider-login-box" style="display: none;">
+        <div style="margin-bottom: 20px;">
+          <span class="eyebrow" style="color: var(--accent-secondary)">LISTENER SIGN IN</span>
+          <h2 style="font-size: 1.8rem; margin: 5px 0 10px;">Provider Workspace</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Log in to access your live queue,
+            schedule, and pending calls.</p>
+        </div>
+
+        <form onsubmit="handleUniversalLogin(event, 'provider')" id="provider-login-form">
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Email
+              Address</label>
+            <input type="email" id="provider-login-email" required placeholder="counselor@example.com"
+              style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 25px;">
+            <label
+              style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Password</label>
+            <input type="password" id="provider-login-password" required placeholder="••••••••" style="width: 100%;">
+          </div>
+
+          <div id="provider-login-error"
+            style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-bottom: 15px; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 8px;">
+          </div>
+
+          <button type="submit" id="provider-login-btn" class="button primary"
+            style="width: 100%; background: var(--accent-secondary); color: #fff;">
+            <span>Open Listener Portal</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Supabase JS & App Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/dist/api.ed7a4966.js"></script>
+  <script src="assets/dist/app.f302ef53.js"></script>
+
+
+  <script>
+    let currentRole = 'seeker'; // 'seeker' | 'provider'
+    let currentAuthAction = 'register'; // 'register' | 'login'
+    let currentSeekerProfileType = 'anon'; // 'anon' | 'private'
+    let currentSelectedAvatar = '🦊';
+
+    // Parse URL params for direct routing (e.g. ?role=counselor)
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const roleParam = params.get('role');
+      const actionParam = params.get('action');
+      const isLogout = params.get('logout') === 'true';
+
+      // ── Handle explicit logout param if present ──
+      if (isLogout) {
+        try {
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth') || key.includes('vz-user') || key.includes('session'))) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach(k => localStorage.removeItem(k));
+          sessionStorage.clear();
+        } catch (e) {}
+      }
+
+      // ── Session Check: Redirect already-logged-in users (only if not logging out) ──
+      if (!isLogout && typeof VistarazAuth !== 'undefined') {
+        const user = await VistarazAuth.getUser();
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          if (profile && profile.role === 'counselor') {
+            window.location.replace('listener_portal.html');
+          } else {
+            window.location.replace('client_panel.html');
+          }
+          return; // stop rest of init
+        }
+      }
+
+      // ── No session: set up the page normally ──
+      if (roleParam === 'provider' || roleParam === 'counselor') {
+        selectRolePathway('provider');
+      } else {
+        selectRolePathway('seeker');
+      }
+
+      if (actionParam === 'login') {
+        setAuthAction('login');
+      }
+    });
+
+    // 1. Role Pathway Selector
+    function selectRolePathway(role) {
+      currentRole = role;
+      const seekerCard = document.getElementById('role-seeker-card');
+      const providerCard = document.getElementById('role-provider-card');
+      const seekerContainer = document.getElementById('seeker-auth-container');
+      const providerContainer = document.getElementById('provider-auth-container');
+
+      if (role === 'seeker') {
+        seekerCard.classList.add('active');
+        providerCard.classList.remove('active');
+        seekerContainer.style.display = 'block';
+        providerContainer.style.display = 'none';
+      } else {
+        seekerCard.classList.remove('active');
+        providerCard.classList.add('active');
+        seekerContainer.style.display = 'none';
+        providerContainer.style.display = 'block';
+      }
+    }
+
+    // 2. Auth Action Selector (Register vs Login)
+    function setAuthAction(action) {
+      currentAuthAction = action;
+      const regBtn = document.getElementById('auth-tab-register');
+      const logBtn = document.getElementById('auth-tab-login');
+
+      // Seeker Boxes
+      const seekerRegBox = document.getElementById('seeker-register-box');
+      const seekerLogBox = document.getElementById('seeker-login-box');
+
+      // Provider Boxes
+      const provRegBox = document.getElementById('provider-register-box');
+      const provLogBox = document.getElementById('provider-login-box');
+
+      if (action === 'login') {
+        regBtn.classList.remove('active');
+        logBtn.classList.add('active');
+        seekerRegBox.style.display = 'none';
+        seekerLogBox.style.display = 'block';
+        provRegBox.style.display = 'none';
+        provLogBox.style.display = 'block';
+      } else {
+        regBtn.classList.add('active');
+        logBtn.classList.remove('active');
+        seekerRegBox.style.display = 'block';
+        seekerLogBox.style.display = 'none';
+        provRegBox.style.display = 'block';
+        provLogBox.style.display = 'none';
+      }
+    }
+
+    // 3. Seeker Profile Type (Anonymous vs Private)
+    function setSeekerProfileType(type) {
+      currentSeekerProfileType = type;
+      const tabAnon = document.getElementById('tab-anon-btn');
+      const tabPrivate = document.getElementById('tab-private-btn');
+      const anonFields = document.getElementById('seeker-anon-fields');
+      const privateFields = document.getElementById('seeker-private-fields');
+
+      if (type === 'anon') {
+        tabAnon.classList.add('active');
+        tabPrivate.classList.remove('active');
+        anonFields.style.display = 'block';
+        privateFields.style.display = 'none';
+      } else {
+        tabAnon.classList.remove('active');
+        tabPrivate.classList.add('active');
+        anonFields.style.display = 'none';
+        privateFields.style.display = 'block';
+      }
+    }
+
+    function selectSeekerAvatar(el, emoji) {
+      document.querySelectorAll('#seeker-anon-fields .avatar-item').forEach(a => a.classList.remove('selected'));
+      el.classList.add('selected');
+      currentSelectedAvatar = emoji;
+    }
+
+    // 4. Handle Seeker Registration
+    async function handleSeekerRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('seeker-submit-btn');
+      const errBox = document.getElementById('seeker-error');
+
+      function showErr(msg) {
+        if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+        else alert(msg);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      }
+
+      if (errBox) errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up portal...';
+
+      try {
+        const email = document.getElementById('seeker-email').value.trim();
+        const password = document.getElementById('seeker-password').value;
+
+        if (!email || !password) { showErr('Please enter your email and password.'); return; }
+
+        let nickname = 'Friend';
+        let fullName = '';
+        if (currentSeekerProfileType === 'anon') {
+          nickname = document.getElementById('seeker-anon-nickname').value.trim() || 'Friend';
+        } else {
+          fullName = document.getElementById('seeker-private-name').value.trim();
+          nickname = fullName.split(' ')[0] || 'Friend';
+        }
+
+        const { data, error } = await VistarazAuth.signUp(email, password, {
+          fullName, nickname, role: 'user', avatarUrl: currentSelectedAvatar
+        });
+
+        if (error) { showErr(error.message); return; }
+
+        if (data?.session) {
+          window.location.href = 'client_panel.html';
+        } else {
+          // Email confirmation required
+          if (errBox) {
+            errBox.style.background = 'rgba(76,217,100,0.12)';
+            errBox.style.color = '#4cd964';
+            errBox.textContent = '✅ Account created! Check your email for a confirmation link, then sign in.';
+            errBox.style.display = 'block';
+          }
+          btn.disabled = false;
+          btn.innerHTML = '<span>Enter Client Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+        }
+      } catch (err) {
+        console.error('[handleSeekerRegister]', err);
+        showErr('Something went wrong. Please refresh and try again.');
+      }
+    }
+
+    // 5. Handle Provider / Counselor Registration
+    async function handleProviderRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('provider-submit-btn');
+      const errBox = document.getElementById('provider-error');
+
+      function showErr(msg) {
+        if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+        else alert(msg);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+      }
+
+      if (errBox) errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating listener workspace...';
+
+      try {
+        const email = document.getElementById('provider-email').value.trim();
+        const password = document.getElementById('provider-password').value;
+        const fullName = document.getElementById('provider-name').value.trim();
+        const qualification = document.getElementById('provider-qualification').value;
+        const languagesStr = document.getElementById('provider-languages').value.trim();
+        const languages = languagesStr ? languagesStr.split(',').map(s => s.trim()) : ['English'];
+
+        if (!email || !password || !fullName) { showErr('Please fill in all required fields.'); return; }
+
+        const { data, error } = await VistarazAuth.signUp(email, password, {
+          fullName,
+          nickname: fullName.split(' ')[0],
+          role: 'counselor',
+          avatarUrl: '👨‍⚕️',
+          qualification,
+          languages
+        });
+
+        if (error) { showErr(error.message); return; }
+
+        if (data?.session) {
+          window.location.href = 'listener_portal.html';
+        } else {
+          if (errBox) {
+            errBox.style.background = 'rgba(76,217,100,0.12)';
+            errBox.style.color = '#4cd964';
+            errBox.textContent = '✅ Account created! Check your email for a confirmation link, then sign in.';
+            errBox.style.display = 'block';
+          }
+          btn.disabled = false;
+          btn.innerHTML = '<span>Open Listener Portal <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></span>';
+        }
+      } catch (err) {
+        console.error('[handleProviderRegister]', err);
+        showErr('Something went wrong. Please refresh and try again.');
+      }
+    }
+
+    // 6. Universal Login Handler (Auto-routes based on role)
+    async function handleUniversalLogin(e, roleType) {
+      e.preventDefault();
+      const btn = roleType === 'seeker' ? document.getElementById('seeker-login-btn') : document.getElementById('provider-login-btn');
+      const errBox = roleType === 'seeker' ? document.getElementById('seeker-login-error') : document.getElementById('provider-login-error');
+      const resetBtn = () => {
+        btn.disabled = false;
+        btn.innerHTML = roleType === 'seeker' ? '<span>Sign In to Dashboard</span>' : '<span>Open Listener Portal</span>';
+      };
+
+      if (errBox) errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+      try {
+        const emailId = roleType === 'seeker' ? 'seeker-login-email' : 'provider-login-email';
+        const passId  = roleType === 'seeker' ? 'seeker-login-password' : 'provider-login-password';
+        const email    = document.getElementById(emailId).value.trim();
+        const password = document.getElementById(passId).value;
+
+        if (!email || !password) {
+          if (errBox) { errBox.textContent = 'Please enter your email and password.'; errBox.style.display = 'block'; }
+          resetBtn(); return;
+        }
+
+        const { data, error } = await VistarazAuth.signIn(email, password);
+
+        if (error) {
+          if (errBox) { errBox.textContent = error.message; errBox.style.display = 'block'; }
+          else alert(error.message);
+          resetBtn();
+          return;
+        }
+
+        const user = data?.user;
+        if (user) {
+          const profile = await VistarazAuth.getProfile(user.id);
+          // Check role from profile DB table first, fallback to JWT metadata
+          const dbRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
+          const isCounselor = dbRole === 'counselor';
+          const expectedRoleType = isCounselor ? 'provider' : 'seeker';
+
+          // If user signed in from the wrong tab, show a friendly explanation
+          // on the destination page via sessionStorage
+          if (expectedRoleType !== roleType) {
+            sessionStorage.setItem(
+              'vz-role-mismatch-toast',
+              isCounselor
+                ? "You're registered as a Listener — we've brought you to your Listener Portal."
+                : "You're registered as a Seeker — we've brought you to your Client Dashboard."
+            );
+          }
+
+          window.location.href = isCounselor ? 'listener_portal.html' : 'client_panel.html';
+        } else {
+          resetBtn();
+        }
+      } catch (err) {
+        console.error('[handleUniversalLogin]', err);
+        if (errBox) { errBox.textContent = 'Something went wrong. Please refresh and try again.'; errBox.style.display = 'block'; }
+        resetBtn();
+      }
+    }
+  </script>
+</body>
+
+</html>

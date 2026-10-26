@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Your Dashboard — Vistaraz</title>
+<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a data-i="home" href="index.html">Home</a>
+        <a data-i="support" href="support.html">Support</a>
+        <a data-i="tools" href="tools.html">Tools</a>
+        <div class="vz-divider desktop-only" style="width: 1px; height: 20px; background: var(--line); margin: 0 4px;"></div>
+        <div class="desktop-only" style="display: flex; align-items: center; gap: 10px;">
+          <div id="user-avatar-badge"
+            style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; color: #000; font-weight: 600; font-size: 1.1rem;">
+            🦊</div>
+          <span id="user-profile-type" style="font-size: 0.9rem; color: var(--text-main);">My Profile</span>
+          <button onclick="handleSignOut()" class="button ghost"
+            style="padding: 4px 10px; font-size: 0.75rem; margin-left: 5px;" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding-top: 30px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; width: 100%; box-sizing: border-box;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+      <div>
+        <h1 style="margin-bottom: 5px; font-size: clamp(1.8rem, 4vw, 2.8rem);">Welcome back, <em id="user-display-name">Friend</em></h1>
+        <p style="margin: 0;">Here is a summary of your wellbeing, upcoming support, and active plan.</p>
+      </div>
+    </div>
+
+    <!-- Wearable Insight Prompt -->
+    <div class="glass-card reveal"
+      style="background: linear-gradient(90deg, rgba(138, 180, 248, 0.1), rgba(138, 180, 248, 0)); border-left: 4px solid var(--accent-primary); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; padding: 20px; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; gap: 16px; align-items: center; flex: 1; min-width: 260px;">
+        <i class="fas fa-watch" style="font-size: 1.8rem; color: var(--accent-primary); flex-shrink: 0;"></i>
+        <div>
+          <h4 style="font-family: var(--font-sans); font-size: 1.05rem; margin-bottom: 4px;">Wearable Insight</h4>
+          <p style="font-size: 0.88rem; margin: 0; max-width: 500px;">Your average sleep duration dropped by 1.5 hours
+            over the last 3 days. Would you like to do a quick check-in?</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="button ghost" onclick="this.closest('.glass-card').style.display='none'"
+          style="padding: 8px 16px; font-size: 0.85rem;">Dismiss</button>
+        <a class="button primary" href="assessment.html" style="padding: 8px 16px; font-size: 0.85rem;">Check-in</a>
+      </div>
+    </div>
+
+    <div class="grid-3" style="align-items: stretch;">
+      <!-- Active Membership -->
+      <article class="glass-card reveal">
+        <span class="eyebrow">YOUR PLAN</span>
+        <h3 style="font-family: var(--font-sans); font-size: 1.25rem; font-weight: 600; margin-bottom: 15px;"
+          id="user-plan-title">Silver Membership</h3>
+
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+            <span>Chat Allowance</span>
+            <span>3.5 / 4 hrs used</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">
+            <div style="width: 85%; height: 100%; background: var(--accent-secondary); border-radius: 3px;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+            <span>Voice/Video</span>
+            <span>0 / 30 mins used</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">
+            <div style="width: 0%; height: 100%; background: var(--success); border-radius: 3px;"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Upcoming Sessions -->
+      <article class="glass-card reveal" style="transition-delay: 0.1s;">
+        <span class="eyebrow" style="color: var(--success);">UPCOMING SUPPORT</span>
+        <h3 style="font-family: var(--font-sans); font-size: 1.25rem; font-weight: 600; margin-bottom: 15px;">Video
+          Session</h3>
+
+        <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+          <div
+            style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; color: #000; font-family: var(--font-serif); font-size: 1.2rem;">
+            S</div>
+          <div>
+            <p style="margin: 0; font-weight: 600; color: var(--text-main);">Dr. Nidhi M.</p>
+            <p style="margin: 0; font-size: 0.85rem;">Tomorrow, 4:00 PM</p>
+          </div>
+        </div>
+
+        <a class="button ghost" href="video-call.html" style="width: 100%;">Join Waiting Room</a>
+      </article>
+
+      <!-- Connected Devices -->
+      <article class="glass-card reveal" style="transition-delay: 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+          <span class="eyebrow" style="color: var(--accent-primary);">CONNECTED DEVICES</span>
+          <i class="fas fa-check-circle" style="color: var(--success);"></i>
+        </div>
+
+        <div
+          style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid var(--line);">
+          <i class="fab fa-apple" style="font-size: 1.5rem; color: var(--text-main);"></i>
+          <div>
+            <p style="margin: 0; font-weight: 500; font-size: 0.95rem; color: var(--text-main);">Apple Watch Series 8
+            </p>
+            <p style="margin: 0; font-size: 0.8rem;">Syncing sleep & activity</p>
+          </div>
+        </div>
+
+        <button class="button ghost" style="width: 100%; font-size: 0.85rem;"><i class="fas fa-cog"
+            style="margin-right: 8px;"></i> Manage Permissions</button>
+      </article>
+    </div>
+  </main>
+
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/dist/api.ed7a4966.js"></script>
+  <script src="assets/dist/app.f302ef53.js"></script>
+
+
+  <script>
+    async function handleSignOut() {
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
+      } else {
+        window.location.replace('index.html');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof VistarazAuth === 'undefined') return;
+      if (window.VzLoading) VzLoading.showProgress();
+
+      try {
+        const user = await VistarazAuth.getUser();
+        if (!user) {
+          // If user is strictly offline, don't force redirect immediately
+          if (!navigator.onLine) {
+            if (window.VzLoading) VzLoading.hideProgress();
+            return;
+          }
+          window.location.replace('register.html?action=login');
+          return;
+        }
+
+        const profile = await VistarazAuth.getProfile(user.id);
+        const name = (profile && (profile.nickname || profile.full_name)) || user.user_metadata?.nickname || user.user_metadata?.full_name || 'Friend';
+        const avatar = (profile && profile.avatar_url) || user.user_metadata?.avatar_url || '👤';
+        const plan = (profile && profile.plan) || 'Silver';
+
+        const nameEl = document.getElementById('user-display-name');
+        if (nameEl) nameEl.innerText = name;
+        const avatarEl = document.getElementById('user-avatar-badge');
+        if (avatarEl) avatarEl.innerText = avatar;
+        const typeEl = document.getElementById('user-profile-type');
+        if (typeEl) typeEl.innerText = profile?.role === 'counselor' ? 'Counselor' : (profile?.full_name ? 'Private Profile' : 'Anonymous');
+        const planEl = document.getElementById('user-plan-title');
+        if (planEl) planEl.innerText = plan + ' Membership';
+      } catch (err) {
+        console.warn('[Dashboard] Auth state resolution note:', err);
+      } finally {
+        if (window.VzLoading) VzLoading.hideProgress();
+      }
+    });
+  </script>
+</body>
+
+</html>

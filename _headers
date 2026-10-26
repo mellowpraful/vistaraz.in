@@ -1,0 +1,18 @@
+# Production-Grade Cache-Control Headers for Netlify
+
+# Immutable Content-Hashed Assets (1 Year Cache)
+/assets/dist/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML Documents (Must Revalidate, Instant Invalidation)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  Pragma: no-cache
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+  Pragma: no-cache
+
+# Unversioned Fallback Assets
+/assets/*
+  Cache-Control: public, max-age=86400, must-revalidate

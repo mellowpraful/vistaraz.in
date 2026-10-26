@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Support Listener Portal | Vistaraz</title>
+  <meta name="description"
+    content="Vistaraz Care Support Provider Dashboard — manage your availability, incoming session requests, sessions, community, earnings, and provider profile.">
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+
+  <!-- Google Fonts: Inter & Fraunces -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Fraunces', 'serif']
+          },
+          colors: {
+            surface: 'var(--bg-dark)',
+            card: 'var(--bg-card)',
+            border: 'var(--border-color)',
+            muted: 'var(--text-muted)',
+            accent: 'var(--accent-primary)',
+            secondary: 'var(--accent-secondary)',
+            success: 'var(--success)',
+            danger: 'var(--danger)',
+            warning: 'var(--warning)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ── Tab underline active ─────────────────────────── */
+    .tab-btn.active {
+      border-bottom: 2px solid #8ab4f8;
+      color: #f9fafb;
+    }
+
+    /* ── Custom Scrollbar ────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0f12;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ── Animations ─────────────────────────── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeUp .3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* ── Request card transition ──────────────────────── */
+    .request-card {
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .request-card.dismissed {
+      opacity: 0;
+      transform: scale(0.97);
+      pointer-events: none;
+    }
+
+    /* ── Toast notification ───────────────────────────── */
+    #globalToast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(20, 30, 35, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f0f4f8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #globalToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ── Modals General ───────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      transform: translateY(16px);
+      transition: transform .22s ease;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-backdrop.open .modal-box {
+      transform: translateY(0);
+    }
+
+    .day-toggle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .day-toggle input {
+      display: none;
+    }
+
+    .day-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+      transition: all .15s;
+    }
+
+    .day-toggle input:checked+.day-pill {
+      background: rgba(76, 217, 100, 0.15);
+      border-color: var(--success);
+      color: var(--success);
+    }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col antialiased text-[0.9rem]">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SITE HEADER & LISTENER PORTAL NAVIGATION
+  ═══════════════════════════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="site-header-inner">
+
+      <!-- Brand Logo (Original PNG per project rules) -->
+      <a class="brand flex-shrink-0" href="index.html">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="44">
+      </a>
+
+      <!-- Desktop Primary Listener Portal Navigation (7 Items) -->
+      <nav class="site-nav hidden lg:flex">
+        <a id="nav-home" onclick="switchView('home')" class="active">Home</a>
+        <a id="nav-dashboard" onclick="switchView('dashboard')">Dashboard</a>
+        <a id="nav-requests" onclick="switchView('requests')">Requests</a>
+        <a id="nav-sessions" onclick="switchView('sessions')">Sessions</a>
+        <a id="nav-community" onclick="switchView('community')">Community</a>
+        <a id="nav-earnings" onclick="switchView('earnings')">Earnings</a>
+        <a id="nav-profile" onclick="switchView('profile')">Profile</a>
+        <button class="theme-toggle" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+          🌙
+        </button>
+      </nav>
+
+      <!-- Header Right Cluster: Availability Control, Theme Toggle, Profile & Hamburger Trigger -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+
+        <!-- Availability Status Dropdown / Quick Control Pill (desktop / tablet) -->
+        <div class="relative group hidden sm:block">
+          <button id="headerStatusBtn" onclick="toggleStatusDropdown()"
+            class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full px-3 py-1.5 transition-all text-xs font-semibold">
+            <span id="navDot" class="w-2.5 h-2.5 rounded-full bg-success flex-shrink-0 transition-colors"></span>
+            <span id="navLabel" class="text-success transition-colors">Available</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-muted ml-0.5"></i>
+          </button>
+
+          <!-- Status Select Menu Dropdown -->
+          <div id="statusMenu"
+            class="hidden absolute right-0 mt-2 w-44 bg-[#141e23] border border-white/10 rounded-xl shadow-2xl py-1.5 z-50 text-xs">
+            <button onclick="setStatus('available')"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-white/5 text-gray-200 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <span class="font-medium">Available</span>
+              <span class="text-[10px] text-muted ml-auto">Ready</span>
+            </button>
+            <button onclick="setStatus('away')"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-white/5 text-gray-200 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-warning"></span>
+              <span class="font-medium">Away</span>
+              <span class="text-[10px] text-muted ml-auto">On Break</span>
+            </button>
+            <button onclick="setStatus('offline')"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-white/5 text-gray-200 transition-colors">
+              <span class="w-2 h-2 rounded-full bg-gray-500"></span>
+              <span class="font-medium">Offline</span>
+              <span class="text-[10px] text-muted ml-auto">Pause</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile Quick Avatar button (Quick Access) -->
+        <button id="provider-avatar-btn" onclick="switchView('profile')" title="Provider Profile"
+          class="vz-quick-access w-8 h-8 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent hover:bg-accent hover:text-black transition-all flex-shrink-0 text-sm">
+          🩺
+        </button>
+
+        <!-- Theme Toggle (Visible Directly on Mobile and Desktop) -->
+        <button class="theme-toggle lg:hidden" data-vz-theme-btn onclick="vzToggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+          🌙
+        </button>
+
+        <!-- Sign Out Button (Desktop Only - In Drawer on Mobile) -->
+        <button onclick="handleSignOut()" title="Sign Out"
+          class="hidden lg:flex w-8 h-8 rounded-full bg-white/5 border border-white/10 items-center justify-center text-gray-400 hover:text-danger hover:border-danger/30 transition-all flex-shrink-0">
+          <i class="fa-solid fa-sign-out-alt text-xs"></i>
+        </button>
+
+        <!-- Mobile Drawer Menu Toggle (Three-Line ☰) -->
+        <button onclick="toggleMobileDrawer()" class="mobile-nav-toggle lg:hidden text-muted hover:text-white p-1 text-lg flex-shrink-0" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MOBILE NAVIGATION DRAWER (Same as index.html)
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="mobileDrawer" class="mobile-nav-drawer lg:hidden">
+    <div class="mobile-nav-panel">
+      <div>
+        <div class="mobile-nav-header">
+          <a class="brand" href="index.html" onclick="toggleMobileDrawer()">
+            <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" height="38">
+          </a>
+          <button onclick="toggleMobileDrawer()" class="mobile-nav-close" aria-label="Close menu">&times;</button>
+        </div>
+
+        <nav class="mobile-nav-links">
+          <a id="mob-nav-home" onclick="switchView('home'); toggleMobileDrawer();" class="active">
+            <i class="fa-solid fa-house"></i> <span>Home</span>
+          </a>
+          <a id="mob-nav-dashboard" onclick="switchView('dashboard'); toggleMobileDrawer();">
+            <i class="fa-solid fa-chart-line"></i> <span>Dashboard</span>
+          </a>
+          <a id="mob-nav-requests" onclick="switchView('requests'); toggleMobileDrawer();">
+            <i class="fa-solid fa-inbox"></i> <span>Requests</span>
+          </a>
+          <a id="mob-nav-sessions" onclick="switchView('sessions'); toggleMobileDrawer();">
+            <i class="fa-solid fa-comments"></i> <span>Sessions</span>
+          </a>
+          <a id="mob-nav-community" onclick="switchView('community'); toggleMobileDrawer();">
+            <i class="fa-solid fa-users"></i> <span>Community</span>
+          </a>
+          <a id="mob-nav-earnings" onclick="switchView('earnings'); toggleMobileDrawer();">
+            <i class="fa-solid fa-wallet"></i> <span>Earnings</span>
+          </a>
+          <a id="mob-nav-profile" onclick="switchView('profile'); toggleMobileDrawer();">
+            <i class="fa-solid fa-id-card"></i> <span>Profile</span>
+          </a>
+          <a onclick="handleSignOut(); toggleMobileDrawer();" style="color: var(--danger); cursor: pointer;">
+            <i class="fa-solid fa-sign-out-alt" style="color: var(--danger);"></i> <span>Sign Out</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="mobile-nav-footer">
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">
+          <span>Current Live Status</span>
+          <span id="drawerStatusText" style="color: var(--success); font-weight: 600;">Available</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+          <button onclick="setStatus('available')" class="button ghost"
+            style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(76, 217, 100, 0.4); color: var(--success); text-align: center; justify-content: center;">Available</button>
+          <button onclick="setStatus('away')" class="button ghost"
+            style="padding: 6px 4px; font-size: 0.75rem; border-color: rgba(245, 158, 11, 0.4); color: var(--warning); text-align: center; justify-content: center;">Away</button>
+          <button onclick="setStatus('offline')" class="button ghost"
+            style="padding: 6px 4px; font-size: 0.75rem; color: var(--text-muted); text-align: center; justify-content: center;">Offline</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN VIEW CONTAINER
+  ═══════════════════════════════════════════════════════════ -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 1: HOME
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-home" class="fade-in flex flex-col gap-6">
+
+      <!-- Welcome Hero Banner -->
+      <div
+        class="bg-card border border-border rounded-2xl p-6 sm:p-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="max-w-xl z-10">
+          <div
+            class="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 text-accent text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            <i class="fa-solid fa-shield-halved text-[10px]"></i> Support Listener Trainee · Verified
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-normal text-gray-100 font-serif mb-2">Welcome back, <span
+              id="provider-welcome-name" class="text-accent italic font-normal">KrushnaRaj</span></h1>
+          <p id="homeSubtitle" class="text-xs sm:text-sm text-muted mb-0">
+            You are currently <span id="homeStatusBadge" class="text-success font-semibold">🟢 Available</span> to
+            receive peer support requests from students in need.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 z-10">
+          <button onclick="switchView('requests')"
+            class="bg-accent hover:bg-blue-500 text-black text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-accent/10 flex items-center gap-2">
+            <i class="fa-solid fa-inbox"></i> View Requests <span
+              class="bg-black/20 text-black px-1.5 py-0.5 rounded-full text-[10px] font-bold">2</span>
+          </button>
+          <button onclick="editSchedule()"
+            class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 text-xs font-medium px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
+            <i class="fa-regular fa-clock text-accent"></i> Set Availability
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Cards Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <button onclick="switchView('requests')"
+          class="bg-card hover:bg-white/[0.05] border border-border rounded-xl p-4 text-left transition-all group">
+          <div
+            class="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 text-accent flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-inbox text-sm"></i>
+          </div>
+          <p class="text-xs text-muted font-medium">Pending Requests</p>
+          <p class="text-lg font-bold text-gray-100 mt-0.5">2 Requests</p>
+          <span class="text-[10px] text-accent font-semibold mt-1 inline-flex items-center gap-1">Review now →</span>
+        </button>
+
+        <button onclick="openChatModal('sess-active')"
+          class="bg-card hover:bg-white/[0.05] border border-border rounded-xl p-4 text-left transition-all group">
+          <div
+            class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-success flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-comments text-sm"></i>
+          </div>
+          <p class="text-xs text-muted font-medium">Active Session</p>
+          <p class="text-lg font-bold text-gray-100 mt-0.5">Anonymous_8821</p>
+          <span class="text-[10px] text-success font-semibold mt-1 inline-flex items-center gap-1">Continue Chat (14m)
+            →</span>
+        </button>
+
+        <button onclick="editSchedule()"
+          class="bg-card hover:bg-white/[0.05] border border-border rounded-xl p-4 text-left transition-all group">
+          <div
+            class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-warning flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-calendar-days text-sm"></i>
+          </div>
+          <p class="text-xs text-muted font-medium">Working Hours</p>
+          <p class="text-lg font-bold text-gray-100 mt-0.5">6 PM – 10 PM</p>
+          <span class="text-[10px] text-warning font-semibold mt-1 inline-flex items-center gap-1">Configure Schedule
+            →</span>
+        </button>
+
+        <button onclick="switchView('earnings')"
+          class="bg-card hover:bg-white/[0.05] border border-border rounded-xl p-4 text-left transition-all group">
+          <div
+            class="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-wallet text-sm"></i>
+          </div>
+          <p class="text-xs text-muted font-medium">Today's Earnings</p>
+          <p class="text-lg font-bold text-gray-100 mt-0.5"> ₹ 120.00</p>
+          <span class="text-[10px] text-purple-400 font-semibold mt-1 inline-flex items-center gap-1">View Breakdown
+            →</span>
+        </button>
+      </div>
+
+      <!-- Main Home Content Grid: Upcoming Sessions + Notifications -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Upcoming Session & Pending Request Preview -->
+        <div class="lg:col-span-2 flex flex-col gap-5">
+
+          <!-- Upcoming Session Card Preview -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i class="fa-regular fa-calendar-check text-accent"></i>
+                <h3 class="text-sm font-semibold text-gray-100">Upcoming Session Preview</h3>
+              </div>
+              <button onclick="switchView('sessions')" class="text-xs text-accent hover:underline font-medium">View All
+                Sessions →</button>
+            </div>
+
+            <div
+              class="bg-surface border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0 mt-0.5">
+                  <i class="fa-solid fa-user-secret text-sm"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-100 text-sm">Anonymous_1310</span>
+                    <span
+                      class="bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold px-2 py-0.5 rounded">Video/Audio</span>
+                  </div>
+                  <p class="text-xs text-muted mt-1">Topic: Overthinking, anxiety spirals at night</p>
+                  <p class="text-xs text-gray-400 mt-1"><i class="fa-regular fa-clock mr-1 text-accent"></i>Today at
+                    11:00 PM (30 Mins)</p>
+                </div>
+              </div>
+
+              <div class="flex sm:flex-col gap-2">
+                <button onclick="acceptRequest('req-1')"
+                  class="bg-accent hover:bg-blue-600 text-black text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                  Join Session
+                </button>
+                <button onclick="switchView('sessions')"
+                  class="bg-white/5 hover:bg-white/10 text-gray-300 text-xs px-3 py-1.5 rounded-lg border border-white/10">
+                  Details
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Request Quick Action Preview -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-inbox text-warning"></i>
+                <h3 class="text-sm font-semibold text-gray-100">Pending Session Requests</h3>
+              </div>
+              <span class="text-xs bg-warning/10 text-warning px-2 py-0.5 rounded-full font-bold">2 Waiting</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="bg-surface border border-border rounded-lg p-3 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-gray-200">Anonymous_2047 · Chat Support</p>
+                  <p class="text-[11px] text-muted">Primary Concern: Grief & loss processing · 45.00.00 mins</p>
+                </div>
+                <button onclick="switchView('requests')" class="text-xs text-accent font-medium hover:underline">Accept
+                  in Requests →</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Notifications Feed -->
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border">
+            <h3 class="text-sm font-semibold text-gray-100 flex items-center gap-2">
+              <i class="fa-regular fa-bell text-accent"></i> Notifications
+            </h3>
+            <span class="text-[10px] text-muted">Real-time alerts</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-lg bg-surface border border-border">
+              <div class="flex items-center justify-between text-muted text-[10px] mb-1">
+                <span class="text-success font-semibold">New Request</span>
+                <span>10 mins ago</span>
+              </div>
+              <p class="text-gray-200 font-medium">New student matched for 11:00 PM video session.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-surface border border-border">
+              <div class="flex items-center justify-between text-muted text-[10px] mb-1">
+                <span class="text-accent font-semibold">Feedback Received</span>
+                <span>2 hours ago</span>
+              </div>
+              <p class="text-gray-200 font-medium">Anonymous_1155 rated your session 5.0 ★ ("Very compassionate
+                listener")</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-surface border border-border">
+              <div class="flex items-center justify-between text-muted text-[10px] mb-1">
+                <span class="text-purple-400 font-semibold">Payout Processed</span>
+                <span>Yesterday</span>
+              </div>
+              <p class="text-gray-200 font-medium"> ₹ 340.00 transferred to your linked bank account.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-surface border border-border">
+              <div class="flex items-center justify-between text-muted text-[10px] mb-1">
+                <span class="text-warning font-semibold">Community Update</span>
+                <span>2 days ago</span>
+              </div>
+              <p class="text-gray-200 font-medium">New peer support guidelines posted in Community Hub.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 2: DASHBOARD (NO Today's Activity section!)
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-dashboard" class="hidden fade-in flex flex-col gap-6">
+
+      <!-- Header & Quick Availability Control -->
+      <div
+        class="bg-card border border-border rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 class="text-xl font-normal text-gray-100 font-serif mb-1">Provider Performance & Availability</h2>
+          <p class="text-xs text-muted">Monitor key metrics, earnings progress, and live session settings.</p>
+        </div>
+
+        <!-- Direct Availability Switcher -->
+        <div class="bg-surface border border-border p-2 rounded-xl flex items-center gap-1">
+          <button onclick="setStatus('available')" id="dashBtnAvail"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-success/20 text-success border border-success/30">
+            🟢 Available
+          </button>
+          <button onclick="setStatus('away')" id="dashBtnAway"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-muted hover:text-white">
+            🟡 Away
+          </button>
+          <button onclick="setStatus('offline')" id="dashBtnOff"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-muted hover:text-white">
+            ⚫ Offline
+          </button>
+        </div>
+      </div>
+
+      <!-- Performance Metrics Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-muted">Total Sessions</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-accent flex items-center justify-center">
+              <i class="fa-solid fa-comments text-xs"></i>
+            </div>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-100">148</p>
+            <p class="text-[11px] text-success mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+12 this week</p>
+          </div>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-muted">Average Rating</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-warning flex items-center justify-center">
+              <i class="fa-solid fa-star text-xs"></i>
+            </div>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-100">4.9 / 5.0</p>
+            <p class="text-[11px] text-muted mt-1">Based on 148 reviews</p>
+          </div>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-muted">Response Rate</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-success flex items-center justify-center">
+              <i class="fa-solid fa-bolt text-xs"></i>
+            </div>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-100">96%</p>
+            <p class="text-[11px] text-muted mt-1">&lt; 2 min average response</p>
+          </div>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-muted">Total Support Time</span>
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+              <i class="fa-solid fa-hourglass-half text-xs"></i>
+            </div>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-100">16.5 Hrs</p>
+            <p class="text-[11px] text-muted mt-1">34 min avg per session</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Earnings Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <div class="flex items-center justify-between text-xs text-muted mb-2">
+            <span>Today's Earnings</span>
+            <span class="bg-emerald-500/10 text-success px-2 py-0.5 rounded text-[10px] font-bold">3 Sessions</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-100"> ₹ 120.00</p>
+          <p class="text-[11px] text-muted mt-2">Credited to wallet</p>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <div class="flex items-center justify-between text-xs text-muted mb-2">
+            <span>Monthly Earnings</span>
+            <span class="text-accent text-[10px] font-bold">August 2026</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-100"> ₹ 1,350.00</p>
+          <p class="text-[11px] text-success mt-2">+18% vs last month</p>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <div class="flex items-center justify-between text-xs text-muted mb-2">
+            <span>Pending Payout</span>
+            <span class="text-warning text-[10px] font-bold">Next Payout: Friday</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-100"> ₹ 340.00</p>
+          <p class="text-[11px] text-muted mt-2">Direct bank transfer scheduled</p>
+        </div>
+
+      </div>
+
+      <!-- Support Channel Preferences & Schedule Summary -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <h3 class="text-sm font-semibold text-gray-100 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-accent"></i> Support Channel Availability
+          </h3>
+          <div class="space-y-3">
+            <label
+              class="flex items-center justify-between p-3 rounded-lg bg-surface border border-border cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-video text-accent"></i>
+                <div>
+                  <p class="text-xs font-semibold text-gray-200">Video Calls</p>
+                  <p class="text-[11px] text-muted">1-on-1 HD Video support</p>
+                </div>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-blue-500">
+            </label>
+
+            <label
+              class="flex items-center justify-between p-3 rounded-lg bg-surface border border-border cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-phone text-success"></i>
+                <div>
+                  <p class="text-xs font-semibold text-gray-200">Audio Calls</p>
+                  <p class="text-[11px] text-muted">Voice peer counseling</p>
+                </div>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-blue-500">
+            </label>
+
+            <label
+              class="flex items-center justify-between p-3 rounded-lg bg-surface border border-border cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-message text-warning"></i>
+                <div>
+                  <p class="text-xs font-semibold text-gray-200">Chat Support</p>
+                  <p class="text-[11px] text-muted">Real-time messaging</p>
+                </div>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-blue-500">
+            </label>
+          </div>
+        </div>
+
+        <!-- Rating Breakdown -->
+        <div class="bg-card border border-border rounded-xl p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-heart text-danger"></i> Student Satisfaction Score
+            </h3>
+
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <div class="flex justify-between text-muted mb-1">
+                  <span>5 Stars (Empathy & Listening)</span>
+                  <span class="text-gray-200 font-semibold">92%</span>
+                </div>
+                <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+                  <div class="h-full bg-success rounded-full" style="width: 92%;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-muted mb-1">
+                  <span>4 Stars (Good Session)</span>
+                  <span class="text-gray-200 font-semibold">6%</span>
+                </div>
+                <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+                  <div class="h-full bg-accent rounded-full" style="width: 6%;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-muted mb-1">
+                  <span>3 Stars or below</span>
+                  <span class="text-gray-200 font-semibold">2%</span>
+                </div>
+                <div class="w-full h-2 bg-surface rounded-full overflow-hidden">
+                  <div class="h-full bg-warning rounded-full" style="width: 2%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="mt-4 p-3 rounded-lg bg-surface border border-border text-[11px] text-muted flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-success text-sm"></i>
+            <span>Your rating places you in the <strong>Top 5%</strong> of peer listeners this month!</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 3: REQUESTS (Preserved Existing Requests Functionality & UI)
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-requests" class="hidden fade-in flex flex-col gap-5">
+
+      <!-- Greeting Row -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-100">Incoming Session Requests</h1>
+          <p id="statusSubtitle" class="text-xs text-muted mt-0.5">
+            You are <span id="statusWord" class="text-success font-medium">online</span> and visible to incoming session
+            requests.
+          </p>
+        </div>
+        <!-- Live badge -->
+        <div id="liveBadge"
+          class="self-start sm:self-auto flex items-center gap-1.5 bg-success/10 border border-success/20 text-success text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full transition-all">
+          <span id="livePulse" class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-60"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-success"></span>
+          </span>
+          <span id="liveBadgeText">Live & Online</span>
+        </div>
+      </div>
+
+      <!-- Grid (Schedule Sidebar | Requests Panel) -->
+      <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
+
+        <!-- Schedule Sidebar -->
+        <aside class="flex flex-col gap-4">
+
+          <div class="bg-card border border-border rounded-xl p-4">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <i class="fa-regular fa-calendar-check text-accent text-xs"></i>
+                </div>
+                <h2 class="text-sm font-semibold text-gray-100">My Schedule</h2>
+              </div>
+              <button onclick="editSchedule()"
+                class="text-[10px] font-semibold text-accent hover:text-white bg-accent/10 hover:bg-accent/20 border border-accent/20 px-2.5 py-1 rounded-md transition-all flex items-center gap-1">
+                <i class="fa-solid fa-pen text-[9px]"></i> Edit
+              </button>
+            </div>
+
+            <ul class="space-y-2.5 text-xs">
+              <li class="flex items-start justify-between">
+                <span class="text-muted">Active Days</span>
+                <span id="dispActiveDays" class="font-medium text-gray-200 text-right">Mon – Fri</span>
+              </li>
+              <li class="flex items-start justify-between">
+                <span class="text-muted">Matching Hours</span>
+                <span id="dispHours" class="font-medium text-gray-200 text-right">10:00 AM – 6:00 PM</span>
+              </li>
+              <li class="flex items-start justify-between">
+                <span class="text-muted">Session Type</span>
+                <span class="font-medium text-gray-200 text-right">Video · Audio · Chat</span>
+              </li>
+              <li class="flex items-start justify-between">
+                <span class="text-muted">Daily Max</span>
+                <span id="dispMax" class="font-medium text-gray-200 text-right">6 sessions / day</span>
+              </li>
+              <li class="flex items-start justify-between">
+                <span class="text-muted">Timezone</span>
+                <span class="font-medium text-gray-200 text-right">IST (UTC+5:30)</span>
+              </li>
+            </ul>
+
+            <hr class="border-border my-4">
+
+            <!-- Day Grid -->
+            <div class="grid grid-cols-7 gap-1">
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">M</div>
+                <div
+                  class="w-full rounded bg-success/15 border border-success/25 py-1 text-[9px] font-bold text-success">
+                  ON</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">T</div>
+                <div
+                  class="w-full rounded bg-success/15 border border-success/25 py-1 text-[9px] font-bold text-success">
+                  ON</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">W</div>
+                <div
+                  class="w-full rounded bg-success/15 border border-success/25 py-1 text-[9px] font-bold text-success">
+                  ON</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">T</div>
+                <div
+                  class="w-full rounded bg-success/15 border border-success/25 py-1 text-[9px] font-bold text-success">
+                  ON</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">F</div>
+                <div
+                  class="w-full rounded bg-success/15 border border-success/25 py-1 text-[9px] font-bold text-success">
+                  ON</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">S</div>
+                <div class="w-full rounded bg-border py-1 text-[9px] font-bold text-muted opacity-60">OFF</div>
+              </div>
+              <div class="text-center">
+                <div class="text-[9px] text-muted mb-1">S</div>
+                <div class="w-full rounded bg-border py-1 text-[9px] font-bold text-muted opacity-60">OFF</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="bg-card border border-border rounded-xl p-4">
+            <h3 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Today's Stats</h3>
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted">Sessions Completed</span>
+                <span class="text-sm font-bold text-gray-100">3</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted">Sessions Rejected</span>
+                <span class="text-sm font-bold text-danger">1</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted">Avg. Duration</span>
+                <span class="text-sm font-bold text-gray-100">34 min</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted">Queue Waiting</span>
+                <span id="queueCount" class="text-sm font-bold text-warning">2</span>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- Right Column: Tabs (Requests | History) -->
+        <section class="flex flex-col gap-4">
+
+          <div class="flex border-b border-border gap-1">
+            <button id="tabRequests" onclick="switchTab('requests')"
+              class="tab-btn active px-4 py-2.5 text-xs font-semibold text-gray-100 transition-colors border-b-2 border-accent">
+              <i class="fa-solid fa-inbox mr-1.5"></i>Incoming Requests
+              <span id="reqBadge"
+                class="ml-1.5 bg-accent/20 text-accent text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+            </button>
+            <button id="tabHistory" onclick="switchTab('history')"
+              class="tab-btn px-4 py-2.5 text-xs font-semibold text-muted hover:text-white transition-colors border-b-2 border-transparent">
+              <i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Past Sessions
+            </button>
+          </div>
+
+          <!-- Requests Panel -->
+          <div id="panelRequests" class="flex flex-col gap-3">
+
+            <div id="offlineNotice" class="hidden bg-card border border-border rounded-xl p-8 text-center">
+              <i class="fa-solid fa-toggle-off text-3xl text-muted mb-3 block"></i>
+              <h4 class="text-sm font-semibold text-gray-200 mb-1">You're currently offline</h4>
+              <p class="text-xs text-muted">Change your status to Available in the header to start receiving session
+                requests.</p>
+            </div>
+
+            <!-- Request Card 1 -->
+            <div id="req-1" class="request-card bg-card border border-border rounded-xl p-4">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full bg-surface border-2 border-border flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-user-secret text-accent text-sm"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-100">Anonymous_1310</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0"></span>
+                      <span class="text-[11px] text-success font-medium">Online</span>
+                      <span class="text-muted">·</span>
+                      <span class="text-[11px] text-muted">Age 21</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-[11px] sm:text-right">
+                  <span class="bg-surface border border-border rounded px-2 py-1 text-muted">
+                    <i class="fa-regular fa-clock mr-1"></i>11:00 PM Today
+                  </span>
+                  <span class="bg-surface border border-border rounded px-2 py-1 text-muted">
+                    <i class="fa-regular fa-hourglass-half mr-1"></i>30 Mins
+                  </span>
+                  <span class="bg-accent/10 border border-accent/20 text-accent rounded px-2 py-1 font-medium">
+                    <i class="fa-solid fa-video mr-1 text-[10px]"></i>Video/Audio
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-3 bg-surface border border-border rounded-lg px-3 py-2 text-xs text-muted">
+                <span class="font-medium text-gray-300">Primary Concern:</span> Overthinking, anxiety spirals at night
+              </div>
+
+              <div class="flex gap-2 mt-3">
+                <button onclick="acceptRequest('req-1')"
+                  class="flex-1 bg-accent hover:bg-blue-600 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-check text-[11px]"></i> Accept Session
+                </button>
+                <button onclick="rejectRequest('req-1')"
+                  class="border border-danger/30 hover:border-danger text-danger text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-xmark text-[11px]"></i> Reject
+                </button>
+              </div>
+            </div>
+
+            <!-- Request Card 2 -->
+            <div id="req-2" class="request-card bg-card border border-border rounded-xl p-4">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full bg-surface border-2 border-border flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-user-secret text-accent text-sm"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-100">Anonymous_2047</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-muted flex-shrink-0"></span>
+                      <span class="text-[11px] text-muted font-medium">Offline (queued)</span>
+                      <span class="text-muted">·</span>
+                      <span class="text-[11px] text-muted">Age 26</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-[11px]">
+                  <span class="bg-surface border border-border rounded px-2 py-1 text-muted">
+                    <i class="fa-regular fa-clock mr-1"></i>11:18 PM Today
+                  </span>
+                  <span class="bg-surface border border-border rounded px-2 py-1 text-muted">
+                    <i class="fa-regular fa-hourglass-half mr-1"></i> 45.00 Mins
+                  </span>
+                  <span
+                    class="bg-emerald-900/30 border border-emerald-700/30 text-emerald-400 rounded px-2 py-1 font-medium">
+                    <i class="fa-solid fa-message mr-1 text-[10px]"></i>Chat
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-3 bg-surface border border-border rounded-lg px-3 py-2 text-xs text-muted">
+                <span class="font-medium text-gray-300">Primary Concern:</span> Grief and loss — difficulty processing
+                recent events
+              </div>
+
+              <div class="flex gap-2 mt-3">
+                <button onclick="acceptRequest('req-2')"
+                  class="flex-1 bg-accent hover:bg-blue-600 text-white text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-check text-[11px]"></i> Accept Session
+                </button>
+                <button onclick="rejectRequest('req-2')"
+                  class="border border-danger/30 hover:border-danger text-danger text-xs font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-xmark text-[11px]"></i> Reject
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+<!-- Empty State -->
+<div id="emptyState" class="hidden bg-card border border-border rounded-xl p-8 text-center">
+  <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface border border-border flex items-center justify-center">
+    <i class="fa-regular fa-inbox text-accent text-xl"></i>
+  </div>
+
+  <h4 class="text-sm font-semibold text-gray-200 mb-1">
+    No Requests Available
+  </h4>
+
+  <p class="text-xs text-muted max-w-sm mx-auto">
+    There are no session requests at the moment. New requests will appear here when available.
+  </p>
+</div>
+          </div>
+
+          <!-- History Panel -->
+          <div id="panelHistory" class="hidden">
+            <div class="bg-card border border-border rounded-xl overflow-hidden">
+              <div class="px-4 py-3 border-b border-border flex items-center justify-between">
+                <h3 class="text-xs font-semibold text-muted uppercase tracking-wider">Past Attended Sessions</h3>
+                <span class="text-[10px] text-muted">Showing 6 of 24</span>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs">
+                  <thead>
+                    <tr class="border-b border-border bg-surface/50">
+                      <th class="text-left px-4 py-2.5 text-muted font-medium uppercase tracking-wider text-[10px]">
+                        Client</th>
+                      <th class="text-left px-4 py-2.5 text-muted font-medium uppercase tracking-wider text-[10px]">Date
+                        &amp; Time</th>
+                      <th class="text-left px-4 py-2.5 text-muted font-medium uppercase tracking-wider text-[10px]">
+                        Duration</th>
+                      <th class="text-left px-4 py-2.5 text-muted font-medium uppercase tracking-wider text-[10px]">Type
+                      </th>
+                      <th class="text-left px-4 py-2.5 text-muted font-medium uppercase tracking-wider text-[10px]">
+                        Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-border">
+                    <tr class="hover:bg-surface/50 transition-colors">
+                      <td class="px-4 py-3 font-medium text-gray-200">Anonymous_1155</td>
+                      <td class="px-4 py-3 text-muted">18 Aug 2026, 9: 45.00 PM</td>
+                      <td class="px-4 py-3 text-muted">42 min</td>
+                      <td class="px-4 py-3"><span
+                          class="bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded text-[10px]">Video/Audio</span>
+                      </td>
+                      <td class="px-4 py-3"><span class="text-success font-semibold text-[10px]">Completed</span></td>
+                    </tr>
+                    <tr class="hover:bg-surface/50 transition-colors">
+                      <td class="px-4 py-3 font-medium text-gray-200">Anonymous_0982</td>
+                      <td class="px-4 py-3 text-muted">18 Aug 2026, 7:10 PM</td>
+                      <td class="px-4 py-3 text-muted">29 min</td>
+                      <td class="px-4 py-3"><span
+                          class="bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 px-2 py-0.5 rounded text-[10px]">Chat</span>
+                      </td>
+                      <td class="px-4 py-3"><span class="text-success font-semibold text-[10px]">Completed</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 4: SESSIONS (Organized into Active, Upcoming, Completed, Cancelled)
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-sessions" class="hidden fade-in flex flex-col gap-6">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-normal text-gray-100 font-serif">Sessions Hub</h2>
+          <p class="text-xs text-muted">Manage live chat &amp; video calls, review upcoming schedules, and inspect
+            history.</p>
+        </div>
+
+        <!-- Session Status Filter Tabs -->
+        <div class="bg-surface border border-border p-1 rounded-xl flex gap-1">
+          <button onclick="switchSessionTab('active')" id="sessTab-active"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-accent text-black font-semibold">Active
+            (1)</button>
+          <button onclick="switchSessionTab('upcoming')" id="sessTab-upcoming"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-white transition-all">Upcoming
+            (2)</button>
+          <button onclick="switchSessionTab('completed')" id="sessTab-completed"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-white transition-all">Completed
+            (24)</button>
+          <button onclick="switchSessionTab('cancelled')" id="sessTab-cancelled"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-white transition-all">Cancelled
+            (2)</button>
+        </div>
+      </div>
+
+      <!-- Session Tab Content: ACTIVE -->
+      <div id="sessGroup-active" class="space-y-4">
+
+        <div class="bg-card border border-accent/30 rounded-2xl p-6 relative overflow-hidden">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 rounded-full bg-surface border-2 border-accent flex items-center justify-center text-accent">
+                <i class="fa-solid fa-user-secret text-lg"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-gray-100 text-base">Anonymous_8821</h3>
+                  <span
+                    class="bg-success/20 text-success border border-success/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-success animate-ping"></span> Live Session
+                  </span>
+                </div>
+                <p class="text-xs text-muted mt-0.5">Primary Concern: Academic pressure &amp; exam anxiety</p>
+              </div>
+            </div>
+
+            <!-- Rate breakdown indicator -->
+            <div class="text-right">
+              <span class="text-xs text-accent font-semibold block">Introductory Free Support</span>
+              <span class="text-[11px] text-muted">15 Min Free (3m remaining) · Then ₹ 15/hr</span>
+            </div>
+          </div>
+
+          <div class="pt-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-1.5 text-gray-300">
+                <i class="fa-regular fa-clock text-accent"></i> Session Timer: <strong id="liveTimer"
+                  class="font-mono text-white text-sm">14:32</strong>
+              </div>
+              <div class="text-muted">Type: <strong>Chat &amp; Audio</strong></div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="openChatModal('Anonymous_8821')"
+                class="bg-accent hover:bg-blue-600 text-black text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-message"></i> Open Live Chat
+              </button>
+              <button onclick="openVideoModal('Anonymous_8821')"
+                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-video"></i> Open Video/Voice Call
+              </button>
+              <button onclick="openReportModal('Anonymous_8821')"
+                class="bg-red-500/10 hover:bg-red-500/20 text-danger border border-red-500/30 text-xs px-3 py-2 rounded-xl transition-all">
+                <i class="fa-solid fa-flag"></i> Report
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Session Tab Content: UPCOMING -->
+      <div id="sessGroup-upcoming" class="hidden space-y-3">
+        <div
+          class="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-accent">Anonymous_1310</span>
+            <p class="text-xs text-muted">Today at 11:00 PM (30 min) · Video/Audio Session</p>
+          </div>
+          <button onclick="acceptRequest('req-1')"
+            class="bg-accent text-black text-xs font-semibold px-4 py-1.5 rounded-lg">Join Call</button>
+        </div>
+
+        <div
+          class="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-gray-200">Anonymous_9042</span>
+            <p class="text-xs text-muted">Tomorrow at 4:00 PM ( 45.00 min) · Chat Support</p>
+          </div>
+          <span class="text-xs bg-surface border border-border text-muted px-3 py-1 rounded">Scheduled</span>
+        </div>
+      </div>
+
+      <!-- Session Tab Content: COMPLETED -->
+      <div id="sessGroup-completed" class="hidden space-y-3">
+        <div class="bg-card border border-border rounded-xl p-4 flex items-center justify-between text-xs">
+          <div>
+            <p class="font-bold text-gray-200">Anonymous_1155</p>
+            <p class="text-muted">18 Aug 2026 · 42 mins · Video Session · Rating: 5.0 ★</p>
+          </div>
+          <span class="text-success font-semibold">Completed</span>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-4 flex items-center justify-between text-xs">
+          <div>
+            <p class="font-bold text-gray-200">Anonymous_0982</p>
+            <p class="text-muted">18 Aug 2026 · 29 mins · Chat Session · Rating: 4.8 ★</p>
+          </div>
+          <span class="text-success font-semibold">Completed</span>
+        </div>
+      </div>
+
+      <!-- Session Tab Content: CANCELLED -->
+      <div id="sessGroup-cancelled" class="hidden space-y-3">
+        <div class="bg-card border border-border rounded-xl p-4 text-xs text-muted flex items-center justify-between">
+          <span>Anonymous_3740 · Client cancelled 10 min prior to session</span>
+          <span class="text-danger font-semibold">Cancelled</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 5: COMMUNITY (Support Listener Hub ONLY)
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-community" class="hidden fade-in flex flex-col gap-6">
+
+      <div
+        class="bg-gradient-to-r from-accent/10 via-card to-card border border-border rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-accent font-semibold">Support Listener Forum</span>
+          <h2 class="text-xl font-normal text-gray-100 font-serif mt-1">Peer Listener Community &amp; Learning Hub</h2>
+          <p class="text-xs text-muted mt-1">Share anonymized insights, training modules, and best practices with fellow
+            care providers.</p>
+        </div>
+
+        <div
+          class="bg-surface border border-border rounded-xl px-4 py-2 text-[11px] text-muted flex items-center gap-2">
+          <i class="fa-solid fa-lock text-accent"></i>
+          <span><strong>Zero PII Policy:</strong> No personal student information shared.</span>
+        </div>
+      </div>
+
+      <!-- Community Sub-sections Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Discussions Column -->
+        <div class="lg:col-span-2 space-y-4">
+          <h3 class="text-sm font-semibold text-gray-100 flex items-center gap-2">
+            <i class="fa-regular fa-comments text-accent"></i> Peer Discussions &amp; De-escalation Topics
+          </h3>
+
+          <div class="bg-card border border-border rounded-xl p-4 space-y-4">
+            <div class="pb-3 border-b border-border">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="bg-accent/10 text-accent text-[10px] font-bold px-2 py-0.5 rounded">Techniques</span>
+                <span class="text-[10px] text-muted">Posted by PeerListener_Mark</span>
+              </div>
+              <h4 class="text-xs font-semibold text-gray-200 hover:text-accent cursor-pointer">Grounding exercises for
+                late-night exam panic attacks?</h4>
+              <p class="text-xs text-muted mt-1">What 5-4-3-2-1 sensory methods work best when chatting with an anxious
+                student late at night?</p>
+              <div class="flex items-center gap-4 text-[10px] text-muted mt-2">
+                <span><i class="fa-regular fa-comment mr-1"></i>24 Replies</span>
+                <span><i class="fa-regular fa-clock mr-1"></i>3 hours ago</span>
+              </div>
+            </div>
+
+            <div class="pb-3 border-b border-border">
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  class="bg-purple-500/10 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded">Self-Care</span>
+                <span class="text-[10px] text-muted">Posted by Trainee_Elena</span>
+              </div>
+              <h4 class="text-xs font-semibold text-gray-200 hover:text-accent cursor-pointer">Maintaining emotional
+                boundaries after intense listening sessions</h4>
+              <p class="text-xs text-muted mt-1">Sharing tips on resetting your own mental space after supporting
+                students through grief or heavy anxiety.</p>
+              <div class="flex items-center gap-4 text-[10px] text-muted mt-2">
+                <span><i class="fa-regular fa-comment mr-1"></i>18 Replies</span>
+                <span><i class="fa-regular fa-clock mr-1"></i>Yesterday</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anonymous Case-Learning Section -->
+          <div class="bg-card border border-border rounded-xl p-4 space-y-3">
+            <h3 class="text-xs font-bold text-gray-200 uppercase tracking-wider">Anonymous Case-Learning Scenarios</h3>
+
+            <div class="p-3 rounded-lg bg-surface border border-border">
+              <span class="text-[10px] text-accent font-bold">Case Study #402</span>
+              <p class="text-xs font-semibold text-gray-200 mt-0.5">De-identifying social anxiety triggers in college
+                freshmen</p>
+              <p class="text-[11px] text-muted mt-1">Analysis of non-verbal cues during text chat support.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar: Training & Announcements -->
+        <div class="space-y-4">
+          <h3 class="text-sm font-semibold text-gray-100 flex items-center gap-2">
+            <i class="fa-solid fa-graduation-cap text-success"></i> Training Resources
+          </h3>
+
+          <div class="bg-card border border-border rounded-xl p-4 space-y-3 text-xs">
+            <a href="#"
+              class="block p-3 rounded-lg bg-surface border border-border hover:border-accent transition-colors">
+              <p class="font-semibold text-gray-200"><i class="fa-solid fa-circle-play text-accent mr-1.5"></i>Active
+                Listening Handbook (PDF)</p>
+              <p class="text-[10px] text-muted mt-1">Core active empathy &amp; non-judgment guidelines.</p>
+            </a>
+
+            <a href="#"
+              class="block p-3 rounded-lg bg-surface border border-border hover:border-accent transition-colors">
+              <p class="font-semibold text-gray-200"><i class="fa-solid fa-circle-play text-success mr-1.5"></i>Crisis
+                Referral Protocols</p>
+              <p class="text-[10px] text-muted mt-1">When to escalate to licensed clinical psychologists.</p>
+            </a>
+          </div>
+
+          <!-- Platform Announcements -->
+          <div class="bg-card border border-border rounded-xl p-4 space-y-3 text-xs">
+            <h4 class="font-semibold text-gray-200 flex items-center gap-2">
+              <i class="fa-solid fa-bullhorn text-warning"></i> Platform Announcements
+            </h4>
+            <div class="p-2.5 rounded bg-surface border border-border text-[11px]">
+              <p class="font-semibold text-gray-200">Monthly Peer Supervision Q&amp;A</p>
+              <p class="text-muted mt-0.5">Join Clinical Advisor Dr. Verma on Thursday at 7 PM IST.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 6: EARNINGS & PAYOUTS
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-earnings" class="hidden fade-in flex flex-col gap-6">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-normal text-gray-100 font-serif">Earnings Overview</h2>
+          <p class="text-xs text-muted">Transparent view of session earnings, payout schedules, and wallet history.</p>
+        </div>
+
+        <button onclick="showToast('Payout request submitted for processing.', 'success')"
+          class="bg-accent hover:bg-blue-600 text-black text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg">
+          Request Instant Payout
+        </button>
+      </div>
+
+      <!-- Financial Metrics Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-card border border-border rounded-xl p-5">
+          <p class="text-xs font-medium text-muted">Today's Earnings</p>
+          <p class="text-2xl font-bold text-gray-100 mt-1"> ₹ 120.00</p>
+          <p class="text-[10px] text-success mt-1">3 Completed sessions</p>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <p class="text-xs font-medium text-muted">This Week</p>
+          <p class="text-2xl font-bold text-gray-100 mt-1"> ₹ 350.00</p>
+          <p class="text-[10px] text-accent mt-1">11 Sessions total</p>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <p class="text-xs font-medium text-muted">This Month</p>
+          <p class="text-2xl font-bold text-gray-100 mt-1"> ₹ 1, 350.00</p>
+          <p class="text-[10px] text-success mt-1">August 2026</p>
+        </div>
+
+        <div class="bg-card border border-border rounded-xl p-5">
+          <p class="text-xs font-medium text-muted">Total Lifetime</p>
+          <p class="text-2xl font-bold text-gray-100 mt-1"> ₹ 4,820.00</p>
+          <p class="text-[10px] text-muted mt-1">148 Sessions</p>
+        </div>
+      </div>
+
+      <!-- Payout Details & Bank Account -->
+      <div class="bg-card border border-border rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <span class="text-xs text-muted">Available Balance</span>
+          <p class="text-3xl font-bold text-gray-100 mt-1"> ₹ 340.00</p>
+          <p class="text-[11px] text-muted mt-1">Ready for transfer</p>
+        </div>
+
+        <div>
+          <span class="text-xs text-muted">Pending Processing</span>
+          <p class="text-3xl font-bold text-gray-100 mt-1"> ₹ 110.00</p>
+          <p class="text-[11px] text-warning mt-1">Clears in 24 hrs</p>
+        </div>
+
+        <div class="bg-surface border border-border rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-200">Payout Method</span>
+            <button onclick="showToast('Edit payout method coming soon.', 'info')"
+              class="text-[10px] text-accent hover:underline">Edit</button>
+          </div>
+          <p class="text-xs font-mono text-gray-300 mt-2">HDFC Bank Direct Deposit ****4821</p>
+          <span class="text-[10px] text-muted mt-2">Next Payout: Friday, Aug 22, 2026</span>
+        </div>
+      </div>
+
+      <!-- Detailed Session Earnings Log Table -->
+      <div class="bg-card border border-border rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <h3 class="text-xs font-semibold text-gray-200 uppercase tracking-wider">Session Earnings Breakdown</h3>
+          <span class="text-[10px] text-muted">Showing recent transactions</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="border-b border-border bg-surface/50 text-muted uppercase text-[10px]">
+              <tr>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Session Type</th>
+                <th class="px-4 py-3">Duration</th>
+                <th class="px-4 py-3">Rate Structure</th>
+                <th class="px-4 py-3">Earnings</th>
+                <th class="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr class="hover:bg-surface/50">
+                <td class="px-4 py-3 text-gray-200">18 Aug 2026</td>
+                <td class="px-4 py-3"><span class="bg-accent/10 text-accent px-2 py-0.5 rounded text-[10px]">Video
+                    Call</span></td>
+                <td class="px-4 py-3 text-muted">42 min</td>
+                <td class="px-4 py-3 text-muted">15m Free + 27m Paid</td>
+                <td class="px-4 py-3 font-bold text-gray-100"> ₹ 45.00</td>
+                <td class="px-4 py-3"><span class="text-success font-semibold text-[10px]">Credited</span></td>
+              </tr>
+              <tr class="hover:bg-surface/50">
+                <td class="px-4 py-3 text-gray-200">18 Aug 2026</td>
+                <td class="px-4 py-3"><span
+                    class="bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded text-[10px]">Chat Support</span></td>
+                <td class="px-4 py-3 text-muted">29 min</td>
+                <td class="px-4 py-3 text-muted">15m Free + 14m Paid</td>
+                <td class="px-4 py-3 font-bold text-gray-100"> ₹ 28.00</td>
+                <td class="px-4 py-3"><span class="text-success font-semibold text-[10px]">Credited</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         VIEW 7: PROFILE & VERIFICATION STATUS
+    ═══════════════════════════════════════════════════════════ -->
+    <section id="view-profile" class="hidden fade-in flex flex-col gap-6">
+
+      <!-- Profile Header & Mandatory Non-Clinical Verification Banner -->
+      <div
+        class="bg-card border border-border rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <div
+              class="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center text-accent text-2xl font-bold">
+              SJ
+            </div>
+            <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-success border-2 border-surface"></span>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-bold text-gray-100">KrushnaRaj</h2>
+              <span
+                class="bg-success/10 border border-success/30 text-success text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Verified
+              </span>
+            </div>
+            <p class="text-xs text-accent font-semibold mt-0.5">Support Listener Trainee · Final Year B.A. Psychology
+            </p>
+            <p class="text-[11px] text-muted mt-1">Delhi University · Provider ID: #VIST-8842</p>
+          </div>
+        </div>
+
+        <button onclick="showToast('Profile editing enabled.', 'info')"
+          class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 text-xs px-4 py-2 rounded-xl transition-all">
+          <i class="fa-solid fa-pen text-accent mr-1"></i> Edit Profile
+        </button>
+      </div>
+
+      <!-- Mandatory Legal & Qualification Disclosure Box -->
+      <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-xs text-gray-200 flex items-start gap-3">
+        <i class="fa-solid fa-circle-info text-accent text-base mt-0.5"></i>
+        <div>
+          <strong class="text-accent font-semibold block">Non-Clinical Support Listener Disclosure</strong>
+          <p class="text-muted mt-0.5">
+            Psychology students and interns on Vistaraz are identified strictly as <strong>Support Listeners /
+              Trainees</strong>. They offer peer active listening and empathy support. They do not diagnose mental
+            health conditions or provide clinical psychotherapy unless licensed.
+          </p>
+        </div>
+      </div>
+
+      <!-- Profile Details Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Personal & Professional Information -->
+        <div class="lg:col-span-2 space-y-6">
+
+          <div class="bg-card border border-border rounded-xl p-5 space-y-4">
+            <h3 class="text-sm font-semibold text-gray-100 pb-2 border-b border-border">Personal Information</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <span class="text-muted block">Full Name</span>
+                <span id="provider-profile-name" class="font-medium text-gray-200">Nidhi Sharma</span>
+              </div>
+              <div>
+                <span class="text-muted block">Languages Spoken</span>
+                <span id="provider-profile-languages" class="font-medium text-gray-200">English (Fluent), Hindi
+                  (Conversational)</span>
+              </div>
+              <div class="sm:col-span-2">
+                <span class="text-muted block mb-1">Provider Bio</span>
+                <p class="text-gray-300 leading-relaxed">
+                  Final year B.A. Psychology student passionate about compassionate active listening, anxiety
+                  management, and peer mental wellness. Trained in active listening and empathetic peer support.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-card border border-border rounded-xl p-5 space-y-4">
+            <h3 class="text-sm font-semibold text-gray-100 pb-2 border-b border-border">Professional &amp; Academic
+              Details</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <span class="text-muted block">Education</span>
+                <span id="provider-profile-education" class="font-medium text-gray-200">B.A. Psychology (Honours)</span>
+              </div>
+              <div>
+                <span class="text-muted block">Qualification</span>
+                <span id="provider-profile-qualification" class="font-medium text-gray-200">Certified Peer Listener
+                  (Vistaraz L2)</span>
+              </div>
+              <div>
+                <span class="text-muted block">Experience</span>
+                <span class="font-medium text-gray-200">2+ Years Peer Counseling Volunteer</span>
+              </div>
+              <div>
+                <span class="text-muted block">Verification Status</span>
+                <span class="text-success font-semibold flex items-center gap-1 mt-0.5">
+                  <i class="fa-solid fa-shield-check"></i> Identity &amp; Background Verified
+                </span>
+              </div>
+              <div class="sm:col-span-2">
+                <span class="text-muted block mb-1">Areas of Support</span>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                  <span
+                    class="bg-surface border border-border text-gray-300 px-2.5 py-1 rounded-md text-[11px]">Academic
+                    Stress</span>
+                  <span class="bg-surface border border-border text-gray-300 px-2.5 py-1 rounded-md text-[11px]">Social
+                    Anxiety</span>
+                  <span class="bg-surface border border-border text-gray-300 px-2.5 py-1 rounded-md text-[11px]">Sleep
+                    Improvement</span>
+                  <span
+                    class="bg-surface border border-border text-gray-300 px-2.5 py-1 rounded-md text-[11px]">Relationship
+                    Advice</span>
+                  <span
+                    class="bg-surface border border-border text-gray-300 px-2.5 py-1 rounded-md text-[11px]">Self-Esteem</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Platform Information & Session Settings -->
+        <div class="space-y-6">
+          <div class="bg-card border border-border rounded-xl p-5 space-y-4">
+            <h3 class="text-sm font-semibold text-gray-100 pb-2 border-b border-border">Platform Statistics</h3>
+
+            <div class="space-y-3 text-xs">
+              <div class="flex justify-between items-center">
+                <span class="text-muted">Rating</span>
+                <span class="font-bold text-warning">4.9 / 5.0 ★</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted">Total Sessions</span>
+                <span class="font-bold text-gray-200">148 sessions</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted">Preferred Support Channels</span>
+                <span class="font-medium text-gray-200">Video, Audio, Chat</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted">Free Intro Sessions</span>
+                <span class="text-success font-semibold">Enabled (15 mins)</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted">Paid Session Extension</span>
+                <span class="font-semibold text-accent"> ₹ 15.00 / 30 mins</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Actions & Sign Out -->
+          <div class="bg-card border rounded-xl p-5" style="border-color: rgba(255,107,107,.2);">
+            <p class="text-xs font-bold uppercase tracking-wider text-danger mb-3">Account Actions</p>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="handleSignOut()"
+                class="border border-danger/30 text-danger hover:bg-danger hover:text-black px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-sign-out-alt text-[10px]"></i> Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       INTERACTIVE MODALS & OVERLAYS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Chat Modal Overlay -->
+  <div id="chatModal" class="modal-backdrop">
+    <div class="modal-box w-full max-w-xl p-0 overflow-hidden flex flex-col h-[600px] m-4">
+      <div class="bg-[#141e23] p-4 border-b border-border flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-xs">
+            A
+          </div>
+          <div>
+            <h4 id="chatClientName" class="text-xs font-bold text-gray-100">Anonymous_8821</h4>
+            <span class="text-[10px] text-success font-medium">● Live Chat Active · 14m elapsed</span>
+          </div>
+        </div>
+
+        <button onclick="closeChatModal()" class="text-muted hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <!-- Chat Stream -->
+      <div class="flex-grow p-4 overflow-y-auto space-y-3 text-xs bg-[#0c1317]">
+        <div class="bg-white/5 border border-white/10 p-2.5 rounded-lg text-[11px] text-muted text-center">
+          🔒 End-to-end encrypted session. No student PII is displayed.
+        </div>
+
+        <div class="bg-surface border border-border p-3 rounded-xl max-w-[80%] text-gray-200">
+          Hi KrushnaRaj, I'm feeling really anxious about my upcoming finals. I can't sleep at night.
+        </div>
+
+        <div class="bg-accent/20 border border-accent/30 p-3 rounded-xl max-w-[80%] ml-auto text-gray-100">
+          Hello! I completely understand how stressful finals season can be. Take a deep breath — I'm right here to
+          listen and help you talk through it.
+        </div>
+      </div>
+
+      <!-- Quick Responses & Input -->
+      <div class="p-3 bg-[#141e23] border-t border-border flex flex-col gap-2">
+        <div class="flex gap-2 text-[10px] text-muted overflow-x-auto pb-1">
+          <button onclick="sendQuickReply('Take your time, I am listening.')"
+            class="bg-surface border border-border px-2.5 py-1 rounded-full whitespace-nowrap hover:border-accent">"Take
+            your time, I am listening."</button>
+          <button onclick="sendQuickReply('Would you like to try a quick grounding exercise?')"
+            class="bg-surface border border-border px-2.5 py-1 rounded-full whitespace-nowrap hover:border-accent">"Try
+            a grounding exercise?"</button>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" placeholder="Type your supportive response..."
+            class="flex-grow bg-surface border border-border text-xs text-gray-100 px-3 py-2 rounded-lg">
+          <button onclick="showToast('Message sent to client.', 'success')"
+            class="bg-accent hover:bg-blue-600 text-black text-xs font-semibold px-4 py-2 rounded-lg">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Call Modal Overlay -->
+  <div id="videoModal" class="modal-backdrop">
+    <div class="modal-box w-full max-w-2xl p-6 text-center space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-border text-xs">
+        <span class="font-bold text-gray-100"><i class="fa-solid fa-video text-accent mr-1.5"></i>Peer Video Support
+          Stream</span>
+        <span class="text-success font-semibold">HIPAA-Compliant Encrypted Stream</span>
+      </div>
+
+      <div
+        class="h-64 bg-black rounded-xl border border-border flex items-center justify-center relative overflow-hidden">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 rounded-full bg-accent/20 text-accent flex items-center justify-center mx-auto mb-2 text-2xl font-bold">
+            <i class="fa-solid fa-user-secret"></i>
+          </div>
+          <p class="text-xs text-gray-300 font-semibold">Anonymous_8821 (Audio/Video Stream Active)</p>
+          <span class="text-[10px] text-muted">Client Video Off (Privacy Mode)</span>
+        </div>
+
+        <div class="absolute bottom-3 left-3 bg-black/60 px-3 py-1 rounded text-[10px] text-white">
+          Timer: 14:32 / 30:00
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-center gap-3">
+        <button onclick="showToast('Microphone toggled', 'info')"
+          class="w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button onclick="showToast('Camera toggled', 'info')"
+          class="w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center">
+          <i class="fa-solid fa-video"></i>
+        </button>
+        <button onclick="closeVideoModal(); showToast('Session concluded successfully.', 'success')"
+          class="bg-danger text-white text-xs font-semibold px-5 py-2.5 rounded-full">
+          End Call
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety Report Modal Overlay -->
+  <div id="reportModal" class="modal-backdrop">
+    <div class="modal-box w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-border">
+        <h4 class="text-sm font-bold text-gray-100 flex items-center gap-2">
+          <i class="fa-solid fa-flag text-danger"></i> Report Session Concern
+        </h4>
+        <button onclick="closeReportModal()" class="text-muted hover:text-white"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <label class="block text-muted">Select Reason</label>
+        <select class="w-full bg-surface border border-border text-gray-200 p-2.5 rounded-lg">
+          <option>Crisis / Self-Harm Risk (Requires Immediate Clinical Escalation)</option>
+          <option>Inappropriate or Abusive Language</option>
+          <option>Technical Stream Issue</option>
+          <option>Client Requested Professional Psychologist Referral</option>
+        </select>
+
+        <label class="block text-muted">Additional Context</label>
+        <textarea rows="3" placeholder="Provide anonymous summary of concern..."
+          class="w-full bg-surface border border-border text-gray-200 p-2.5 rounded-lg"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeReportModal()"
+          class="bg-surface border border-border text-muted px-4 py-2 rounded-lg text-xs">Cancel</button>
+        <button onclick="closeReportModal(); showToast('Report submitted to clinical supervisor.', 'success')"
+          class="bg-danger text-white text-xs font-semibold px-4 py-2 rounded-lg">Submit Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Schedule Modal Overlay (Preserved existing modal ID) -->
+  <div id="scheduleModal" role="dialog" aria-modal="true" aria-labelledby="schedModalTitle">
+    <div id="scheduleModalBox">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div
+            style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center">
+            <i class="fa-regular fa-calendar-check" style="font-size:0.8rem;color:#3b82f6"></i>
+          </div>
+          <h3 id="schedModalTitle" style="font-size:0.95rem;font-weight:600;color:#f0f4f8;margin:0">
+            Edit Working Schedule
+          </h3>
+        </div>
+        <button onclick="closeScheduleModal()"
+          style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:1rem;padding:4px;line-height:1;border-radius:6px"
+          onmouseover="this.style.color='#f0f4f8'" onmouseout="this.style.color='#6b7280'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p
+        style="font-size:0.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">
+        Active Days</p>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <label class="day-toggle"><input type="checkbox" id="sch-mon" checked><span class="day-pill">M</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-tue" checked><span class="day-pill">T</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-wed" checked><span class="day-pill">W</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-thu" checked><span class="day-pill">T</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-fri" checked><span class="day-pill">F</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-sat"><span class="day-pill">S</span></label>
+        <label class="day-toggle"><input type="checkbox" id="sch-sun"><span class="day-pill">S</span></label>
+      </div>
+
+      <p
+        style="font-size:0.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">
+        Matching Hours</p>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:20px">
+        <div>
+          <label style="font-size:0.7rem;color:#6b7280;display:block;margin-bottom:4px">From</label>
+          <input id="schStart" type="time" value="10:00"
+            style="width:100%;background:#111827;border:1px solid #283144;color:#f0f4f8;padding:8px 10px;border-radius:8px;font-size:0.8rem">
+        </div>
+        <span style="color:#6b7280;font-size:0.8rem;padding-top:18px">–</span>
+        <div>
+          <label style="font-size:0.7rem;color:#6b7280;display:block;margin-bottom:4px">To</label>
+          <input id="schEnd" type="time" value="18:00"
+            style="width:100%;background:#111827;border:1px solid #283144;color:#f0f4f8;padding:8px 10px;border-radius:8px;font-size:0.8rem">
+        </div>
+      </div>
+
+      <p
+        style="font-size:0.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">
+        Daily Session Limit</p>
+      <select id="schMax"
+        style="width:100%;background:#111827;border:1px solid #283144;color:#f0f4f8;padding:9px 12px;border-radius:8px;font-size:0.8rem;margin-bottom:24px">
+        <option value="3">3 sessions / day</option>
+        <option value="4">4 sessions / day</option>
+        <option value="5">5 sessions / day</option>
+        <option value="6" selected>6 sessions / day</option>
+        <option value="8">8 sessions / day</option>
+      </select>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="closeScheduleModal()"
+          style="background:transparent;border:1px solid #283144;color:#8ba1b0;font-size:0.8rem;font-weight:500;padding:8px 18px;border-radius:8px;cursor:pointer">Cancel</button>
+        <button onclick="saveSchedule()"
+          style="background:#8ab4f8;border:none;color:#000;font-size:0.8rem;font-weight:600;padding:8px 20px;border-radius:8px;cursor:pointer">Save
+          Schedule</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Connection Overlay (Accept Request) -->
+  <div id="connectionOverlay"
+    class="fixed inset-0 z-[200] hidden bg-surface/95 backdrop-blur-sm flex items-center justify-center">
+    <div class="bg-card border border-border rounded-2xl p-8 max-w-sm w-full mx-4 text-center">
+      <div class="relative w-16 h-16 mx-auto mb-5">
+        <div class="absolute inset-0 rounded-full border-2 border-border animate-ping opacity-40"></div>
+        <div class="absolute inset-1 rounded-full border-t-2 border-r-2 border-accent animate-spin"></div>
+        <div class="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center">
+          <i class="fa-solid fa-lock text-accent text-lg animate-pulse"></i>
+        </div>
+      </div>
+      <h3 class="text-base font-semibold text-gray-100 mb-1">Connecting Session</h3>
+      <p class="text-xs text-muted mb-5">Establishing encrypted peer stream…</p>
+      <div class="w-full h-1 bg-border rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-accent rounded-full" style="width:0%;transition:width 2.2s ease"></div>
+      </div>
+      <p class="text-[10px] text-muted mt-3 uppercase tracking-widest font-semibold">HIPAA-Compliant Connection</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div id="globalToast">
+    <i class="fa-solid fa-circle-info text-accent"></i>
+    <span id="toastText">Notification message</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-border bg-card mt-4">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact" class="h-7 w-auto opacity-60">
+        <span class="text-[10px] text-muted font-mono">Innovate · Heal · Impact</span>
+      </div>
+      <p class="text-[11px] text-muted">&copy; 2026 Vistaraz Care Support Provider Panel. Internal Use Only.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/dist/api.ed7a4966.js"></script>
+  <script src="assets/dist/app.f302ef53.js"></script>
+
+
+  <!-- Role-mismatch toast style -->
+  <style>
+    #vz-role-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      z-index: 9999;
+      background: linear-gradient(135deg, rgba(30,30,40,0.97), rgba(20,20,32,0.97));
+      border: 1px solid rgba(138,180,248,0.35);
+      border-radius: 12px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #c8d8f8;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      max-width: 420px;
+      width: calc(100% - 32px);
+    }
+    #vz-role-toast.vz-toast-show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+
+  <script>
+    function vzShowRoleMismatchToast(msg) {
+      let toast = document.getElementById('vz-role-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'vz-role-toast';
+        toast.innerHTML = '<span style="font-size:1.1rem">ℹ️</span><span id="vz-role-toast-msg"></span>';
+        document.body.appendChild(toast);
+      }
+      const msgEl = toast.querySelector('#vz-role-toast-msg');
+      if (msgEl) msgEl.textContent = msg;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('vz-toast-show'));
+      });
+      setTimeout(() => {
+        toast.classList.remove('vz-toast-show');
+      }, 5000);
+    }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       JAVASCRIPT LOGIC
+  ═══════════════════════════════════════════════════════════ -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Auth guard: counselors only
+      if (typeof VistarazAuth === 'undefined') {
+        window.location.href = 'register.html?role=provider&action=login';
+        return;
+      }
+      const user = await VistarazAuth.getUser();
+      if (!user) {
+        window.location.href = 'register.html?role=provider&action=login';
+        return;
+      }
+
+      // Load real profile from Supabase
+      const profile = await VistarazAuth.getProfile(user.id);
+      const effectiveRole = (profile && profile.role) || (user.user_metadata && user.user_metadata.role) || 'user';
+
+      // Role guard: seekers/clients belong in the client panel, not here
+      if (effectiveRole !== 'counselor') {
+        sessionStorage.setItem(
+          'vz-role-mismatch-toast',
+          "You're registered as a Seeker — we've brought you to your Client Dashboard."
+        );
+        window.location.replace('client_panel.html');
+        return;
+      }
+
+      // Show mismatch toast if a redirect message was stored (e.g. counselor signed in from seeker tab)
+      const mismatchMsg = sessionStorage.getItem('vz-role-mismatch-toast');
+      if (mismatchMsg) {
+        sessionStorage.removeItem('vz-role-mismatch-toast');
+        vzShowRoleMismatchToast(mismatchMsg);
+      }
+
+      const nickname = profile.nickname || user.user_metadata?.nickname || 'Provider';
+      const name = profile.full_name || user.user_metadata?.full_name || 'Support Listener';
+      const avatar = profile.avatar_url || user.user_metadata?.avatar_url || '🩺';
+      const qualification = profile.qualification || user.user_metadata?.qualification || 'Peer Listener';
+      const languages = profile.languages ? profile.languages.join(', ') : 'English';
+
+      const welcomeNameEl = document.getElementById('provider-welcome-name');
+      if (welcomeNameEl) welcomeNameEl.textContent = nickname;
+
+      const avatarBtn = document.getElementById('provider-avatar-btn');
+      if (avatarBtn) avatarBtn.textContent = avatar;
+
+      const profileNameEl = document.getElementById('provider-profile-name');
+      if (profileNameEl) profileNameEl.textContent = name;
+
+      const profileLangEl = document.getElementById('provider-profile-languages');
+      if (profileLangEl) profileLangEl.textContent = languages;
+
+      const profileQualEl = document.getElementById('provider-profile-qualification');
+      if (profileQualEl) profileQualEl.textContent = qualification;
+
+      const profileEdEl = document.getElementById('provider-profile-education');
+      if (profileEdEl) profileEdEl.textContent = qualification;
+    });
+
+    /* ──────── State Management ──────────────── */
+    let currentStatus = 'available'; // 'available', 'away', 'offline'
+    let activeRequests = ['req-1', 'req-2'];
+
+    /* ──────── View Navigation (7 Primary Sections) ──────── */
+    const views = ['home', 'dashboard', 'requests', 'sessions', 'community', 'earnings', 'profile'];
+
+    function switchView(targetView) {
+      if (!views.includes(targetView)) return;
+
+      views.forEach(v => {
+        const viewEl = document.getElementById('view-' + v);
+        const navEl = document.getElementById('nav-' + v);
+        const mobNavEl = document.getElementById('mob-nav-' + v);
+
+        if (viewEl) viewEl.classList.add('hidden');
+        if (navEl) navEl.classList.remove('active');
+        if (mobNavEl) mobNavEl.classList.remove('active');
+      });
+
+      const activeView = document.getElementById('view-' + targetView);
+      const activeNav = document.getElementById('nav-' + targetView);
+      const activeMobNav = document.getElementById('mob-nav-' + targetView);
+
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeNav) activeNav.classList.add('active');
+      if (activeMobNav) activeMobNav.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ──────── Status Toggle Logic ──────────────── */
+    function toggleStatusDropdown() {
+      const menu = document.getElementById('statusMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    function setStatus(status) {
+      currentStatus = status;
+      document.getElementById('statusMenu').classList.add('hidden');
+
+      const dot = document.getElementById('navDot');
+      const label = document.getElementById('navLabel');
+      const drawerText = document.getElementById('drawerStatusText');
+      const homeBadge = document.getElementById('homeStatusBadge');
+      const notice = document.getElementById('offlineNotice');
+
+      if (status === 'available') {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-success flex-shrink-0 transition-colors';
+        label.className = 'text-success transition-colors';
+        label.textContent = 'Available';
+        if (drawerText) { drawerText.textContent = 'Available'; drawerText.className = 'text-success font-semibold'; }
+        if (homeBadge) { homeBadge.textContent = '🟢 Available'; homeBadge.className = 'text-success font-semibold'; }
+        if (notice) notice.classList.add('hidden');
+        showToast('Live status updated to Available.', 'success');
+      } else if (status === 'away') {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-warning flex-shrink-0 transition-colors';
+        label.className = 'text-warning transition-colors';
+        label.textContent = 'Away';
+        if (drawerText) { drawerText.textContent = 'Away'; drawerText.className = 'text-warning font-semibold'; }
+        if (homeBadge) { homeBadge.textContent = '🟡 Away'; homeBadge.className = 'text-warning font-semibold'; }
+        showToast('Live status set to Away (On Break).', 'warning');
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-500 flex-shrink-0 transition-colors';
+        label.className = 'text-muted transition-colors';
+        label.textContent = 'Offline';
+        if (drawerText) { drawerText.textContent = 'Offline'; drawerText.className = 'text-muted font-semibold'; }
+        if (homeBadge) { homeBadge.textContent = '⚫ Offline'; homeBadge.className = 'text-muted font-semibold'; }
+        if (notice) notice.classList.remove('hidden');
+        showToast('Panel set to Offline.', 'info');
+      }
+    }
+
+    /* Close dropdown when clicking outside */
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('headerStatusBtn');
+      const menu = document.getElementById('statusMenu');
+      if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+
+    /* ──────── Mobile Drawer ──────────────── */
+    function toggleMobileDrawer() {
+      const drawer = document.getElementById('mobileDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    /* ──────── Toast Notification System ──────────────── */
+    let toastTimer;
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('globalToast');
+      const text = document.getElementById('toastText');
+      text.textContent = msg;
+      toast.classList.add('show');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    /* ──────── Sessions Tab Switcher ──────────────── */
+    function switchSessionTab(group) {
+      ['active', 'upcoming', 'completed', 'cancelled'].forEach(g => {
+        const btn = document.getElementById('sessTab-' + g);
+        const groupEl = document.getElementById('sessGroup-' + g);
+        if (btn) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-white transition-all';
+        }
+        if (groupEl) groupEl.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById('sessTab-' + group);
+      const activeGroup = document.getElementById('sessGroup-' + group);
+      if (activeBtn) activeBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-black font-semibold transition-all';
+      if (activeGroup) activeGroup.classList.remove('hidden');
+    }
+
+    /* ──────── Requests Functionality (Preserved) ──────── */
+    function switchTab(name) {
+      const tabs = ['requests', 'history'];
+      tabs.forEach(t => {
+        document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        btn.classList.remove('active');
+        btn.classList.add('text-muted');
+      });
+      document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1));
+      activeBtn.classList.add('active');
+      activeBtn.classList.remove('text-muted');
+    }
+
+    function acceptRequest(id) {
+      if (currentStatus === 'offline') {
+        showToast('Cannot accept sessions while Offline. Switch status to Available.', 'warning');
+        return;
+      }
+      const overlay = document.getElementById('connectionOverlay');
+      const bar = document.getElementById('progressBar');
+      if (overlay) overlay.classList.remove('hidden');
+      if (bar) requestAnimationFrame(() => { bar.style.width = '100%'; });
+      setTimeout(() => { window.location.href = 'video-call.html'; }, 2200);
+    }
+
+    function rejectRequest(id) {
+      const card = document.getElementById(id);
+      if (card) {
+        card.classList.add('dismissed');
+        setTimeout(() => {
+          card.remove();
+          delete mockRequestsData[id];
+          const remaining = document.querySelectorAll('#panelRequests .request-card').length;
+          const reqBadge = document.getElementById('reqBadge');
+          const queueCount = document.getElementById('queueCount');
+          if (reqBadge) reqBadge.textContent = remaining;
+          if (queueCount) queueCount.textContent = remaining;
+          if (remaining === 0) document.getElementById('emptyState').classList.remove('hidden');
+        }, 280);
+      }
+    }
+
+    function openChatModal(name) { const el = document.getElementById('chatModal'); if (el) el.classList.add('open'); }
+    function closeChatModal() { const el = document.getElementById('chatModal'); if (el) el.classList.remove('open'); }
+    function openVideoModal(name) { const el = document.getElementById('videoModal'); if (el) el.classList.add('open'); }
+    function closeVideoModal() { const el = document.getElementById('videoModal'); if (el) el.classList.remove('open'); }
+    function openReportModal(name) { const el = document.getElementById('reportModal'); if (el) el.classList.add('open'); }
+    function closeReportModal() { const el = document.getElementById('reportModal'); if (el) el.classList.remove('open'); }
+
+    function editSchedule() { const el = document.getElementById('scheduleModal'); if (el) el.classList.add('open'); }
+    function closeScheduleModal() { const el = document.getElementById('scheduleModal'); if (el) el.classList.remove('open'); }
+    function saveSchedule() {
+      const startTime = document.getElementById('schStart')?.value;
+      const endTime = document.getElementById('schEnd')?.value;
+      const maxSess = document.getElementById('schMax')?.value;
+
+      const hoursEl = document.getElementById('dispHours');
+      const maxEl = document.getElementById('dispMax');
+      if (hoursEl && startTime && endTime) hoursEl.textContent = startTime + ' – ' + endTime;
+      if (maxEl && maxSess) maxEl.textContent = maxSess + ' sessions / day';
+
+      closeScheduleModal();
+      showToast('Schedule preferences updated successfully.', 'success');
+    }
+
+    // ─── Sign Out ─────────────────────────────
+    async function handleSignOut() {
+      showToast('Signing out…', 'info');
+      if (typeof VistarazAuth !== 'undefined' && VistarazAuth.signOut) {
+        await VistarazAuth.signOut('index.html');
+      } else if (window.vzSignOut) {
+        await window.vzSignOut('index.html');
+      } else {
+        window.location.replace('index.html');
+      }
+    }
+
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+      modal.addEventListener('click', function (e) {
+        if (e.target === this) this.classList.remove('open');
+      });
+    });
+  </script>
+
+  <!-- Schedule Modal Overlay -->
+  <div id="scheduleModal" class="modal-backdrop">
+    <div class="modal-box w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-border">
+        <div class="flex items-center gap-2.5">
+          <div
+            class="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+            <i class="fa-regular fa-calendar-check text-xs"></i>
+          </div>
+          <h4 class="text-sm font-bold text-gray-100">Edit Schedule Preferences</h4>
+        </div>
+        <button onclick="closeScheduleModal()" class="text-muted hover:text-white"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block text-muted font-medium uppercase text-[10px] tracking-wider mb-2">Active Working
+            Days</label>
+          <div class="flex gap-2">
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-mon" checked><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">M</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-tue" checked><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">T</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-wed" checked><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">W</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-thu" checked><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">T</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-fri" checked><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">F</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-sat"><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">S</span></label>
+            <label class="day-toggle flex-1 text-center"><input type="checkbox" id="sch-sun"><span
+                class="day-pill w-full h-8 rounded-lg border border-border flex items-center justify-center font-bold text-muted hover:text-white transition-colors cursor-pointer">S</span></label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-muted mb-1 text-[11px]">Matching Start</label>
+            <input id="schStart" type="time" value="10:00"
+              class="w-full bg-surface border border-border text-gray-100 p-2 rounded-lg font-mono text-xs">
+          </div>
+          <div>
+            <label class="block text-muted mb-1 text-[11px]">Matching End</label>
+            <input id="schEnd" type="time" value="18:00"
+              class="w-full bg-surface border border-border text-gray-100 p-2 rounded-lg font-mono text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-muted mb-1 text-[11px]">Daily Session Limit</label>
+          <select id="schMax" class="w-full bg-surface border border-border text-gray-100 p-2 rounded-lg text-xs">
+            <option value="3">3 sessions / day</option>
+            <option value="4">4 sessions / day</option>
+            <option value="5">5 sessions / day</option>
+            <option value="6" selected>6 sessions / day</option>
+            <option value="8">8 sessions / day</option>
+            <option value="10">10 sessions / day</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-border">
+        <button onclick="closeScheduleModal()"
+          class="bg-surface border border-border text-muted px-4 py-2 rounded-lg text-xs font-medium hover:text-white transition-colors">Cancel</button>
+        <button onclick="saveSchedule()"
+          class="bg-accent hover:bg-blue-600 text-black font-bold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-check text-[10px]"></i> Save Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

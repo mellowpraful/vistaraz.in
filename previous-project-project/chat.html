@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Chat Support — Vistaraz</title>
+<link rel="stylesheet" href="assets/dist/app.6da1a85d.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/dist/logo.54836105.png" alt="Vistaraz · Innovate, Heal, Impact"
+          height="44"></a>
+      <nav>
+        <a class="button ghost desktop-only" href="support.html" style="padding: 6px 12px; font-size: 0.8rem;"><i
+            class="fas fa-arrow-left" style="margin-right: 5px;"></i> Leave Chat</a>
+        <button class="theme-toggle" id="themeBtn" onclick="vzToggleTheme()" title="Switch Theme"
+          aria-label="Switch Theme">🌙</button>
+        <button class="mobile-nav-toggle" onclick="vzToggleDrawer()" aria-label="Open Navigation Menu" title="Menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding-top: 20px; padding-bottom: 20px; display: flex; justify-content: center; width: 100%; box-sizing: border-box; padding-left: 12px; padding-right: 12px;">
+    <div class="chat-window glass-card" style="width: 100%; max-width: 860px; padding: 0; border-radius: 16px;">
+      <!-- Header -->
+      <div class="chat-header" style="padding: 14px 18px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div
+            style="width: 45px; height: 45px; border-radius: 50%; background: var(--accent-primary); display: grid; place-items: center; font-family: var(--font-serif); color: #000; font-size: 1.2rem;">
+            A</div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; font-family: var(--font-sans); font-weight: 600;">Aanya R.</h3>
+            <span style="font-size: 0.75rem; color: var(--success);"><i class="fas fa-circle"
+                style="font-size: 0.5rem; margin-right: 4px;"></i> Online</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="button ghost" style="padding: 8px 12px;" title="Take a breath"><i
+              class="fas fa-leaf"></i></button>
+          <a class="button ghost" href="video-call.html" style="padding: 8px 12px;" title="Switch to Video"><i
+              class="fas fa-video"></i></a>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="chat-body" id="chat-body">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <span
+            style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px;">Session
+            started. First 15 mins are free.</span>
+        </div>
+
+        <div class="msg received">
+          Hi! I'm Aanya. I'm a verified listener here. Take your time—how are you feeling today?
+        </div>
+
+        <div class="msg sent">
+          Hi Aanya. I'm just feeling really overwhelmed with upcoming placements. Everyone seems to have it figured out
+          but me.
+        </div>
+
+        <div class="msg received">
+          I hear you. Placement season can feel incredibly heavy, especially when you start comparing yourself to
+          others. It's completely normal to feel overwhelmed. Do you want to vent about it, or would you like to try
+          breaking it down together?
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input">
+        <input type="text" placeholder="Type your message..." style="flex: 1;" id="chat-input-field">
+        <button class="button primary" style="padding: 10px 20px;" onclick="sendMockMessage()"><i
+            class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/dist/app.f302ef53.js"></script>
+  <script>
+    function sendMockMessage() {
+      const input = document.getElementById('chat-input-field');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const body = document.getElementById('chat-body');
+
+      const sentMsg = document.createElement('div');
+      sentMsg.className = 'msg sent';
+      sentMsg.textContent = text;
+      body.appendChild(sentMsg);
+      input.value = '';
+      body.scrollTop = body.scrollHeight;
+
+      setTimeout(() => {
+        const typing = document.createElement('div');
+        typing.className = 'msg received';
+        typing.innerHTML = '<span style="opacity: 0.5">Aanya is typing...</span>';
+        typing.id = 'typing-indicator';
+        body.appendChild(typing);
+        body.scrollTop = body.scrollHeight;
+
+        setTimeout(() => {
+          body.removeChild(document.getElementById('typing-indicator'));
+          const recMsg = document.createElement('div');
+          recMsg.className = 'msg received';
+          recMsg.textContent = "Take a deep breath. We can take this one step at a time. What is the very first thing worrying you the most right now?";
+          body.appendChild(recMsg);
+          body.scrollTop = body.scrollHeight;
+        }, 1500);
+      }, 500);
+    }
+
+    document.getElementById('chat-input-field').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') sendMockMessage();
+    });
+  </script>
+</body>
+
+</html>
