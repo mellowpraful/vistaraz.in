@@ -23,7 +23,7 @@ import { useAuth } from '../context/AuthContext';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, logout } = useAuth();
   const navigate = useNavigate();
   const [showWearableBanner, setShowWearableBanner] = useState(true);
 
@@ -32,7 +32,8 @@ export default function DashboardPage() {
   const userAvatar = user?.avatar || '🦊';
 
   const handleSignOut = async () => {
-    await signOut();
+    if (signOut) await signOut();
+    else if (logout) logout();
     navigate('/');
   };
 

@@ -54,7 +54,7 @@ const CARE_TOOLS = [
 const NAV_VIEWS = ['Home', 'Sessions', 'Check-in', 'Community', 'Tools', 'Profile'];
 
 export default function ClientPanelPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, logout } = useAuth();
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('Home');
   const [selectedMood, setSelectedMood] = useState(null);
@@ -99,6 +99,11 @@ export default function ClientPanelPage() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
   };
 
   // Panic exit handler
@@ -427,9 +432,16 @@ export default function ClientPanelPage() {
 
               <div className="cp-profile-actions">
                 <Button to="/plans" variant="outline" size="sm">Upgrade Plan</Button>
-                <Button onClick={handleSignOut} variant="ghost" size="sm" icon={<LogOut size={14} />} iconPosition="left">
-                  Sign Out
-                </Button>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="vz-btn vz-btn--ghost vz-btn--sm"
+                  id="client-panel-sign-out-btn"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </Card>
           </div>

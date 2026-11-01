@@ -118,7 +118,7 @@ export default function HomePage() {
             </p>
 
             <div className="vz-home-hero__actions">
-              <Button to="/register" variant="primary" size="lg" icon={<ArrowRight size={18} />}>
+              <Button to="/get-started" variant="primary" size="lg" icon={<ArrowRight size={18} />} id="home-hero-get-started-btn">
                 Get Started
               </Button>
               <Button to="/assessment" variant="outline" size="lg" icon={<Play size={16} fill="currentColor" />} iconPosition="left">

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "serve": "node server.js",
     "build:legacy": "node scripts/build-assets.js",
+    "test:auth": "node scripts/verify-auth-flows.mjs",
     "test:api": "node -e \"const h = require('./api/health'); const req = { method: 'GET', headers: {} }; const res = { setHeader(){}, end(d){ const r = JSON.parse(d); if (r.status !== 'healthy') process.exit(1); console.log('✅ Neon DB API Healthy'); } }; h(req, res);\"",
     "test": "npm run build && npm run test:api",
     "sync": "node scripts/git-sync.js"

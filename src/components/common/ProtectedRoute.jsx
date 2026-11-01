@@ -1,14 +1,22 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Sparkles, ShieldAlert } from 'lucide-react';
 
 /**
  * ProtectedRoute Component
- * Guards private pages (Client Panel, Listener Portal, Dashboard, Chat, Video Call)
- * and enforces role-based access control.
+ * Enforces authentication and role-based access control.
+ * 
+ * @param {React.ReactNode} children - Target component
+ * @param {Array<string>} [allowedRoles] - Roles permitted ('support_seeker', 'seeker', 'helper', 'provider')
+ * @param {string} [requiredRole] - Specific required role
+ * @param {boolean} [requireVerifiedHelper] - If true, requires helper verification
  */
-export default function ProtectedRoute({ children, requiredRole = null }) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+  requiredRole,
+  requireVerifiedHelper = false,
+}) {
   const { user, isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -16,42 +24,115 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
     return (
       <div style={{
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '60vh',
-        gap: '16px',
-        color: 'var(--vz-text-secondary)',
-        fontFamily: 'var(--vz-font-base)'
+        fontFamily: 'var(--vz-font-sans)',
+        color: 'var(--vz-text-muted)'
       }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '50%',
-          border: '3px solid #e2e8f0',
-          borderTopColor: 'var(--vz-primary)',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-        <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>Connecting to Sanctuary...</span>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            border: '3px solid var(--vz-border-light)',
+            borderTopColor: 'var(--vz-primary)',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <p>Verifying sanctuary session...</p>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    const redirectUrl = `/register?action=login&from=${encodeURIComponent(location.pathname)}`;
-    return <Navigate to={redirectUrl} replace />;
+  // Not logged in -> redirect to login
+  if (!isAuthenticated || !user) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location,
+          warningMessage: 'Please sign in to access this protected area.',
+        }}
+      />
+    );
   }
 
-  // Role validation
-  if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {
-    if (requiredRole === 'provider') {
-      // Seekers trying to access provider portal are redirected to their care panel
-      return <Navigate to="/client-panel" replace />;
+  // Normalize roles: 'seeker' == 'support_seeker', 'provider' == 'helper'
+  const userRole = user.role === 'provider' ? 'helper' : (user.role === 'seeker' ? 'support_seeker' : user.role);
+
+  // Check requiredRole if specified
+  if (requiredRole) {
+    const targetRole = requiredRole === 'provider' ? 'helper' : (requiredRole === 'seeker' ? 'support_seeker' : requiredRole);
+    if (userRole !== targetRole && user.role !== 'admin') {
+      return (
+        <Navigate
+          to={userRole === 'helper' ? '/listener-portal' : '/client-panel'}
+          replace
+          state={{
+            warningMessage: 'Access restricted: Insufficient permissions for this area.',
+          }}
+        />
+      );
     }
-    return <Navigate to="/" replace />;
+  }
+
+  // Check allowedRoles if specified
+  if (allowedRoles) {
+    const normalizedAllowed = allowedRoles.map((r) =>
+      r === 'provider' ? 'helper' : (r === 'seeker' ? 'support_seeker' : r)
+    );
+    if (!normalizedAllowed.includes(userRole) && user.role !== 'admin') {
+      if (userRole === 'support_seeker') {
+        return (
+          <Navigate
+            to="/client-panel"
+            replace
+            state={{
+              warningMessage: 'Access restricted: This area is reserved for Vistaraz Helpers.',
+            }}
+          />
+        );
+      }
+      if (userRole === 'helper') {
+        const destination =
+          user.is_verified || user.helperVerificationStatus === 'verified'
+            ? '/listener-portal'
+            : '/helper-application';
+        return (
+          <Navigate
+            to={destination}
+            replace
+            state={{
+              warningMessage: 'Access restricted: Client Panel is reserved for Support Seekers.',
+            }}
+          />
+        );
+      }
+    }
+  }
+
+  // Helper verification guard
+  if (
+    requireVerifiedHelper &&
+    (userRole === 'helper' || user.role === 'provider') &&
+    !user.is_verified &&
+    user.helperVerificationStatus !== 'verified'
+  ) {
+    return (
+      <Navigate
+        to="/helper-application"
+        replace
+        state={{
+          warningMessage:
+            'Your helper application is pending verification. Verified listener access is required to enter the live queue.',
+        }}
+      />
+    );
   }
 
   return children;
 }
-

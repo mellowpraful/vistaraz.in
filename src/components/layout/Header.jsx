@@ -13,7 +13,7 @@ import './Header.css';
  * Features live authentication status, user profile chips, role navigation, and sign-out.
  */
 export default function Header() {
-  const { user, isAuthenticated, signOut } = useAuth();
+  const { user, isAuthenticated, signOut, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,12 +23,21 @@ export default function Header() {
 
   const handleSignOut = async () => {
     closeMobileMenu();
-    await signOut();
+    if (signOut) await signOut();
+    else if (logout) logout();
     navigate('/');
   };
 
-  const portalRoute = user?.role === 'provider' ? '/listener-portal' : '/client-panel';
-  const portalLabel = user?.role === 'provider' ? 'Listener Portal' : 'My Care Panel';
+  const isHelper = user?.role === 'helper' || user?.role === 'provider';
+  const isHelperVerified = user?.is_verified || user?.helperVerificationStatus === 'verified';
+
+  const portalRoute = isHelper
+    ? (isHelperVerified ? '/listener-portal' : '/helper-application')
+    : '/client-panel';
+
+  const portalLabel = isHelper
+    ? (isHelperVerified ? 'Listener Portal' : 'Helper Application')
+    : 'My Care Panel';
 
   return (
     <header className="vz-header">
@@ -76,27 +85,31 @@ export default function Header() {
                 onClick={handleSignOut}
                 className="vz-header__login-link"
                 title="Sign Out"
+                id="header-logout-btn"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 <LogOut size={16} />
+                <span>Sign Out</span>
               </button>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} className="vz-hide-mobile">
               <Link
-                to="/register?action=login"
+                to="/login"
                 className="vz-header__login-link"
+                id="header-login-link"
               >
-                Sign In
+                Log In
               </Link>
 
               <Button
-                to="/register"
+                to="/get-started"
                 variant="primary"
                 size="sm"
                 icon={<ArrowRight size={15} />}
                 iconPosition="right"
                 className="vz-header__cta"
+                id="header-get-started-btn"
               >
                 Get Started
               </Button>
@@ -127,7 +140,7 @@ export default function Header() {
                     <span>{user?.avatar || '🦊'}</span>
                     <strong style={{ fontSize: '0.95rem' }}>{user?.nickname || user?.name}</strong>
                     <span style={{ fontSize: '0.8rem', color: 'var(--vz-text-muted)', marginLeft: 'auto' }}>
-                      {user?.role === 'provider' ? 'Listener' : 'Seeker'}
+                      {isHelper ? 'Helper' : 'Seeker'}
                     </span>
                   </div>
                   <Button
@@ -151,15 +164,15 @@ export default function Header() {
               ) : (
                 <>
                   <Button
-                    to="/register?action=login"
+                    to="/login"
                     variant="outline"
                     fullWidth
                     onClick={closeMobileMenu}
                   >
-                    Sign In
+                    Log In
                   </Button>
                   <Button
-                    to="/register"
+                    to="/get-started"
                     variant="primary"
                     fullWidth
                     icon={<ArrowRight size={16} />}

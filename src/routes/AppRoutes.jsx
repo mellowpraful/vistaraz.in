@@ -1,8 +1,14 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+// Core Authentication & Onboarding Pages
+import PurposeSelectionPage from '../pages/PurposeSelectionPage';
+import RegisterPage from '../pages/RegisterPage';
+import LoginPage from '../pages/LoginPage';
+import HelperApplicationPage from '../pages/HelperApplicationPage';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 
-// Developer 1 Pages (1 to 8)
+// Core Sanctuary & Informational Pages
 import HomePage from '../pages/HomePage';
 import AssessmentPage from '../pages/AssessmentPage';
 import SupportPage from '../pages/SupportPage';
@@ -12,8 +18,7 @@ import CommunityPage from '../pages/CommunityPage';
 import DashboardPage from '../pages/DashboardPage';
 import PlansPage from '../pages/PlansPage';
 
-// Developer 2 Pages (9 to 16)
-import RegisterPage from '../pages/RegisterPage';
+// Portal & Workspace Pages
 import ClientPanelPage from '../pages/ClientPanelPage';
 import ListenerPortalPage from '../pages/ListenerPortalPage';
 import VideoCallPage from '../pages/VideoCallPage';
@@ -24,37 +29,42 @@ import NotFoundPage from '../pages/NotFoundPage';
 
 /**
  * Vistaraz Application Routes
- * Maps all pages with proper authentication guards and role protection.
+ * Enforces onboarding flow and role-based protected routes.
  */
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* --- Public Exploratory Routes --- */}
+      {/* --- Public Landing & Information Pages --- */}
       <Route path="/" element={<HomePage />} />
-      <Route path="/assessment" element={<AssessmentPage />} />
-      <Route path="/support" element={<SupportPage />} />
-      <Route path="/tools" element={<ToolsPage />} />
-      <Route path="/community" element={<CommunityPage />} />
-      <Route path="/plans" element={<PlansPage />} />
-      <Route path="/register" element={<RegisterPage />} />
       <Route path="/safety" element={<SafetyPage />} />
       <Route path="/rules" element={<RulesPage />} />
+      <Route path="/plans" element={<PlansPage />} />
+      <Route path="/tools" element={<ToolsPage />} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/community" element={<CommunityPage />} />
+      <Route path="/assessment" element={<AssessmentPage />} />
       <Route path="/error-500" element={<ServerErrorPage />} />
 
-      {/* --- Protected User / Seeker Routes --- */}
+      {/* --- Authentication & Onboarding Flow --- */}
+      <Route path="/get-started" element={<PurposeSelectionPage />} />
+      <Route path="/purpose" element={<PurposeSelectionPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* --- Protected Support Seeker Routes --- */}
       <Route
-        path="/dashboard"
+        path="/client-panel"
         element={
-          <ProtectedRoute>
-            <DashboardPage />
+          <ProtectedRoute allowedRoles={['support_seeker', 'seeker']}>
+            <ClientPanelPage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/client-panel"
+        path="/dashboard"
         element={
-          <ProtectedRoute>
-            <ClientPanelPage />
+          <ProtectedRoute allowedRoles={['support_seeker', 'seeker']}>
+            <DashboardPage />
           </ProtectedRoute>
         }
       />
@@ -75,11 +85,19 @@ export default function AppRoutes() {
         }
       />
 
-      {/* --- Protected Provider / Listener Routes --- */}
+      {/* --- Helper / Listener Journey & Protected Routes --- */}
+      <Route
+        path="/helper-application"
+        element={
+          <ProtectedRoute allowedRoles={['helper', 'provider']}>
+            <HelperApplicationPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/listener-portal"
         element={
-          <ProtectedRoute requiredRole="provider">
+          <ProtectedRoute allowedRoles={['helper', 'provider']}>
             <ListenerPortalPage />
           </ProtectedRoute>
         }

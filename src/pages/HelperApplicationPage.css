@@ -1,0 +1,226 @@
+/* Helper Application & Verification Page Styles */
+.vz-helper-app-page {
+  min-height: 100vh;
+  background-color: var(--vz-bg-canvas);
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(79, 70, 229, 0.04) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(124, 58, 237, 0.04) 0px, transparent 50%);
+  display: flex;
+  flex-direction: column;
+}
+
+.vz-helper-app-container {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  width: 100%;
+}
+
+.vz-helper-app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.vz-helper-app-nav-brand {
+  display: inline-flex;
+  align-items: center;
+}
+
+.vz-helper-app-nav-brand img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.vz-helper-app-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--vz-radius-md);
+  border: 1px solid var(--vz-border-subtle);
+  background: var(--vz-bg-surface);
+  color: var(--vz-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--vz-transition-fast);
+}
+
+.vz-helper-app-logout-btn:hover {
+  background: var(--vz-bg-subtle);
+  color: var(--vz-text-primary);
+}
+
+.vz-helper-app-header {
+  margin-bottom: 32px;
+}
+
+.vz-helper-app-eyebrow {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vz-primary);
+  background: var(--vz-primary-light);
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full);
+  margin-bottom: 12px;
+}
+
+.vz-helper-app-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--vz-text-primary);
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.vz-helper-app-desc {
+  font-size: 1.05rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.6;
+}
+
+/* Status Card */
+.vz-helper-status-card {
+  background: var(--vz-bg-surface);
+  border: 2px solid var(--vz-border-light);
+  border-radius: var(--vz-radius-xl);
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: var(--vz-shadow-card);
+}
+
+.vz-helper-status-card--pending {
+  border-left: 6px solid #f59e0b;
+}
+
+.vz-helper-status-card--verified {
+  border-left: 6px solid #10b981;
+}
+
+.vz-helper-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full);
+  margin-bottom: 16px;
+}
+
+.vz-helper-status-badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.vz-helper-status-badge--verified {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.vz-helper-status-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--vz-text-primary);
+  margin-bottom: 10px;
+}
+
+.vz-helper-status-desc {
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Checklist */
+.vz-helper-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vz-helper-check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9375rem;
+  color: var(--vz-text-secondary);
+  padding: 10px 14px;
+  background: var(--vz-bg-canvas);
+  border-radius: var(--vz-radius-md);
+  border: 1px solid var(--vz-border-light);
+}
+
+.vz-helper-check-item--done svg {
+  color: #10b981;
+}
+
+.vz-helper-check-item--active svg {
+  color: #f59e0b;
+}
+
+.vz-helper-check-item--locked svg {
+  color: var(--vz-text-light);
+}
+
+/* Application Form Card */
+.vz-helper-form-card {
+  background: var(--vz-bg-surface);
+  border: 1.5px solid var(--vz-border-light);
+  border-radius: var(--vz-radius-xl);
+  padding: 32px;
+  box-shadow: var(--vz-shadow-sm);
+  margin-bottom: 32px;
+}
+
+.vz-helper-form-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--vz-text-primary);
+}
+
+.vz-helper-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .vz-helper-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vz-helper-dev-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--vz-radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.vz-helper-dev-text {
+  font-size: 0.875rem;
+  color: var(--vz-text-secondary);
+  margin: 0;
+}
+
+.vz-helper-dev-text strong {
+  color: var(--vz-text-primary);
+}

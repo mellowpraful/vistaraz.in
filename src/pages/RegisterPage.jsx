@@ -1,698 +1,461 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import { ArrowRight, Check, Eye, EyeOff, User, HeartHandshake } from 'lucide-react';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, ArrowRight, ShieldCheck, Check, Sparkles, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getSavedPurpose, savePurpose } from '../services/authService';
+import logoImg from '../assets/images/logo.png';
 import './RegisterPage.css';
 
 /**
- * RegisterPage
- * Assigned to: Developer 2
- * Source: register.html
- * Route: /register
- *
- * Dual-onboarding portal for seekers & listeners with role switch, multi-step forms,
- * age gate checkbox, anonymous/private profile toggling, and avatar selection.
- * Auth is mocked — form logic is fully interactive but not connected to a live backend.
+ * Google Brand Icon (inline SVG)
  */
+function GoogleIcon() {
+  return (
+    <svg className="vz-google-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+      />
+    </svg>
+  );
+}
 
-const SEEKER_AVATARS = ['🦊', '🦉', '🌿', '🌙', '🌊', '✨'];
-
-const QUALIFICATIONS = [
-  'Psychology Student / Intern',
-  'Trained Peer Listener',
-  'Certified Counselor',
-  'Licensed Psychologist',
+const SANCTUARY_FEATURES = [
+  {
+    icon: '🌬️',
+    title: 'Box Breathing Studio',
+    desc: '4-4-4-4 rhythm grounding and autonomic calming exercises.'
+  },
+  {
+    icon: '💬',
+    title: 'Encrypted Peer Circles',
+    desc: 'Safeguarded peer support rooms with zero permanent logs.'
+  },
+  {
+    icon: '📊',
+    title: '2-Min Wellbeing Check-In',
+    desc: 'Non-diagnostic emotional snapshot across 10 vital life areas.'
+  },
+  {
+    icon: '🤝',
+    title: 'Verified Active Listeners',
+    desc: 'Trained psychology students and compassionate care peers.'
+  }
 ];
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated, signIn, signUp } = useAuth();
+  const { register } = useAuth();
 
-  const from = searchParams.get('from');
+  // Role discovery & preservation
+  const rawRole = searchParams.get('role');
+  const [role, setRole] = useState(() => {
+    if (rawRole === 'helper' || rawRole === 'provider') return 'helper';
+    if (rawRole === 'support_seeker' || rawRole === 'seeker') return 'support_seeker';
+    const saved = getSavedPurpose();
+    if (saved === 'helper' || saved === 'support_seeker') return saved;
+    return null;
+  });
 
-  // If already logged in, redirect to destination or role portal
+  // Redirect to Purpose Selection if no role is chosen
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (from) {
-        navigate(from, { replace: true });
-      } else if (user.role === 'provider') {
-        navigate('/listener-portal', { replace: true });
+    if (!role) {
+      navigate('/get-started', { replace: true });
+    } else {
+      savePurpose(role);
+    }
+  }, [role, navigate]);
+
+  // Form Fields State
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
+  // Status & Validation State
+  const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [googleNotice, setGoogleNotice] = useState(null);
+
+  // If redirecting, don't flash form
+  if (!role) {
+    return null;
+  }
+
+  const validateForm = () => {
+    const errs = {};
+    if (!name.trim()) {
+      errs.name = 'Please enter your name or display pseudonym.';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      errs.email = 'Please enter a valid email address.';
+    }
+    if (!password) {
+      errs.password = 'Please enter a password.';
+    } else if (password.length < 6) {
+      errs.password = 'Password must be at least 6 characters.';
+    }
+    if (password !== confirmPassword) {
+      errs.confirmPassword = 'Passwords do not match.';
+    }
+    if (!agreeTerms) {
+      errs.terms = 'Please accept the Terms & Sanctuary Rules to continue.';
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setGeneralError('');
+    setGoogleNotice(null);
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const newUser = await register({
+        name,
+        email,
+        password,
+        role,
+      });
+
+      // Role-Based Next Journey Redirect
+      if (newUser.role === 'support_seeker') {
+        navigate('/assessment', { replace: true });
+      } else if (newUser.role === 'helper') {
+        navigate('/helper-application', { replace: true });
       } else {
-        navigate('/client-panel', { replace: true });
+        navigate('/dashboard', { replace: true });
       }
-    }
-  }, [isAuthenticated, user, from, navigate]);
-
-  // ── Top-level state ──
-  const [role, setRole] = useState('seeker'); // 'seeker' | 'provider'
-  const [authAction, setAuthAction] = useState('register'); // 'register' | 'login'
-
-  // ── Seeker state ──
-  const [seekerProfileType, setSeekerProfileType] = useState('anon');
-  const [selectedAvatar, setSelectedAvatar] = useState('🦊');
-  const [seekerNickname, setSeekerNickname] = useState('');
-  const [seekerName, setSeekerName] = useState('');
-  const [seekerEmail, setSeekerEmail] = useState('');
-  const [seekerPassword, setSeekerPassword] = useState('');
-  const [seekerShowPw, setSeekerShowPw] = useState(false);
-  const [seekerTerms, setSeekerTerms] = useState(false);
-  const [seekerError, setSeekerError] = useState('');
-  const [seekerSuccess, setSeekerSuccess] = useState('');
-  const [seekerLoading, setSeekerLoading] = useState(false);
-
-  // ── Seeker login state ──
-  const [seekerLoginEmail, setSeekerLoginEmail] = useState('');
-  const [seekerLoginPassword, setSeekerLoginPassword] = useState('');
-  const [seekerLoginError, setSeekerLoginError] = useState('');
-  const [seekerLoginLoading, setSeekerLoginLoading] = useState(false);
-
-  // ── Provider state ──
-  const [providerName, setProviderName] = useState('');
-  const [providerQual, setProviderQual] = useState(QUALIFICATIONS[0]);
-  const [providerLanguages, setProviderLanguages] = useState('English, Hindi');
-  const [providerEmail, setProviderEmail] = useState('');
-  const [providerPassword, setProviderPassword] = useState('');
-  const [providerShowPw, setProviderShowPw] = useState(false);
-  const [providerTerms, setProviderTerms] = useState(false);
-  const [providerError, setProviderError] = useState('');
-  const [providerSuccess, setProviderSuccess] = useState('');
-  const [providerLoading, setProviderLoading] = useState(false);
-
-  // ── Provider login state ──
-  const [providerLoginEmail, setProviderLoginEmail] = useState('');
-  const [providerLoginPassword, setProviderLoginPassword] = useState('');
-  const [providerLoginError, setProviderLoginError] = useState('');
-  const [providerLoginLoading, setProviderLoginLoading] = useState(false);
-
-  // ── Parse URL params on mount ──
-  useEffect(() => {
-    const roleParam = searchParams.get('role');
-    const actionParam = searchParams.get('action');
-    if (roleParam === 'provider' || roleParam === 'counselor') setRole('provider');
-    else if (roleParam === 'seeker') setRole('seeker');
-    if (actionParam === 'login') setAuthAction('login');
-  }, [searchParams]);
-
-  // ── Seeker register handler ──
-  async function handleSeekerRegister(e) {
-    e.preventDefault();
-    setSeekerError('');
-    setSeekerSuccess('');
-    if (!seekerTerms) { setSeekerError('Please agree to the Terms & Conditions to continue.'); return; }
-    if (!seekerEmail || !seekerPassword) { setSeekerError('Please enter your email and password.'); return; }
-    try {
-      setSeekerLoading(true);
-      await signUp({
-        email: seekerEmail,
-        password: seekerPassword,
-        role: 'seeker',
-        name: seekerName || seekerNickname || 'Friend',
-        nickname: seekerNickname || 'Friend',
-        avatar: selectedAvatar || '🦊',
-        profile_type: seekerProfileType
-      });
-      setSeekerSuccess('Account created! Welcome to your sanctuary.');
-      navigate(from || '/client-panel', { replace: true });
     } catch (err) {
-      setSeekerError(err.message || 'Registration failed. Please try again.');
+      setGeneralError(err.message || 'Registration failed. Please try again.');
     } finally {
-      setSeekerLoading(false);
+      setLoading(false);
     }
-  }
+  };
 
-  // ── Seeker login handler ──
-  async function handleSeekerLogin(e) {
+  const handleGoogleClick = (e) => {
     e.preventDefault();
-    setSeekerLoginError('');
-    if (!seekerLoginEmail || !seekerLoginPassword) { setSeekerLoginError('Please enter your email and password.'); return; }
-    try {
-      setSeekerLoginLoading(true);
-      const loggedUser = await signIn({
-        email: seekerLoginEmail,
-        password: seekerLoginPassword
-      });
-      const dest = from || (loggedUser?.role === 'provider' ? '/listener-portal' : '/client-panel');
-      navigate(dest, { replace: true });
-    } catch (err) {
-      setSeekerLoginError(err.message || 'Invalid email or password.');
-    } finally {
-      setSeekerLoginLoading(false);
-    }
-  }
+    setGoogleNotice('Google sign-in is coming soon. Please use your email and password.');
+  };
 
-  // ── Provider register handler ──
-  async function handleProviderRegister(e) {
-    e.preventDefault();
-    setProviderError('');
-    setProviderSuccess('');
-    if (!providerTerms) { setProviderError('Please agree to the Terms & Conditions to continue.'); return; }
-    if (!providerEmail || !providerPassword || !providerName) { setProviderError('Please fill in all required fields.'); return; }
-    try {
-      setProviderLoading(true);
-      await signUp({
-        email: providerEmail,
-        password: providerPassword,
-        role: 'provider',
-        name: providerName,
-        nickname: providerName.split(' ')[0] || 'Peer Listener',
-        avatar: '🦉',
-        profile_type: 'verified',
-        qualification: providerQual,
-        languages: providerLanguages.split(',').map((s) => s.trim())
-      });
-      setProviderSuccess('Listener account registered successfully!');
-      navigate(from || '/listener-portal', { replace: true });
-    } catch (err) {
-      setProviderError(err.message || 'Registration failed. Please try again.');
-    } finally {
-      setProviderLoading(false);
-    }
-  }
-
-  // ── Provider login handler ──
-  async function handleProviderLogin(e) {
-    e.preventDefault();
-    setProviderLoginError('');
-    if (!providerLoginEmail || !providerLoginPassword) { setProviderLoginError('Please enter your email and password.'); return; }
-    try {
-      setProviderLoginLoading(true);
-      const loggedUser = await signIn({
-        email: providerLoginEmail,
-        password: providerLoginPassword
-      });
-      const dest = from || (loggedUser?.role === 'provider' ? '/listener-portal' : '/client-panel');
-      navigate(dest, { replace: true });
-    } catch (err) {
-      setProviderLoginError(err.message || 'Invalid credentials.');
-    } finally {
-      setProviderLoginLoading(false);
-    }
-  }
+  const isSeeker = role === 'support_seeker';
 
   return (
-    <AppLayout>
-      <div className="reg-page">
-        {/* Top Header */}
-        <section className="reg-header">
-          <span className="reg-eyebrow">CHOOSE YOUR PATHWAY</span>
-          <h1 className="reg-header__title">
-            Welcome to <em>Vistaraz</em>
-          </h1>
-          <p className="reg-header__desc">
-            Whether you are seeking a safe, confidential space or looking to offer compassionate
-            support as a listener, select your pathway below.
+    <div className="vz-auth-page">
+      {/* ── LEFT COLUMN: AUTHENTICATION FORM ── */}
+      <main className="vz-auth-main">
+        {/* Brand Header */}
+        <div className="vz-auth-top-nav">
+          <Link to="/" className="vz-auth-brand" aria-label="Return to Vistaraz Home">
+            <img src={logoImg} alt="Vistaraz" />
+          </Link>
+        </div>
+
+        <div className="vz-auth-form-wrap">
+          <h1 className="vz-auth-title">Create your account</h1>
+          <p className="vz-auth-subtitle">
+            Join the Vistaraz sanctuary for confidential support and empathetic care.
           </p>
-        </section>
 
-        {/* Role Cards */}
-        <div className="reg-role-cards">
-          <button
-            type="button"
-            id="role-seeker-card"
-            className={`reg-role-card ${role === 'seeker' ? 'reg-role-card--active' : ''}`}
-            onClick={() => setRole('seeker')}
-            aria-pressed={role === 'seeker'}
-          >
-            <div className="reg-role-card__header">
-              <div className="reg-role-card__icon reg-role-card__icon--seeker">🌿</div>
-              <div>
-                <h3 className="reg-role-card__name">I Need Help</h3>
-                <span className="reg-role-card__tag reg-role-card__tag--seeker">Youth & Students</span>
-              </div>
-              {role === 'seeker' && <span className="reg-role-card__check"><Check size={14} /></span>}
-            </div>
-            <p className="reg-role-card__desc">
-              Private emotional support, 2-min check-in, free breathing tools, and 1-on-1 chat/video
-              sessions with verified listeners.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            id="role-provider-card"
-            className={`reg-role-card ${role === 'provider' ? 'reg-role-card--active reg-role-card--provider-active' : ''}`}
-            onClick={() => setRole('provider')}
-            aria-pressed={role === 'provider'}
-          >
-            <div className="reg-role-card__header">
-              <div className="reg-role-card__icon reg-role-card__icon--provider">🤝</div>
-              <div>
-                <h3 className="reg-role-card__name">I Want to Help</h3>
-                <span className="reg-role-card__tag reg-role-card__tag--provider">Listeners & Counselors</span>
-              </div>
-              {role === 'provider' && <span className="reg-role-card__check"><Check size={14} /></span>}
-            </div>
-            <p className="reg-role-card__desc">
-              For psychology trainees, students & certified listeners. Manage live incoming queue,
-              audio/video sessions, and schedules.
-            </p>
-          </button>
-        </div>
-
-        {/* Auth Mode Toggle */}
-        <div className="reg-auth-toggle">
-          <div className="reg-auth-toggle__inner">
-            <button
-              id="auth-tab-register"
-              type="button"
-              className={`reg-auth-tab ${authAction === 'register' ? 'reg-auth-tab--active' : ''}`}
-              onClick={() => setAuthAction('register')}
-            >
-              Create Account
-            </button>
-            <button
-              id="auth-tab-login"
-              type="button"
-              className={`reg-auth-tab ${authAction === 'login' ? 'reg-auth-tab--active' : ''}`}
-              onClick={() => setAuthAction('login')}
-            >
-              Sign In
-            </button>
-          </div>
-        </div>
-
-        {/* ── SEEKER FORM CONTAINER ── */}
-        {role === 'seeker' && (
-          <div id="seeker-auth-container" className="reg-form-card">
-            {authAction === 'register' ? (
-              /* Seeker Register */
-              <div id="seeker-register-box">
-                <div className="reg-form-top">
-                  <span className="reg-form-eyebrow" style={{ color: 'var(--vz-primary)' }}>SEEKER ONBOARDING</span>
-                  <h2 className="reg-form-title">How would you like to appear?</h2>
-                  <p className="reg-form-subtitle">Privacy is our core foundation. Choose your comfort level.</p>
-                </div>
-
-                {/* Identity Sub-Tabs */}
-                <div className="reg-profile-tabs">
-                  <button
-                    id="tab-anon-btn"
-                    type="button"
-                    className={`reg-profile-tab ${seekerProfileType === 'anon' ? 'reg-profile-tab--active' : ''}`}
-                    onClick={() => setSeekerProfileType('anon')}
-                  >
-                    <span>🦊</span>
-                    <div>
-                      <div className="reg-profile-tab__title">Anonymous Profile</div>
-                      <div className="reg-profile-tab__sub">Avatar + Nickname</div>
-                    </div>
-                  </button>
-                  <button
-                    id="tab-private-btn"
-                    type="button"
-                    className={`reg-profile-tab ${seekerProfileType === 'private' ? 'reg-profile-tab--active' : ''}`}
-                    onClick={() => setSeekerProfileType('private')}
-                  >
-                    <span>🔒</span>
-                    <div>
-                      <div className="reg-profile-tab__title">Private Profile</div>
-                      <div className="reg-profile-tab__sub">Real Name (Confidential)</div>
-                    </div>
-                  </button>
-                </div>
-
-                <form id="seeker-reg-form" onSubmit={handleSeekerRegister} noValidate>
-                  {/* Avatar picker — anonymous only */}
-                  {seekerProfileType === 'anon' && (
-                    <div id="seeker-anon-fields">
-                      <label className="reg-label">Choose an Avatar</label>
-                      <div className="reg-avatar-grid" role="group" aria-label="Select avatar">
-                        {SEEKER_AVATARS.map((emoji) => (
-                          <button
-                            key={emoji}
-                            type="button"
-                            className={`reg-avatar-item ${selectedAvatar === emoji ? 'reg-avatar-item--selected' : ''}`}
-                            onClick={() => setSelectedAvatar(emoji)}
-                            aria-pressed={selectedAvatar === emoji}
-                            aria-label={`Select avatar ${emoji}`}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="reg-field">
-                        <label htmlFor="seeker-anon-nickname" className="reg-label">
-                          Nickname / Handle
-                        </label>
-                        <input
-                          type="text"
-                          id="seeker-anon-nickname"
-                          className="reg-input"
-                          placeholder="e.g. moonlit_wanderer"
-                          value={seekerNickname}
-                          onChange={(e) => setSeekerNickname(e.target.value)}
-                          autoComplete="nickname"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Private Name — private profile only */}
-                  {seekerProfileType === 'private' && (
-                    <div id="seeker-private-fields">
-                      <div className="reg-field">
-                        <label htmlFor="seeker-private-name" className="reg-label">Full Name</label>
-                        <input
-                          type="text"
-                          id="seeker-private-name"
-                          className="reg-input"
-                          placeholder="Your full name"
-                          value={seekerName}
-                          onChange={(e) => setSeekerName(e.target.value)}
-                          autoComplete="name"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Email */}
-                  <div className="reg-field">
-                    <label htmlFor="seeker-email" className="reg-label">Email Address</label>
-                    <input
-                      type="email"
-                      id="seeker-email"
-                      className="reg-input"
-                      required
-                      placeholder="you@example.com"
-                      value={seekerEmail}
-                      onChange={(e) => setSeekerEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </div>
-
-                  {/* Password */}
-                  <div className="reg-field reg-field--last">
-                    <label htmlFor="seeker-password" className="reg-label">Create Password</label>
-                    <div className="reg-input-pw-wrap">
-                      <input
-                        type={seekerShowPw ? 'text' : 'password'}
-                        id="seeker-password"
-                        className="reg-input reg-input--pw"
-                        required
-                        placeholder="••••••••"
-                        value={seekerPassword}
-                        onChange={(e) => setSeekerPassword(e.target.value)}
-                        autoComplete="new-password"
-                      />
-                      <button
-                        type="button"
-                        className="reg-pw-toggle"
-                        onClick={() => setSeekerShowPw((v) => !v)}
-                        aria-label={seekerShowPw ? 'Hide password' : 'Show password'}
-                      >
-                        {seekerShowPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Terms */}
-                  <div className="reg-terms">
-                    <label className="reg-terms__label">
-                      <input
-                        type="checkbox"
-                        id="seeker-terms"
-                        name="terms"
-                        required
-                        checked={seekerTerms}
-                        onChange={(e) => setSeekerTerms(e.target.checked)}
-                        className="reg-terms__checkbox"
-                      />
-                      <span>
-                        I agree to the{' '}
-                        <Link to="/rules" className="reg-terms__link" target="_blank" rel="noopener noreferrer">
-                          Terms &amp; Conditions
-                        </Link>
-                      </span>
-                    </label>
-                  </div>
-
-                  {/* Error / Success */}
-                  {seekerError && <div id="seeker-error" className="reg-error" role="alert">{seekerError}</div>}
-                  {seekerSuccess && <div className="reg-success" role="status">{seekerSuccess}</div>}
-
-                  <button
-                    id="seeker-submit-btn"
-                    type="submit"
-                    className="reg-submit-btn"
-                    disabled={seekerLoading}
-                  >
-                    {seekerLoading ? (
-                      <span className="reg-spinner" aria-hidden="true" />
-                    ) : (
-                      <>Enter Client Portal <ArrowRight size={16} /></>
-                    )}
-                  </button>
-                </form>
-              </div>
-            ) : (
-              /* Seeker Login */
-              <div id="seeker-login-box">
-                <div className="reg-form-top">
-                  <span className="reg-form-eyebrow" style={{ color: 'var(--vz-primary)' }}>CLIENT SIGN IN</span>
-                  <h2 className="reg-form-title">Welcome back</h2>
-                  <p className="reg-form-subtitle">Access your wellbeing dashboard, chat logs, and upcoming appointments.</p>
-                </div>
-
-                <form id="seeker-login-form" onSubmit={handleSeekerLogin} noValidate>
-                  <div className="reg-field">
-                    <label htmlFor="seeker-login-email" className="reg-label">Email Address</label>
-                    <input
-                      type="email"
-                      id="seeker-login-email"
-                      className="reg-input"
-                      required
-                      placeholder="you@example.com"
-                      value={seekerLoginEmail}
-                      onChange={(e) => setSeekerLoginEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </div>
-
-                  <div className="reg-field reg-field--last">
-                    <label htmlFor="seeker-login-password" className="reg-label">Password</label>
-                    <input
-                      type="password"
-                      id="seeker-login-password"
-                      className="reg-input"
-                      required
-                      placeholder="••••••••"
-                      value={seekerLoginPassword}
-                      onChange={(e) => setSeekerLoginPassword(e.target.value)}
-                      autoComplete="current-password"
-                    />
-                  </div>
-
-                  {seekerLoginError && <div id="seeker-login-error" className="reg-error" role="alert">{seekerLoginError}</div>}
-
-                  <button
-                    id="seeker-login-btn"
-                    type="submit"
-                    className="reg-submit-btn"
-                    disabled={seekerLoginLoading}
-                  >
-                    {seekerLoginLoading ? <span className="reg-spinner" aria-hidden="true" /> : 'Sign In to Dashboard'}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── PROVIDER FORM CONTAINER ── */}
-        {role === 'provider' && (
+          {/* Dynamic Selected-Role Confirmation Card */}
           <div
-            id="provider-auth-container"
-            className="reg-form-card reg-form-card--provider"
+            id="role-confirmation-card"
+            className={`vz-role-badge-card ${isSeeker ? 'vz-role-badge-card--seeker' : 'vz-role-badge-card--helper'}`}
+            role="region"
+            aria-label="Selected Role Confirmation"
           >
-            {authAction === 'register' ? (
-              /* Provider Register */
-              <div id="provider-register-box">
-                <div className="reg-form-top">
-                  <span className="reg-form-eyebrow" style={{ color: 'var(--vz-pastel-lavender-icon)' }}>LISTENER ONBOARDING</span>
-                  <h2 className="reg-form-title">Join the Support Network</h2>
-                  <p className="reg-form-subtitle">Connect with youth, conduct empathetic listening sessions, and manage your schedule.</p>
-                </div>
-
-                <form id="provider-reg-form" onSubmit={handleProviderRegister} noValidate>
-                  {/* Full Name */}
-                  <div className="reg-field">
-                    <label htmlFor="provider-name" className="reg-label">Full Name</label>
-                    <input
-                      type="text"
-                      id="provider-name"
-                      className="reg-input"
-                      required
-                      placeholder="e.g. Nidhi Mitchell"
-                      value={providerName}
-                      onChange={(e) => setProviderName(e.target.value)}
-                      autoComplete="name"
-                    />
-                  </div>
-
-                  {/* Qualification + Languages — responsive two-column */}
-                  <div className="reg-grid-2">
-                    <div className="reg-field">
-                      <label htmlFor="provider-qualification" className="reg-label">Role / Background</label>
-                      <select
-                        id="provider-qualification"
-                        className="reg-select"
-                        value={providerQual}
-                        onChange={(e) => setProviderQual(e.target.value)}
-                      >
-                        {QUALIFICATIONS.map((q) => (
-                          <option key={q} value={q}>{q}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="reg-field">
-                      <label htmlFor="provider-languages" className="reg-label">Languages</label>
-                      <input
-                        type="text"
-                        id="provider-languages"
-                        className="reg-input"
-                        placeholder="e.g. English, Hindi"
-                        value={providerLanguages}
-                        onChange={(e) => setProviderLanguages(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email */}
-                  <div className="reg-field">
-                    <label htmlFor="provider-email" className="reg-label">Professional / University Email</label>
-                    <input
-                      type="email"
-                      id="provider-email"
-                      className="reg-input"
-                      required
-                      placeholder="counselor@university.edu"
-                      value={providerEmail}
-                      onChange={(e) => setProviderEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </div>
-
-                  {/* Password */}
-                  <div className="reg-field reg-field--last">
-                    <label htmlFor="provider-password" className="reg-label">Password</label>
-                    <div className="reg-input-pw-wrap">
-                      <input
-                        type={providerShowPw ? 'text' : 'password'}
-                        id="provider-password"
-                        className="reg-input reg-input--pw"
-                        required
-                        placeholder="••••••••"
-                        value={providerPassword}
-                        onChange={(e) => setProviderPassword(e.target.value)}
-                        autoComplete="new-password"
-                      />
-                      <button
-                        type="button"
-                        className="reg-pw-toggle"
-                        onClick={() => setProviderShowPw((v) => !v)}
-                        aria-label={providerShowPw ? 'Hide password' : 'Show password'}
-                      >
-                        {providerShowPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Terms */}
-                  <div className="reg-terms">
-                    <label className="reg-terms__label">
-                      <input
-                        type="checkbox"
-                        id="provider-terms"
-                        name="terms"
-                        required
-                        checked={providerTerms}
-                        onChange={(e) => setProviderTerms(e.target.checked)}
-                        className="reg-terms__checkbox"
-                      />
-                      <span>
-                        I agree to the{' '}
-                        <Link to="/rules" className="reg-terms__link" target="_blank" rel="noopener noreferrer">
-                          Terms &amp; Conditions
-                        </Link>
-                      </span>
-                    </label>
-                  </div>
-
-                  {providerError && <div id="provider-error" className="reg-error" role="alert">{providerError}</div>}
-                  {providerSuccess && <div className="reg-success" role="status">{providerSuccess}</div>}
-
-                  <button
-                    id="provider-submit-btn"
-                    type="submit"
-                    className="reg-submit-btn reg-submit-btn--provider"
-                    disabled={providerLoading}
-                  >
-                    {providerLoading ? (
-                      <span className="reg-spinner" aria-hidden="true" />
-                    ) : (
-                      <>Open Listener Portal <ArrowRight size={16} /></>
-                    )}
-                  </button>
-                </form>
+            <div className="vz-role-badge-card__info">
+              <span className="vz-role-badge-card__icon">{isSeeker ? '🌿' : '🤝'}</span>
+              <div>
+                <h2 className="vz-role-badge-card__title">
+                  {isSeeker ? 'Signing up as: Support Seeker' : 'Signing up as: Aspiring Helper'}
+                </h2>
+                <p className="vz-role-badge-card__subtitle">
+                  {isSeeker
+                    ? 'Explore wellbeing resources and find suitable support.'
+                    : 'Create an account to begin your helper application.'}
+                </p>
               </div>
-            ) : (
-              /* Provider Login */
-              <div id="provider-login-box">
-                <div className="reg-form-top">
-                  <span className="reg-form-eyebrow" style={{ color: 'var(--vz-pastel-lavender-icon)' }}>LISTENER SIGN IN</span>
-                  <h2 className="reg-form-title">Provider Workspace</h2>
-                  <p className="reg-form-subtitle">Log in to access your live queue, schedule, and pending calls.</p>
-                </div>
-
-                <form id="provider-login-form" onSubmit={handleProviderLogin} noValidate>
-                  <div className="reg-field">
-                    <label htmlFor="provider-login-email" className="reg-label">Email Address</label>
-                    <input
-                      type="email"
-                      id="provider-login-email"
-                      className="reg-input"
-                      required
-                      placeholder="counselor@example.com"
-                      value={providerLoginEmail}
-                      onChange={(e) => setProviderLoginEmail(e.target.value)}
-                      autoComplete="email"
-                    />
-                  </div>
-
-                  <div className="reg-field reg-field--last">
-                    <label htmlFor="provider-login-password" className="reg-label">Password</label>
-                    <input
-                      type="password"
-                      id="provider-login-password"
-                      className="reg-input"
-                      required
-                      placeholder="••••••••"
-                      value={providerLoginPassword}
-                      onChange={(e) => setProviderLoginPassword(e.target.value)}
-                      autoComplete="current-password"
-                    />
-                  </div>
-
-                  {providerLoginError && <div id="provider-login-error" className="reg-error" role="alert">{providerLoginError}</div>}
-
-                  <button
-                    id="provider-login-btn"
-                    type="submit"
-                    className="reg-submit-btn reg-submit-btn--provider"
-                    disabled={providerLoginLoading}
-                  >
-                    {providerLoginLoading ? <span className="reg-spinner" aria-hidden="true" /> : 'Open Listener Portal'}
-                  </button>
-                </form>
-              </div>
-            )}
+            </div>
+            <Link to="/get-started" className="vz-role-badge-card__change" id="change-role-link">
+              Change
+            </Link>
           </div>
-        )}
-      </div>
-    </AppLayout>
+
+          {/* Google Sign-In: UI Only */}
+          <button
+            type="button"
+            id="register-google-btn"
+            className="vz-google-btn"
+            onClick={handleGoogleClick}
+            aria-label="Sign up with Google (Coming soon)"
+          >
+            <GoogleIcon />
+            <span>Sign up with Google</span>
+          </button>
+
+          {/* Google Coming-Soon Feedback Notice */}
+          {googleNotice && (
+            <div className="vz-auth-notice" id="google-coming-soon-notice" role="status" aria-live="polite">
+              <AlertCircle size={16} />
+              <span>{googleNotice}</span>
+            </div>
+          )}
+
+          {/* Form Divider */}
+          <div className="vz-auth-divider">
+            <span>OR CONTINUE WITH EMAIL</span>
+          </div>
+
+          {/* Global Error Banner */}
+          {generalError && (
+            <div className="vz-auth-banner-error" id="register-general-error" role="alert">
+              <AlertCircle size={18} />
+              <span>{generalError}</span>
+            </div>
+          )}
+
+          {/* Registration Form */}
+          <form className="vz-auth-form" onSubmit={handleSubmit} noValidate>
+            {/* Name / Display Name */}
+            <div className="vz-auth-field">
+              <label htmlFor="register-name" className="vz-auth-label">
+                Name or Display Pseudonym
+              </label>
+              <input
+                type="text"
+                id="register-name"
+                name="name"
+                className={`vz-auth-input ${errors.name ? 'vz-auth-input--error' : ''}`}
+                placeholder={isSeeker ? 'e.g. Maya or PeacefulOtter' : 'e.g. Dr. Jordan Reed'}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+                }}
+                autoComplete="name"
+                required
+              />
+              {errors.name && <span className="vz-auth-field-error">{errors.name}</span>}
+            </div>
+
+            {/* Email Address */}
+            <div className="vz-auth-field">
+              <label htmlFor="register-email" className="vz-auth-label">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="register-email"
+                name="email"
+                className={`vz-auth-input ${errors.email ? 'vz-auth-input--error' : ''}`}
+                placeholder="you@domain.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: null }));
+                }}
+                autoComplete="email"
+                required
+              />
+              {errors.email && <span className="vz-auth-field-error">{errors.email}</span>}
+            </div>
+
+            {/* Password */}
+            <div className="vz-auth-field">
+              <label htmlFor="register-password" className="vz-auth-label">
+                Password
+              </label>
+              <div className="vz-auth-input-wrap">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="register-password"
+                  name="password"
+                  className={`vz-auth-input vz-auth-input--pw ${errors.password ? 'vz-auth-input--error' : ''}`}
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors((prev) => ({ ...prev, password: null }));
+                  }}
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="vz-auth-pw-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && <span className="vz-auth-field-error">{errors.password}</span>}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="vz-auth-field">
+              <label htmlFor="register-confirm-password" className="vz-auth-label">
+                Confirm Password
+              </label>
+              <div className="vz-auth-input-wrap">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="register-confirm-password"
+                  name="confirmPassword"
+                  className={`vz-auth-input vz-auth-input--pw ${errors.confirmPassword ? 'vz-auth-input--error' : ''}`}
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: null }));
+                  }}
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="vz-auth-pw-toggle"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <span className="vz-auth-field-error">{errors.confirmPassword}</span>
+              )}
+            </div>
+
+            {/* Terms & Sanctuary Rules Checkbox */}
+            <div className="vz-auth-terms">
+              <label className="vz-auth-terms-label">
+                <input
+                  type="checkbox"
+                  id="register-terms"
+                  className="vz-auth-terms-checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => {
+                    setAgreeTerms(e.target.checked);
+                    if (errors.terms) setErrors((prev) => ({ ...prev, terms: null }));
+                  }}
+                />
+                <span>
+                  I agree to the{' '}
+                  <Link to="/rules" target="_blank" className="vz-auth-terms-link">
+                    Terms &amp; Conditions
+                  </Link>{' '}
+                  and Sanctuary Safety Rules.
+                </span>
+              </label>
+              {errors.terms && <span className="vz-auth-field-error">{errors.terms}</span>}
+            </div>
+
+            {/* Short Privacy Reassurance */}
+            <div className="vz-auth-privacy-note">
+              <ShieldCheck size={18} style={{ color: 'var(--vz-status-online)', flexShrink: 0 }} />
+              <span>
+                Privacy Reassurance: We never request mental-health diagnostic records during registration.
+              </span>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="register-submit-btn"
+              className="vz-auth-submit-btn"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="vz-auth-spinner" />
+                  <span>Creating sanctuary account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Link to Login */}
+          <div className="vz-auth-switch">
+            <span>Already have an account?</span>
+            <Link to={`/login?role=${role}`} className="vz-auth-switch-link" id="link-to-login">
+              Log in
+            </Link>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="vz-auth-bottom-footer">
+          <span>&copy; {new Date().getFullYear()} Vistaraz Sanctuary</span>
+          <div className="vz-auth-bottom-links">
+            <Link to="/rules">Privacy &amp; Terms</Link>
+            <Link to="/safety">Crisis Helpline</Link>
+          </div>
+        </footer>
+      </main>
+
+      {/* ── RIGHT COLUMN: VISUAL / BRAND-CONTENT PANEL (ElevenLabs reference) ── */}
+      <aside className="vz-auth-visual" aria-hidden="true">
+        <div className="vz-auth-visual__header">
+          <div className="vz-auth-visual__badge">
+            <Sparkles size={14} />
+            <span>Vistaraz Sanctuary Platform</span>
+          </div>
+          <h2 className="vz-auth-visual__headline">
+            A safe space to understand what you're feeling and <em>reach out.</em>
+          </h2>
+        </div>
+
+        {/* Sanctuary Showcase Tiles */}
+        <div className="vz-auth-tiles-grid">
+          {SANCTUARY_FEATURES.map((item, idx) => (
+            <div key={idx} className="vz-auth-tile">
+              <div className="vz-auth-tile__icon">{item.icon}</div>
+              <div>
+                <h3 className="vz-auth-tile__title">{item.title}</h3>
+                <p className="vz-auth-tile__desc">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Visual Footer */}
+        <div className="vz-auth-visual__footer">
+          <p className="vz-auth-visual__quote">
+            "You don’t have to figure everything out alone. Anonymous peer support, clinical safety, and youth-centered mental wellbeing."
+          </p>
+          <div className="vz-auth-visual__nav-btns">
+            <span className="vz-auth-visual__circle-btn"><ChevronLeft size={18} /></span>
+            <span className="vz-auth-visual__circle-btn"><ChevronRight size={18} /></span>
+          </div>
+        </div>
+      </aside>
+    </div>
   );
 }
