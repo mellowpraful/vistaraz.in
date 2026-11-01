@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { ArrowRight, Check, Eye, EyeOff, User, HeartHandshake } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './RegisterPage.css';
 
 /**
@@ -28,6 +29,23 @@ const QUALIFICATIONS = [
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, signIn, signUp } = useAuth();
+
+  const from = searchParams.get('from');
+
+  // If already logged in, redirect to destination or role portal
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (user.role === 'provider') {
+        navigate('/listener-portal', { replace: true });
+      } else {
+        navigate('/client-panel', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, from, navigate]);
 
   // ── Top-level state ──
   const [role, setRole] = useState('seeker'); // 'seeker' | 'provider'
@@ -86,11 +104,24 @@ export default function RegisterPage() {
     setSeekerSuccess('');
     if (!seekerTerms) { setSeekerError('Please agree to the Terms & Conditions to continue.'); return; }
     if (!seekerEmail || !seekerPassword) { setSeekerError('Please enter your email and password.'); return; }
-    setSeekerLoading(true);
-    // Simulated async call (real backend: VistarazAuth.signUp)
-    await new Promise((r) => setTimeout(r, 900));
-    setSeekerLoading(false);
-    setSeekerSuccess('✅ Account created! Check your email for a confirmation link, then sign in.');
+    try {
+      setSeekerLoading(true);
+      await signUp({
+        email: seekerEmail,
+        password: seekerPassword,
+        role: 'seeker',
+        name: seekerName || seekerNickname || 'Friend',
+        nickname: seekerNickname || 'Friend',
+        avatar: selectedAvatar || '🦊',
+        profile_type: seekerProfileType
+      });
+      setSeekerSuccess('Account created! Welcome to your sanctuary.');
+      navigate(from || '/client-panel', { replace: true });
+    } catch (err) {
+      setSeekerError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setSeekerLoading(false);
+    }
   }
 
   // ── Seeker login handler ──
@@ -98,10 +129,19 @@ export default function RegisterPage() {
     e.preventDefault();
     setSeekerLoginError('');
     if (!seekerLoginEmail || !seekerLoginPassword) { setSeekerLoginError('Please enter your email and password.'); return; }
-    setSeekerLoginLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
-    setSeekerLoginLoading(false);
-    setSeekerLoginError('Sign-in is handled by the live authentication service. Please ensure the backend is connected.');
+    try {
+      setSeekerLoginLoading(true);
+      const loggedUser = await signIn({
+        email: seekerLoginEmail,
+        password: seekerLoginPassword
+      });
+      const dest = from || (loggedUser?.role === 'provider' ? '/listener-portal' : '/client-panel');
+      navigate(dest, { replace: true });
+    } catch (err) {
+      setSeekerLoginError(err.message || 'Invalid email or password.');
+    } finally {
+      setSeekerLoginLoading(false);
+    }
   }
 
   // ── Provider register handler ──
@@ -111,10 +151,26 @@ export default function RegisterPage() {
     setProviderSuccess('');
     if (!providerTerms) { setProviderError('Please agree to the Terms & Conditions to continue.'); return; }
     if (!providerEmail || !providerPassword || !providerName) { setProviderError('Please fill in all required fields.'); return; }
-    setProviderLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
-    setProviderLoading(false);
-    setProviderSuccess('✅ Account created! Check your email for a confirmation link, then sign in.');
+    try {
+      setProviderLoading(true);
+      await signUp({
+        email: providerEmail,
+        password: providerPassword,
+        role: 'provider',
+        name: providerName,
+        nickname: providerName.split(' ')[0] || 'Peer Listener',
+        avatar: '🦉',
+        profile_type: 'verified',
+        qualification: providerQual,
+        languages: providerLanguages.split(',').map((s) => s.trim())
+      });
+      setProviderSuccess('Listener account registered successfully!');
+      navigate(from || '/listener-portal', { replace: true });
+    } catch (err) {
+      setProviderError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setProviderLoading(false);
+    }
   }
 
   // ── Provider login handler ──
@@ -122,10 +178,19 @@ export default function RegisterPage() {
     e.preventDefault();
     setProviderLoginError('');
     if (!providerLoginEmail || !providerLoginPassword) { setProviderLoginError('Please enter your email and password.'); return; }
-    setProviderLoginLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
-    setProviderLoginLoading(false);
-    setProviderLoginError('Sign-in is handled by the live authentication service. Please ensure the backend is connected.');
+    try {
+      setProviderLoginLoading(true);
+      const loggedUser = await signIn({
+        email: providerLoginEmail,
+        password: providerLoginPassword
+      });
+      const dest = from || (loggedUser?.role === 'provider' ? '/listener-portal' : '/client-panel');
+      navigate(dest, { replace: true });
+    } catch (err) {
+      setProviderLoginError(err.message || 'Invalid credentials.');
+    } finally {
+      setProviderLoginLoading(false);
+    }
   }
 
   return (

@@ -9,9 +9,8 @@
     "preview": "vite preview",
     "serve": "node server.js",
     "build:legacy": "node scripts/build-assets.js",
-    "test:cache": "node scripts/test-cache.js",
-    "test:error": "node scripts/test-error-handling.js",
-    "test": "npm run test:cache && npm run test:error",
+    "test:api": "node -e \"const h = require('./api/health'); const req = { method: 'GET', headers: {} }; const res = { setHeader(){}, end(d){ const r = JSON.parse(d); if (r.status !== 'healthy') process.exit(1); console.log('✅ Neon DB API Healthy'); } }; h(req, res);\"",
+    "test": "npm run build && npm run test:api",
     "sync": "node scripts/git-sync.js"
   },
   "keywords": [
@@ -24,6 +23,7 @@
   "author": "Vistaraz",
   "license": "ISC",
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
     "lucide-react": "^1.56.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

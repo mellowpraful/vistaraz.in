@@ -13,6 +13,7 @@ import {
   Shield,
   LifeBuoy
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import logoImg from '../../assets/images/logo.png';
 import './Sidebar.css';
 
@@ -41,6 +42,10 @@ export default function Sidebar({
   headerExtra,
   className = '',
 }) {
+  const { user, isAuthenticated } = useAuth();
+  const profileLink = isAuthenticated
+    ? (user?.role === 'provider' ? '/listener-portal' : '/client-panel')
+    : '/register?action=login';
   return (
     <aside className={`vz-sidebar ${className}`} aria-label="Portal Sidebar Navigation">
       <div className="vz-sidebar__header">
@@ -84,13 +89,19 @@ export default function Sidebar({
           <Shield size={16} />
           <span>Safety & Crisis</span>
         </NavLink>
-        <NavLink to="/dashboard" className="vz-sidebar__user-card">
+        <NavLink to={profileLink} className="vz-sidebar__user-card">
           <div className="vz-sidebar__user-avatar">
-            <span>👤</span>
+            <span>{isAuthenticated ? (user?.avatar || '🦊') : '👤'}</span>
           </div>
           <div className="vz-sidebar__user-info">
-            <span className="vz-sidebar__user-name">Guest Member</span>
-            <span className="vz-sidebar__user-role">Private Session</span>
+            <span className="vz-sidebar__user-name">
+              {isAuthenticated ? (user?.nickname || user?.name || 'Member') : 'Guest Member'}
+            </span>
+            <span className="vz-sidebar__user-role">
+              {isAuthenticated
+                ? (user?.role === 'provider' ? 'Verified Listener' : `${user?.plan || 'Free'} Sanctuary`)
+                : 'Click to Sign In'}
+            </span>
           </div>
         </NavLink>
       </div>

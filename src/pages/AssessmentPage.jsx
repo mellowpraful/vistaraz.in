@@ -4,6 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import LoginGate from '../components/common/LoginGate';
+import api from '../services/api';
 import {
   ArrowRight,
   ArrowLeft,
@@ -178,6 +179,13 @@ export default function AssessmentPage() {
       setCurrentStep((prev) => prev + 1);
     } else {
       setIsCompleted(true);
+      try {
+        api.saveAssessment({
+          score: percentage,
+          category: resultTier.title,
+          answers: { ...answers, [question.id]: answers[question.id] }
+        }).catch((e) => console.warn('Saved locally notice:', e));
+      } catch (_) {}
     }
   };
 

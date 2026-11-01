@@ -9,6 +9,7 @@ import {
   CheckCircle2, ChevronRight, X, Send, Bell, Star, TrendingUp,
   FileText, BookOpen, AlertCircle, RefreshCw, Sliders, Lock
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './ListenerPortalPage.css';
 
 /**
@@ -44,6 +45,7 @@ const INITIAL_REQUESTS = [
 ];
 
 export default function ListenerPortalPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [status, setStatus] = useState('available');
@@ -152,9 +154,9 @@ export default function ListenerPortalPage() {
           <div className="lp-topbar__info">
             <span className="vz-eyebrow">PROVIDER WORKSPACE · DEPT. OF PEER CARE</span>
             <div className="lp-topbar__title-row">
-              <h1 className="lp-title">Support Listener Portal</h1>
+              <h1 className="lp-title">{user?.name ? `${user.name}'s Portal` : 'Support Listener Portal'}</h1>
               <span className="lp-badge verified">
-                <ShieldCheck size={14} /> Verified Listener Trainee
+                <ShieldCheck size={14} /> {user?.qualification || 'Verified Listener'}
               </span>
             </div>
           </div>

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import LoginGate from '../components/common/LoginGate';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import {
   MessageSquare,
   Heart,
@@ -77,7 +78,7 @@ const INITIAL_POSTS = [
 ];
 
 export default function CommunityPage() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [selectedTopic, setSelectedTopic] = useState('All');
@@ -86,33 +87,35 @@ export default function CommunityPage() {
   const [newTopic, setNewTopic] = useState('Connection');
   const [activeReplyPostId, setActiveReplyPostId] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [showLoginGate, setShowLoginGate] = useState(false);
+  const [postingLoading, setPostingLoading] = useState(false);
 
-  // Page-level guest gate: guests are redirected back on dismiss
-  const handleGuestDismiss = () => {
-    // Navigate back to previous page, or home if no history
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate('/');
+  // Load live community posts from Neon database
+  useEffect(() => {
+    async function loadCommunityPosts() {
+      try {
+        const res = await api.getPosts();
+        if (res?.posts && res.posts.length > 0) {
+          const formatted = res.posts.map((p) => ({
+            id: p.id,
+            alias: p.author_name || 'Anonymous Peer',
+            avatar: p.author_avatar || '🌸',
+            time: new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            topic: p.category || 'General',
+            title: p.title,
+            body: p.content,
+            likes: p.upvotes || 0,
+            likedByUser: false,
+            replies: []
+          }));
+          setPosts(formatted);
+        }
+      } catch (err) {
+        console.warn('Community live load notice:', err.message);
+      }
     }
-  };
-
-  // If guest, show the login gate over an empty layout and do not render community content
-  if (!isAuthenticated) {
-    return (
-      <AppLayout>
-        <LoginGate
-          isOpen={true}
-          onClose={handleGuestDismiss}
-          title="Join the Conversation"
-          description="Sign in to explore Community Circles — our nickname-first, moderated space for real conversations and kind support."
-          badgeText="Community Circles"
-          dismissText="Maybe Later"
-        />
-      </AppLayout>
-    );
-  }
-
+    loadCommunityPosts();
+  }, []);
 
   const topics = [
     'All',
@@ -122,7 +125,11 @@ export default function CommunityPage() {
     'Relationships',
   ];
 
-  const handleLike = (id) => {
+  const handleLike = async (id) => {
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
     setPosts(
       posts.map((p) => {
         if (p.id === id) {
@@ -135,31 +142,56 @@ export default function CommunityPage() {
         return p;
       })
     );
+    try {
+      await api.upvotePost(id);
+    } catch (_) {}
   };
 
-  const handleCreatePost = (e) => {
+  const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newBody.trim()) return;
 
-    const newPostObj = {
-      id: Date.now(),
-      alias: 'quietseeker' + Math.floor(Math.random() * 90 + 10),
-      avatar: '🌿',
-      time: 'Just now',
-      topic: newTopic,
-      title: newTitle,
-      body: newBody,
-      likes: 1,
-      likedByUser: true,
-      replies: [],
-    };
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
 
-    setPosts([newPostObj, ...posts]);
-    setNewTitle('');
-    setNewBody('');
+    try {
+      setPostingLoading(true);
+      const res = await api.createPost({
+        title: newTitle.trim(),
+        content: newBody.trim(),
+        category: newTopic,
+      });
+
+      const newPostObj = {
+        id: res?.post?.id || Date.now(),
+        alias: user?.nickname || user?.name || 'Anonymous Peer',
+        avatar: user?.avatar || '🦊',
+        time: 'Just now',
+        topic: newTopic,
+        title: newTitle,
+        body: newBody,
+        likes: 1,
+        likedByUser: true,
+        replies: [],
+      };
+
+      setPosts([newPostObj, ...posts]);
+      setNewTitle('');
+      setNewBody('');
+    } catch (err) {
+      console.warn('Create post error:', err);
+    } finally {
+      setPostingLoading(false);
+    }
   };
 
   const handleReplyClick = (postId) => {
+    if (!isAuthenticated) {
+      setShowLoginGate(true);
+      return;
+    }
     setActiveReplyPostId(activeReplyPostId === postId ? null : postId);
   };
 
@@ -385,8 +417,14 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      {/* Login Gate Modal (for authenticated users' in-page actions) */}
-      {/* Note: Guest full-page gate is handled before this render via early return above */}
+      {/* Login Gate Modal */}
+      <LoginGate
+        isOpen={showLoginGate}
+        onClose={() => setShowLoginGate(false)}
+        title="Join the Conversation"
+        description="Sign in to share your thoughts, reply to peers, and participate in Community Circles."
+        badgeText="Community Circles"
+      />
     </AppLayout>
   );
 }

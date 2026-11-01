@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Mail, Users, Sparkles, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Mail, Users, Sparkles, ShieldCheck, ArrowRight, Lock, Key } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './LoginGateModal.css';
 
 /**
@@ -62,7 +64,15 @@ export function LoginGateModal({
   onGoogleLogin,
   onEmailLogin,
 }) {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [placeholderNotice, setPlaceholderNotice] = useState(null);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+
   const closeBtnRef = useRef(null);
   const modalRef = useRef(null);
   const previousActiveElement = useRef(null);
@@ -71,6 +81,8 @@ export function LoginGateModal({
   useEffect(() => {
     if (!isOpen) {
       setPlaceholderNotice(null);
+      setShowEmailForm(false);
+      setLoginError('');
       return;
     }
 
@@ -137,7 +149,8 @@ export function LoginGateModal({
     if (onGoogleLogin) {
       onGoogleLogin();
     } else {
-      setPlaceholderNotice('Google authentication will be connected in an upcoming release. No credentials were requested.');
+      setShowEmailForm(true);
+      setPlaceholderNotice('Google Auth is rolling out soon. Please use your email to sign in or create an account instantly below.');
     }
   };
 
@@ -146,7 +159,26 @@ export function LoginGateModal({
     if (onEmailLogin) {
       onEmailLogin();
     } else {
-      setPlaceholderNotice('Email login will be connected in an upcoming release. No credentials were requested.');
+      setShowEmailForm(true);
+      setPlaceholderNotice(null);
+    }
+  };
+
+  const handleInlineSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    if (!loginEmail || !loginPassword) {
+      setLoginError('Please enter your email and password.');
+      return;
+    }
+    try {
+      setLoginLoading(true);
+      await signIn({ email: loginEmail, password: loginPassword });
+      onClose();
+    } catch (err) {
+      setLoginError(err.message || 'Invalid credentials. Please check or register.');
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -201,31 +233,89 @@ export function LoginGateModal({
           <span>Anonymous pseudonyms · Private & peer-moderated</span>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons or Inline Sign-In Form */}
         <div className="vz-login-gate__actions">
-          {/* Primary Action: Continue with Google */}
-          <button
-            type="button"
-            id="login-gate-google-btn"
-            className="vz-login-gate-btn vz-login-gate-btn--google"
-            onClick={handleGoogleClick}
-          >
-            <GoogleIcon />
-            <span>Continue with Google</span>
-          </button>
+          {showEmailForm ? (
+            <form onSubmit={handleInlineSubmit} className="vz-login-gate__inline-form">
+              {loginError && (
+                <div className="vz-login-gate__error" role="alert" style={{ color: '#dc2626', fontSize: '0.85rem', marginBottom: '8px', padding: '6px 10px', background: '#fef2f2', borderRadius: '6px' }}>
+                  ⚠️ {loginError}
+                </div>
+              )}
+              <div style={{ marginBottom: '10px' }}>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required
+                  autoFocus
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+              <div style={{ marginBottom: '14px' }}>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="vz-login-gate-btn vz-login-gate-btn--primary"
+                disabled={loginLoading}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', backgroundColor: 'var(--vz-primary)', color: '#fff', fontWeight: 600, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                {loginLoading ? 'Signing in...' : 'Sign In to Sanctuary'}
+                {!loginLoading && <ArrowRight size={16} />}
+              </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', fontSize: '0.82rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailForm(false)}
+                  style={{ background: 'none', border: 'none', color: 'var(--vz-text-muted)', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  ← Back to options
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { onClose(); navigate('/register?action=register'); }}
+                  style={{ background: 'none', border: 'none', color: 'var(--vz-primary)', fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Create new account →
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              {/* Primary Action: Continue with Google */}
+              <button
+                type="button"
+                id="login-gate-google-btn"
+                className="vz-login-gate-btn vz-login-gate-btn--google"
+                onClick={handleGoogleClick}
+              >
+                <GoogleIcon />
+                <span>Continue with Google</span>
+              </button>
 
-          {/* Secondary Action: Log in with Email */}
-          <button
-            type="button"
-            id="login-gate-email-btn"
-            className="vz-login-gate-btn vz-login-gate-btn--email"
-            onClick={handleEmailClick}
-          >
-            <Mail size={18} />
-            <span>Log in with Email</span>
-          </button>
+              {/* Secondary Action: Log in with Email */}
+              <button
+                type="button"
+                id="login-gate-email-btn"
+                className="vz-login-gate-btn vz-login-gate-btn--email"
+                onClick={handleEmailClick}
+              >
+                <Mail size={18} />
+                <span>Log in with Email</span>
+              </button>
+            </>
+          )}
 
-          {/* UI-Only Notice (non-intrusive feedback) */}
+          {/* UI Notice / Message */}
           {placeholderNotice && (
             <div className="vz-login-gate__notice" role="status" aria-live="polite">
               <span>ℹ️ {placeholderNotice}</span>

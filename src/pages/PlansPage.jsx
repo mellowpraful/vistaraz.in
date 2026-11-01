@@ -68,7 +68,7 @@ const PLANS_DATA = [
 
 export default function PlansPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, updateUser } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [paymentTab, setPaymentTab] = useState('card'); // 'card', 'upi', 'netbanking'
   const [isProcessing, setIsProcessing] = useState(false);
@@ -97,6 +97,9 @@ export default function PlansPage() {
     setTimeout(() => {
       setIsProcessing(false);
       setPaymentSuccess(true);
+      if (selectedPlan?.name) {
+        updateUser({ plan: selectedPlan.name });
+      }
     }, 1200);
   };
 

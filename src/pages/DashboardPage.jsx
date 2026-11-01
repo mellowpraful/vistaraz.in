@@ -19,15 +19,20 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showWearableBanner, setShowWearableBanner] = useState(true);
-  const [userName, setUserName] = useState('Friend');
-  const [userPlan, setUserPlan] = useState('Silver');
 
-  const handleSignOut = () => {
+  const userName = user?.nickname || user?.name || 'Friend';
+  const userPlan = user?.plan || 'Silver';
+  const userAvatar = user?.avatar || '🦊';
+
+  const handleSignOut = async () => {
+    await signOut();
     navigate('/');
   };
 
@@ -37,7 +42,7 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="vz-dashboard-header">
           <div className="vz-dashboard-header__user">
-            <div className="vz-dashboard-avatar">🦊</div>
+            <div className="vz-dashboard-avatar">{userAvatar}</div>
             <div>
               <h1 className="vz-dashboard-title">
                 Welcome back, <em className="vz-text-violet">{userName}</em>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import ProtectedRoute from '../components/common/ProtectedRoute';
 
 // Developer 1 Pages (1 to 8)
 import HomePage from '../pages/HomePage';
@@ -23,32 +24,66 @@ import NotFoundPage from '../pages/NotFoundPage';
 
 /**
  * Vistaraz Application Routes
- * Maps all 16 original HTML pages to their corresponding React components.
- * 
- * Developer 1: Pages 1-8 (/ , /assessment, /support, /chat, /tools, /community, /dashboard, /plans)
- * Developer 2: Pages 9-16 (/register, /client-panel, /listener-portal, /video-call, /safety, /rules, /error-500, *)
+ * Maps all pages with proper authentication guards and role protection.
  */
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* --- Developer 1 Routes (Pages 1 to 8) --- */}
+      {/* --- Public Exploratory Routes --- */}
       <Route path="/" element={<HomePage />} />
       <Route path="/assessment" element={<AssessmentPage />} />
       <Route path="/support" element={<SupportPage />} />
-      <Route path="/chat" element={<ChatPage />} />
       <Route path="/tools" element={<ToolsPage />} />
       <Route path="/community" element={<CommunityPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/plans" element={<PlansPage />} />
-
-      {/* --- Developer 2 Routes (Pages 9 to 16) --- */}
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/client-panel" element={<ClientPanelPage />} />
-      <Route path="/listener-portal" element={<ListenerPortalPage />} />
-      <Route path="/video-call" element={<VideoCallPage />} />
       <Route path="/safety" element={<SafetyPage />} />
       <Route path="/rules" element={<RulesPage />} />
       <Route path="/error-500" element={<ServerErrorPage />} />
+
+      {/* --- Protected User / Seeker Routes --- */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/client-panel"
+        element={
+          <ProtectedRoute>
+            <ClientPanelPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/video-call"
+        element={
+          <ProtectedRoute>
+            <VideoCallPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* --- Protected Provider / Listener Routes --- */}
+      <Route
+        path="/listener-portal"
+        element={
+          <ProtectedRoute requiredRole="provider">
+            <ListenerPortalPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* --- Fallback 404 Route --- */}
       <Route path="*" element={<NotFoundPage />} />

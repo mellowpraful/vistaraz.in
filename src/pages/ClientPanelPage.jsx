@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import {
   Heart, Video, MessageSquare, BarChart2, Shield, Settings,
   LogOut, HeartPulse, Sparkles, ChevronRight, RefreshCw,
-  ShieldAlert, BookOpen, Mic
+  ShieldAlert, BookOpen, Mic, CheckCircle2
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import './ClientPanelPage.css';
 
 /**
@@ -52,11 +54,52 @@ const CARE_TOOLS = [
 const NAV_VIEWS = ['Home', 'Sessions', 'Check-in', 'Community', 'Tools', 'Profile'];
 
 export default function ClientPanelPage() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState('Home');
   const [selectedMood, setSelectedMood] = useState(null);
   const [panicModalOpen, setPanicModalOpen] = useState(false);
   const [anonymousMode, setAnonymousMode] = useState(true);
   const [notes, setNotes] = useState('');
+  const [appointments, setAppointments] = useState([]);
+  const [assessments, setAssessments] = useState([]);
+  const [moodSavedNotice, setMoodSavedNotice] = useState(false);
+
+  useEffect(() => {
+    async function loadPanelData() {
+      try {
+        const [appRes, assRes] = await Promise.allSettled([
+          api.getAppointments(),
+          api.getAssessments()
+        ]);
+        if (appRes.status === 'fulfilled' && appRes.value?.appointments) {
+          setAppointments(appRes.value.appointments);
+        }
+        if (assRes.status === 'fulfilled' && assRes.value?.assessments) {
+          setAssessments(assRes.value.assessments);
+        }
+      } catch (err) {
+        console.warn('Panel load notice:', err);
+      }
+    }
+    loadPanelData();
+  }, []);
+
+  const handleMoodSelect = async (moodKey) => {
+    setSelectedMood(moodKey);
+    try {
+      await api.logMood({ mood: moodKey, note: 'Logged from Care Panel' });
+      setMoodSavedNotice(true);
+      setTimeout(() => setMoodSavedNotice(false), 3000);
+    } catch (err) {
+      console.warn('Mood save notice:', err);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   // Panic exit handler
   function handlePanicExit() {
@@ -136,7 +179,7 @@ export default function ClientPanelPage() {
             <div className="cp-welcome-banner">
               <div className="cp-welcome-text">
                 <span className="cp-eyebrow">YOUR PRIVATE CARE SPACE</span>
-                <h1 className="cp-welcome-title">Welcome back, <em>Friend</em> 👋</h1>
+                <h1 className="cp-welcome-title">Welcome back, <em>{user?.nickname || user?.name || 'Friend'}</em> 👋</h1>
                 <p className="cp-welcome-desc">
                   You don't have to carry everything alone. Connect with a listener, run a
                   check-in, or explore your care tools at your own pace.
@@ -159,10 +202,10 @@ export default function ClientPanelPage() {
             {/* Stats Row */}
             <div className="cp-stats-row">
               {[
-                { label: 'Sessions', value: '4', sub: 'Total this month', icon: '📹' },
-                { label: 'Check-ins', value: '7', sub: 'Reflections logged', icon: '✅' },
-                { label: 'Wellbeing', value: '68%', sub: 'Support Index', icon: '📊' },
-                { label: 'Plan', value: 'Free', sub: 'Active Member', icon: '🛡️' },
+                { label: 'Sessions', value: String(appointments.length || '0'), sub: 'Booked / Completed', icon: '📹' },
+                { label: 'Check-ins', value: String(assessments.length || '0'), sub: 'Reflections logged', icon: '✅' },
+                { label: 'Wellbeing', value: assessments[0] ? `${assessments[0].score * 2}%` : 'Stable', sub: 'Support Index', icon: '📊' },
+                { label: 'Plan', value: user?.plan || 'Free', sub: 'Active Member', icon: '🛡️' },
               ].map((stat) => (
                 <div key={stat.label} className="cp-stat-card">
                   <div className="cp-stat-top">
@@ -193,7 +236,7 @@ export default function ClientPanelPage() {
                       key={m.key}
                       type="button"
                       className={`cp-mood-btn ${selectedMood === m.key ? 'cp-mood-btn--selected' : ''}`}
-                      onClick={() => setSelectedMood(m.key)}
+                      onClick={() => handleMoodSelect(m.key)}
                       aria-pressed={selectedMood === m.key}
                       aria-label={`Mood: ${m.label}`}
                     >
@@ -203,7 +246,14 @@ export default function ClientPanelPage() {
                   ))}
                 </div>
                 {selectedMood && (
-                  <p className="cp-mood-message" role="status">{MOOD_MESSAGES[selectedMood]}</p>
+                  <div style={{ marginTop: '12px' }}>
+                    <p className="cp-mood-message" role="status">{MOOD_MESSAGES[selectedMood]}</p>
+                    {moodSavedNotice && (
+                      <span style={{ fontSize: '0.8rem', color: 'var(--vz-success)', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                        <CheckCircle2 size={13} /> Saved to your private sanctuary health log
+                      </span>
+                    )}
+                  </div>
                 )}
               </Card>
 
@@ -349,10 +399,10 @@ export default function ClientPanelPage() {
             <h2 className="cp-section-title">My Profile & Privacy</h2>
             <Card variant="default" padding="lg" className="cp-profile-card">
               <div className="cp-profile-avatar-row">
-                <div className="cp-profile-avatar">🦊</div>
+                <div className="cp-profile-avatar">{user?.avatar || '🦊'}</div>
                 <div>
-                  <h3 className="cp-profile-name">Friend</h3>
-                  <span className="cp-profile-plan">Free Sanctuary Member</span>
+                  <h3 className="cp-profile-name">{user?.nickname || user?.name || 'Friend'}</h3>
+                  <span className="cp-profile-plan">{user?.plan || 'Free'} Sanctuary Member · {user?.email}</span>
                 </div>
               </div>
 
@@ -377,7 +427,7 @@ export default function ClientPanelPage() {
 
               <div className="cp-profile-actions">
                 <Button to="/plans" variant="outline" size="sm">Upgrade Plan</Button>
-                <Button to="/register?action=login&logout=true" variant="ghost" size="sm" icon={<LogOut size={14} />} iconPosition="left">
+                <Button onClick={handleSignOut} variant="ghost" size="sm" icon={<LogOut size={14} />} iconPosition="left">
                   Sign Out
                 </Button>
               </div>

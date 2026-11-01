@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, Send, Lock, Clock
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import logoImg from '../assets/images/logo.png';
 import './VideoCallPage.css';
 
@@ -25,6 +26,7 @@ const INITIAL_CHAT = [
 
 export default function VideoCallPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const localVideoRef = useRef(null);
   const localStreamRef = useRef(null);
 
@@ -147,7 +149,7 @@ export default function VideoCallPage() {
       localStreamRef.current.getTracks().forEach((t) => t.stop());
     }
     setTimerRunning(false);
-    navigate('/listener-portal');
+    navigate(user?.role === 'provider' ? '/listener-portal' : '/client-panel');
   }
 
   return (
