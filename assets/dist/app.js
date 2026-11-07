@@ -9,9 +9,9 @@
 // ── THEME SWITCHER (Dark Sanctuary as Default) ──────────────
 const VzTheme = (() => {
   const STORAGE_KEY = 'vz-theme';
-  const DARK  = 'dark';
+  const DARK = 'dark';
   const LIGHT = 'light';
-  const ICON_DARK  = '🌙';
+  const ICON_DARK = '🌙';
   const ICON_LIGHT = '☀️';
 
   function getCurrent() {
@@ -243,8 +243,8 @@ VzTheme.init();
 VzA11y.init();
 
 // ── Expose globally IMMEDIATELY ──────────────────────────────
-window.vzToggleTheme = function() { VzTheme.toggle(); };
-window.vzA11yToggleModal = function() { VzA11y.toggle(); };
+window.vzToggleTheme = function () { VzTheme.toggle(); };
+window.vzA11yToggleModal = function () { VzA11y.toggle(); };
 window.vzA11y = VzA11y;
 
 // ── MOBILE DRAWER NAVIGATION CONTROLLER ──────────────────────
@@ -413,7 +413,7 @@ window.vzOpenDrawer = () => VzNav.open();
 window.toggleMobileDrawer = () => VzNav.toggle(); // legacy name compatibility
 
 // Universal Global Sign Out Handler
-window.handleSignOut = async function(redirectTo = 'index.html') {
+window.handleSignOut = async function (redirectTo = 'index.html') {
   if (window.VistarazAuth && typeof window.VistarazAuth.signOut === 'function') {
     await window.VistarazAuth.signOut(redirectTo);
     return;
@@ -429,7 +429,7 @@ window.handleSignOut = async function(redirectTo = 'index.html') {
     }
     keysToRemove.forEach(k => localStorage.removeItem(k));
     sessionStorage.clear();
-  } catch(e) {}
+  } catch (e) { }
   window.location.replace(redirectTo);
 };
 window.vzSignOut = window.handleSignOut;
@@ -508,7 +508,7 @@ const VzErrorBoundary = (() => {
     try {
       localStorage.clear();
       sessionStorage.clear();
-    } catch (e) {}
+    } catch (e) { }
     window.location.reload(true);
   }
 
@@ -724,7 +724,7 @@ const VzRetry = (() => {
     const maxRetries = options.maxRetries || 3;
     const baseDelay = options.baseDelay || 800;
     const factor = options.factor || 2;
-    const onRetry = options.onRetry || (() => {});
+    const onRetry = options.onRetry || (() => { });
 
     let attempt = 0;
     while (attempt < maxRetries) {

@@ -1,6 +1,7 @@
 {
   "name": "vistaraz-site",
   "version": "1.0.0",
+  "type": "module",
   "description": "Vistaraz - Youth Wellbeing Support Platform (React Foundation)",
   "main": "server.js",
   "scripts": {
@@ -9,9 +10,10 @@
     "preview": "vite preview",
     "serve": "node server.js",
     "build:legacy": "node scripts/build-assets.js",
+    "test:auth": "node scripts/verify-auth-flows.mjs",
     "test:cache": "node scripts/test-cache.js",
     "test:error": "node scripts/test-error-handling.js",
-    "test": "npm run test:cache && npm run test:error"
+    "test": "npm run test:auth"
   },
   "keywords": [
     "vistaraz",

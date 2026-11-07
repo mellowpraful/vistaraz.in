@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import { useAuth } from '../context/AuthContext';
 import {
   Heart, Video, MessageSquare, BarChart2, Shield, Settings,
   LogOut, HeartPulse, Sparkles, ChevronRight, RefreshCw,
@@ -52,11 +53,18 @@ const CARE_TOOLS = [
 const NAV_VIEWS = ['Home', 'Sessions', 'Check-in', 'Community', 'Tools', 'Profile'];
 
 export default function ClientPanelPage() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState('Home');
   const [selectedMood, setSelectedMood] = useState(null);
   const [panicModalOpen, setPanicModalOpen] = useState(false);
   const [anonymousMode, setAnonymousMode] = useState(true);
   const [notes, setNotes] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   // Panic exit handler
   function handlePanicExit() {
@@ -377,9 +385,16 @@ export default function ClientPanelPage() {
 
               <div className="cp-profile-actions">
                 <Button to="/plans" variant="outline" size="sm">Upgrade Plan</Button>
-                <Button to="/register?action=login&logout=true" variant="ghost" size="sm" icon={<LogOut size={14} />} iconPosition="left">
-                  Sign Out
-                </Button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="vz-btn vz-btn--ghost vz-btn--sm"
+                  id="client-panel-sign-out-btn"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </Card>
           </div>

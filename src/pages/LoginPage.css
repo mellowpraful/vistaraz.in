@@ -1,0 +1,13 @@
+/* Login Page Styles (Extends RegisterPage.css shared .vz-auth classes) */
+@import './RegisterPage.css';
+
+.vz-auth-forgot-modal {
+  background: var(--vz-bg-subtle);
+  border: 1px solid var(--vz-border-light);
+  border-radius: var(--vz-radius-md);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: var(--vz-text-secondary);
+  margin-top: 10px;
+  animation: fadeIn 0.2s ease-in-out;
+}
