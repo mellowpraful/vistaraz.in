@@ -85,20 +85,6 @@ export default function NotFoundPage() {
         </section>
 
         {/* Navigation Cards */}
-        <div className="nf-cards-grid">
-          {NAV_CARDS.map((card) => (
-            <Link
-              key={card.to}
-              to={card.to}
-              className={`nf-nav-card ${card.urgent ? 'nf-nav-card--urgent' : ''}`}
-              aria-label={`Navigate to ${card.label}`}
-            >
-              <span className="nf-nav-card__icon" aria-hidden="true">{card.icon}</span>
-              <h4 className="nf-nav-card__label">{card.label}</h4>
-              <p className="nf-nav-card__desc">{card.desc}</p>
-            </Link>
-          ))}
-        </div>
       </div>
     </AppLayout>
   );
