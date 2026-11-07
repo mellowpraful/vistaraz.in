@@ -139,7 +139,7 @@ export default function RegisterPage() {
       });
 
       // Role-Based Next Journey Redirect
-      if (newUser.role === 'support_seeker') {
+      if (newUser.role === 'support_seeker' || newUser.role === 'user') {
         navigate('/assessment', { replace: true });
       } else if (newUser.role === 'helper') {
         navigate('/helper-application', { replace: true });

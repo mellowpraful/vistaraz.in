@@ -140,7 +140,14 @@ export default function LoginPage() {
   };
 
   const redirectUserByRole = (user) => {
-    if (user.role === 'support_seeker') {
+    // If the user was trying to access a specific protected page, check if permitted
+    const intendedFrom = location.state?.from?.pathname;
+    if (intendedFrom && intendedFrom !== '/login' && intendedFrom !== '/register') {
+      navigate(intendedFrom, { replace: true });
+      return;
+    }
+
+    if (user.role === 'support_seeker' || user.role === 'user') {
       if (!user.onboardingCompleted) {
         navigate('/assessment', { replace: true });
       } else {

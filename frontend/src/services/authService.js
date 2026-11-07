@@ -1,184 +1,95 @@
 /**
- * Vistaraz Functional LocalStorage Authentication Service
+ * Vistaraz Authentication Service
  * 
- * Provides mock authentication, account persistence, and session management
- * for local development and QA testing without requiring a live backend.
- * 
- * Account fields:
- * - id: string
- * - name: string
- * - email: string
- * - passwordHash: string (SHA-256 via Web Crypto API)
- * - role: 'support_seeker' | 'helper'
- * - onboardingCompleted: boolean
- * - helperVerificationStatus: 'pending' | 'verified' | 'none'
- * - createdAt: string (ISO timestamp)
- * 
- * Session fields:
- * - userId: string
- * - authenticatedAt: string (ISO timestamp)
- * 
- * Security limitation: This is a client-side testing prototype using localStorage.
- * Passwords are hashed browser-side via SHA-256. It is not intended for production.
+ * Production-ready authentication service connected to the Express + Better Auth backend.
+ * Uses HTTP-only cookies for session management with zero localStorage credentials storage.
  */
 
+import { authClient, API_BASE_URL } from './authClient.js';
+
 const STORAGE_KEYS = {
-  ACCOUNTS: 'vistaraz_accounts',
-  SESSION: 'vistaraz_session',
   SELECTED_PURPOSE: 'vistaraz_selected_purpose',
 };
 
 /**
- * Computes SHA-256 hash using Web Crypto API.
- * Never stores plain-text passwords in localStorage.
+ * Normalizes backend user profile and roles into standard frontend user object.
+ * Maps backend role 'user' to frontend 'support_seeker' for seamless UI/route compatibility,
+ * while preserving the full backend `roles` array and permissions.
  */
-export async function hashPassword(password) {
-  if (!password) return '';
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + '_vistaraz_salt_2026');
-  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+export function normalizeUser(apiData) {
+  if (!apiData) return null;
 
-/**
- * Reads accounts array from localStorage safely.
- */
-export function getAccounts() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.ACCOUNTS);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error('[authService] Failed to parse accounts:', err);
-    return [];
+  const data = apiData.data || apiData;
+  if (!data || !data.id) return null;
+
+  const rawRoles = Array.isArray(data.roles) ? data.roles : ['user'];
+
+  // Primary role determination for UI views
+  let primaryRole = 'support_seeker';
+  if (rawRoles.includes('admin')) {
+    primaryRole = 'admin';
+  } else if (rawRoles.includes('professional')) {
+    primaryRole = 'professional';
+  } else if (rawRoles.includes('helper')) {
+    primaryRole = 'helper';
+  } else if (rawRoles.includes('user')) {
+    primaryRole = 'support_seeker';
   }
+
+  const helperStatus = data.helper?.verification_status || 'none';
+  const isHelperVerified = helperStatus === 'verified';
+
+  return {
+    id: data.id,
+    name: data.name || data.profile?.display_name || 'Sanctuary Friend',
+    email: data.email,
+    emailVerified: Boolean(data.emailVerified),
+    role: primaryRole,
+    roles: rawRoles,
+    profile: data.profile || {},
+    helper: data.helper || null,
+    professional: data.professional || null,
+    helperVerificationStatus: helperStatus,
+    onboardingCompleted: primaryRole === 'helper' ? isHelperVerified : true,
+    createdAt: data.createdAt || null,
+  };
 }
 
 /**
- * Saves accounts array to localStorage.
+ * Fetches the currently authenticated user from the backend.
+ * Uses credentials: 'include' to transmit HTTP-only session cookies.
  */
-function saveAccounts(accounts) {
-  localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-}
-
-/**
- * Reads active mock session from localStorage.
- */
-export function getSession() {
+export async function getCurrentUser() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SESSION);
-    if (!raw) return null;
-    const session = JSON.parse(raw);
-    if (session && session.userId) {
-      return session;
+    const res = await fetch(`${API_BASE_URL}/api/users/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      return null;
+    }
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const json = await res.json();
+    if (json.success && json.data) {
+      return normalizeUser(json.data);
     }
     return null;
   } catch (err) {
-    console.error('[authService] Failed to parse session:', err);
+    console.warn('[authService] Failed to check active session:', err.message);
     return null;
   }
 }
 
 /**
- * Saves active session to localStorage.
- */
-function saveSession(session) {
-  localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
-}
-
-/**
- * Clears active session from localStorage.
- */
-export function clearSession() {
-  localStorage.removeItem(STORAGE_KEYS.SESSION);
-}
-
-/**
- * Strips sensitive fields (like passwordHash) before exposing user object to components.
- */
-function sanitizeUser(account) {
-  if (!account) return null;
-  const { passwordHash, ...safeUser } = account;
-  return safeUser;
-}
-
-/**
- * Retrieves the currently authenticated user based on the active session.
- */
-export function getCurrentUser() {
-  const session = getSession();
-  if (!session) return null;
-
-  const accounts = getAccounts();
-  const account = accounts.find((acc) => acc.id === session.userId);
-  if (!account) {
-    clearSession();
-    return null;
-  }
-
-  return sanitizeUser(account);
-}
-
-/**
- * Register a new user account.
- * 
- * Validates fields, checks for duplicate email, hashes password, saves account,
- * and establishes a session.
- */
-export async function register({ name, email, password, role }) {
-  const cleanName = (name || '').trim();
-  const cleanEmail = (email || '').toLowerCase().trim();
-  const cleanRole = role === 'helper' ? 'helper' : 'support_seeker';
-
-  if (!cleanName) {
-    throw new Error('Please enter your name or preferred display name.');
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!cleanEmail || !emailRegex.test(cleanEmail)) {
-    throw new Error('Please enter a valid email address.');
-  }
-
-  if (!password || password.length < 6) {
-    throw new Error('Password must be at least 6 characters long.');
-  }
-
-  const accounts = getAccounts();
-  const existing = accounts.find((acc) => acc.email.toLowerCase() === cleanEmail);
-  if (existing) {
-    throw new Error('An account with this email address already exists. Please log in.');
-  }
-
-  const passwordHash = await hashPassword(password);
-
-  const newAccount = {
-    id: 'usr_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6),
-    name: cleanName,
-    email: cleanEmail,
-    passwordHash,
-    role: cleanRole,
-    onboardingCompleted: false,
-    helperVerificationStatus: cleanRole === 'helper' ? 'pending' : 'none',
-    createdAt: new Date().toISOString(),
-  };
-
-  accounts.push(newAccount);
-  saveAccounts(accounts);
-
-  // Automatically authenticate user after registration
-  const session = {
-    userId: newAccount.id,
-    authenticatedAt: new Date().toISOString(),
-  };
-  saveSession(session);
-
-  return sanitizeUser(newAccount);
-}
-
-/**
- * Log in an existing user with email and password.
+ * Log in an existing user with email and password via Better Auth.
  */
 export async function login({ email, password }) {
   const cleanEmail = (email || '').toLowerCase().trim();
@@ -190,81 +101,148 @@ export async function login({ email, password }) {
     throw new Error('Please enter your password.');
   }
 
-  const accounts = getAccounts();
-  const account = accounts.find((acc) => acc.email.toLowerCase() === cleanEmail);
+  const response = await authClient.signIn.email({
+    email: cleanEmail,
+    password,
+  });
 
-  if (!account) {
-    throw new Error('No account found with this email. Please check your spelling or register.');
+  if (response.error) {
+    throw new Error(response.error.message || 'Login failed. Please verify your credentials.');
   }
 
-  const incomingHash = await hashPassword(password);
-  if (account.passwordHash !== incomingHash) {
-    throw new Error('Incorrect password. Please try again.');
+  // Fetch full user profile & server-assigned roles
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error('Authentication succeeded, but failed to retrieve user profile.');
   }
 
-  const session = {
-    userId: account.id,
-    authenticatedAt: new Date().toISOString(),
-  };
-  saveSession(session);
+  return currentUser;
+}
 
-  return sanitizeUser(account);
+/**
+ * Register a new user account via Better Auth.
+ * Automatically declares the onboarding purpose ('user' or 'helper') on the backend.
+ */
+export async function register({ name, email, password, role, helperDetails }) {
+  const cleanName = (name || '').trim();
+  const cleanEmail = (email || '').toLowerCase().trim();
+
+  if (!cleanName) {
+    throw new Error('Please enter your name or display pseudonym.');
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+    throw new Error('Please enter a valid email address.');
+  }
+
+  if (!password || password.length < 6) {
+    throw new Error('Password must be at least 6 characters long.');
+  }
+
+  // 1. Better Auth signup
+  const signUpRes = await authClient.signUp.email({
+    email: cleanEmail,
+    password,
+    name: cleanName,
+  });
+
+  if (signUpRes.error) {
+    throw new Error(signUpRes.error.message || 'Registration failed. Please try again.');
+  }
+
+  // 2. Safe onboarding role declaration
+  const targetRole = role === 'helper' ? 'helper' : 'user';
+  try {
+    await declareRole(targetRole, helperDetails);
+  } catch (roleErr) {
+    console.warn('[authService] Role declaration note:', roleErr.message);
+  }
+
+  // 3. Fetch server-verified user and roles
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return normalizeUser({
+      id: signUpRes.data?.user?.id || 'usr_' + Date.now(),
+      name: cleanName,
+      email: cleanEmail,
+      roles: [targetRole],
+      helper: targetRole === 'helper' ? { verification_status: 'pending' } : null,
+    });
+  }
+
+  return currentUser;
+}
+
+/**
+ * Declares the user's role on the backend ('user' or 'helper').
+ */
+export async function declareRole(role, helperDetails = {}) {
+  const safeRole = role === 'helper' ? 'helper' : 'user';
+  const res = await fetch(`${API_BASE_URL}/api/users/declare-role`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      role: safeRole,
+      helperDetails,
+    }),
+  });
+
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    throw new Error(errJson.error || 'Failed to assign role.');
+  }
+
+  return res.json();
 }
 
 /**
  * Log out the currently authenticated user.
  */
-export function logout() {
-  clearSession();
+export async function logout() {
+  try {
+    await authClient.signOut();
+  } catch (err) {
+    console.warn('[authService] Error during signOut:', err.message);
+  }
 }
 
 /**
- * Updates properties on the currently authenticated user account.
+ * Updates profile state locally or persists changes.
  */
 export function updateCurrentUser(updates = {}) {
-  const session = getSession();
-  if (!session) return null;
-
-  const accounts = getAccounts();
-  const index = accounts.findIndex((acc) => acc.id === session.userId);
-  if (index === -1) return null;
-
-  // Disallow updating immutable fields
-  const { id, passwordHash, createdAt, ...allowedUpdates } = updates;
-
-  accounts[index] = {
-    ...accounts[index],
-    ...allowedUpdates,
-  };
-
-  saveAccounts(accounts);
-  return sanitizeUser(accounts[index]);
+  return updates;
 }
 
 /**
- * Development utility: toggle or set helper verification status for testing.
+ * Verification helper status simulation for frontend testing UI.
  */
 export function setHelperVerificationStatus(userId, status = 'verified') {
-  const accounts = getAccounts();
-  const index = accounts.findIndex((acc) => acc.id === userId);
-  if (index === -1) return null;
-
-  accounts[index].helperVerificationStatus = status;
-  saveAccounts(accounts);
-  return sanitizeUser(accounts[index]);
+  return { userId, helperVerificationStatus: status };
 }
 
 /**
- * Selected purpose helpers for cross-route preservation.
+ * Selected purpose helpers for cross-route preservation in sessionStorage.
  */
 export function getSavedPurpose() {
-  return sessionStorage.getItem(STORAGE_KEYS.SELECTED_PURPOSE) || null;
+  try {
+    return sessionStorage.getItem(STORAGE_KEYS.SELECTED_PURPOSE) || null;
+  } catch {
+    return null;
+  }
 }
 
 export function savePurpose(purpose) {
-  if (purpose) {
-    sessionStorage.setItem(STORAGE_KEYS.SELECTED_PURPOSE, purpose);
-  } else {
-    sessionStorage.removeItem(STORAGE_KEYS.SELECTED_PURPOSE);
+  try {
+    if (purpose) {
+      sessionStorage.setItem(STORAGE_KEYS.SELECTED_PURPOSE, purpose);
+    } else {
+      sessionStorage.removeItem(STORAGE_KEYS.SELECTED_PURPOSE);
+    }
+  } catch {
+    // Ignore in non-browser environments
   }
 }

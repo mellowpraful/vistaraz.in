@@ -5,10 +5,12 @@ import { useAuth } from '../../context/AuthContext';
 /**
  * ProtectedRoute Component
  * 
- * Enforces authentication and role-based access control.
+ * Enforces server-verified authentication and role-based access control.
+ * Supports both canonical server roles ('user', 'helper', 'professional', 'admin')
+ * and frontend role alias ('support_seeker').
  * 
  * @param {React.ReactNode} children - Target component
- * @param {Array<string>} [allowedRoles] - Roles permitted ('support_seeker', 'helper')
+ * @param {Array<string>} [allowedRoles] - Roles permitted ('support_seeker', 'user', 'helper', etc.)
  * @param {boolean} [requireVerifiedHelper] - If true, requires helperVerificationStatus === 'verified'
  */
 export default function ProtectedRoute({
@@ -16,36 +18,40 @@ export default function ProtectedRoute({
   allowedRoles,
   requireVerifiedHelper = false,
 }) {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, roles = [] } = useAuth();
   const location = useLocation();
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-        fontFamily: 'var(--vz-font-sans)',
-        color: 'var(--vz-text-muted)'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          fontFamily: 'var(--vz-font-sans)',
+          color: 'var(--vz-text-muted)',
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            border: '3px solid var(--vz-border-light)',
-            borderTopColor: 'var(--vz-primary)',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-            margin: '0 auto 16px'
-          }} />
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              border: '3px solid var(--vz-border-light)',
+              borderTopColor: 'var(--vz-primary)',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+              margin: '0 auto 16px',
+            }}
+          />
           <p>Verifying sanctuary session...</p>
         </div>
       </div>
     );
   }
 
-  // Not logged in -> redirect to login
+  // Not logged in -> redirect to login with original intended destination preserved
   if (!isAuthenticated || !user) {
     return (
       <Navigate
@@ -59,42 +65,72 @@ export default function ProtectedRoute({
     );
   }
 
-  // Check role authorization
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // If a support seeker tries to access helper routes:
-    if (user.role === 'support_seeker') {
+  // Check role authorization if role restrictions are defined
+  if (allowedRoles && allowedRoles.length > 0) {
+    const userRole = user.role;
+    const userRoles = Array.isArray(user.roles) ? user.roles : [userRole];
+
+    const hasAllowedRole = allowedRoles.some((allowed) => {
+      // Alias matching for support seekers: 'user' <=> 'support_seeker'
+      if (allowed === 'support_seeker' || allowed === 'user') {
+        return (
+          userRole === 'support_seeker' ||
+          userRole === 'user' ||
+          userRoles.includes('user') ||
+          userRoles.includes('support_seeker')
+        );
+      }
+      return userRole === allowed || userRoles.includes(allowed);
+    });
+
+    if (!hasAllowedRole) {
+      // If a support seeker attempts to access helper routes:
+      if (userRole === 'support_seeker' || userRole === 'user') {
+        return (
+          <Navigate
+            to="/client-panel"
+            replace
+            state={{
+              warningMessage: 'Access restricted: This area is reserved for Vistaraz Helpers.',
+            }}
+          />
+        );
+      }
+
+      // If a helper attempts to access support seeker routes:
+      if (userRole === 'helper') {
+        const destination =
+          user.helperVerificationStatus === 'verified'
+            ? '/listener-portal'
+            : '/helper-application';
+        return (
+          <Navigate
+            to={destination}
+            replace
+            state={{
+              warningMessage: 'Access restricted: Client Panel is reserved for Support Seekers.',
+            }}
+          />
+        );
+      }
+
+      // Fallback redirect for other unallowed roles
       return (
         <Navigate
-          to="/client-panel"
+          to="/dashboard"
           replace
           state={{
-            warningMessage: 'Access restricted: This area is reserved for Vistaraz Helpers.',
-          }}
-        />
-      );
-    }
-    // If a helper tries to access support seeker routes:
-    if (user.role === 'helper') {
-      const destination =
-        user.helperVerificationStatus === 'verified'
-          ? '/listener-portal'
-          : '/helper-application';
-      return (
-        <Navigate
-          to={destination}
-          replace
-          state={{
-            warningMessage: 'Access restricted: Client Panel is reserved for Support Seekers.',
+            warningMessage: 'Access restricted: You do not have permission for this section.',
           }}
         />
       );
     }
   }
 
-  // Helper verification guard
+  // Helper verification guard: block unverified helpers from live listener portal
   if (
     requireVerifiedHelper &&
-    user.role === 'helper' &&
+    (user.role === 'helper' || user.roles?.includes('helper')) &&
     user.helperVerificationStatus !== 'verified'
   ) {
     return (

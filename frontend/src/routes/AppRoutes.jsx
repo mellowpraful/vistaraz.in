@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 // Core Authentication & Onboarding Pages
 import PurposeSelectionPage from '../pages/PurposeSelectionPage';
@@ -33,7 +33,7 @@ import NotFoundPage from '../pages/NotFoundPage';
  * Enforces the finalized user onboarding flow:
  * Homepage -> Get Started -> Purpose Selection -> Login/Register -> Relevant User Journey
  * 
- * Includes role-based protected routes for support_seeker and helper.
+ * Includes server-backed role-based protected routes for support seekers and helpers.
  */
 export default function AppRoutes() {
   return (
@@ -63,7 +63,7 @@ export default function AppRoutes() {
       <Route
         path="/client-panel"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker']}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
             <ClientPanelPage />
           </ProtectedRoute>
         }
@@ -71,7 +71,7 @@ export default function AppRoutes() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker']}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
             <DashboardPage />
           </ProtectedRoute>
         }
