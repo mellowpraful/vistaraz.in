@@ -1,6 +1,7 @@
-.env
-.env*.local
 node_modules/
-/dist/
-.vscode/
-!assets/dist/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db

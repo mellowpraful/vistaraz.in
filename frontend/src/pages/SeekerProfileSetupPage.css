@@ -1,0 +1,377 @@
+/* ══════════════════════════════════════════════════════════════════
+   SEEKER PROFILE SETUP PAGE (First-Time Onboarding Flow)
+   Calm, youth-friendly, accessible, and responsive styling.
+   ══════════════════════════════════════════════════════════════════ */
+
+.vz-setup-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--vz-bg-canvas, #faf8f5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--vz-space-8) var(--vz-space-4) var(--vz-space-16);
+  box-sizing: border-box;
+}
+
+.vz-setup-container {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vz-space-6);
+  flex: 1;
+}
+
+/* Header */
+.vz-setup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--vz-space-2);
+}
+
+.vz-setup-brand img {
+  display: block;
+}
+
+.vz-setup-signout-btn {
+  background: transparent;
+  border: 1px solid var(--vz-border-light, #e2e8f0);
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full, 9999px);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--vz-text-muted, #64748b);
+  cursor: pointer;
+  transition: all var(--vz-transition-fast, 150ms ease);
+}
+
+.vz-setup-signout-btn:hover {
+  background: var(--vz-bg-subtle, #f1f5f9);
+  color: var(--vz-text-primary, #0f172a);
+}
+
+/* Main Setup Card */
+.vz-setup-card {
+  background: var(--vz-bg-surface, #ffffff);
+  border: 1.5px solid var(--vz-border-light, #e2e8f0);
+  border-radius: var(--vz-radius-2xl, 24px);
+  padding: var(--vz-space-8) var(--vz-space-8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.vz-setup-card-intro {
+  margin-bottom: var(--vz-space-6);
+}
+
+.vz-setup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--vz-primary-light, #eef2ff);
+  color: var(--vz-primary, #4f46e5);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--vz-radius-full, 9999px);
+  margin-bottom: var(--vz-space-3);
+}
+
+.vz-setup-badge-icon {
+  color: var(--vz-primary, #4f46e5);
+}
+
+.vz-setup-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--vz-text-primary, #0f172a);
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--vz-space-2);
+}
+
+.vz-setup-description {
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary, #475569);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Form & Fields */
+.vz-setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vz-space-6);
+}
+
+.vz-setup-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vz-space-2);
+}
+
+.vz-setup-label-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vz-setup-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--vz-text-primary, #0f172a);
+}
+
+.vz-setup-required {
+  color: #e11d48;
+}
+
+.vz-setup-avatar-counter {
+  font-size: 0.82rem;
+  color: var(--vz-text-secondary, #475569);
+}
+
+.vz-setup-avatar-counter strong {
+  color: var(--vz-primary, #4f46e5);
+}
+
+.vz-setup-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--vz-space-4);
+  border: 1.5px solid var(--vz-border-light, #e2e8f0);
+  border-radius: var(--vz-radius-lg, 12px);
+  font-size: 0.95rem;
+  color: var(--vz-text-primary, #0f172a);
+  background: var(--vz-bg-surface, #ffffff);
+  outline: none;
+  transition: all var(--vz-transition-fast, 150ms ease);
+  box-sizing: border-box;
+}
+
+.vz-setup-input:focus {
+  border-color: var(--vz-primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.vz-setup-input--error {
+  border-color: #f43f5e;
+}
+
+.vz-setup-field-error {
+  font-size: 0.82rem;
+  color: #e11d48;
+  font-weight: 500;
+}
+
+.vz-setup-field-hint {
+  font-size: 0.8rem;
+  color: var(--vz-text-muted, #64748b);
+  line-height: 1.4;
+}
+
+/* 12 Illustrated Avatar Grid */
+.vz-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--vz-space-3);
+  margin-top: var(--vz-space-1);
+}
+
+.vz-avatar-tile {
+  background: #f8fafc;
+  border: 2px solid var(--vz-border-light, #e2e8f0);
+  border-radius: var(--vz-radius-xl, 16px);
+  padding: var(--vz-space-3) var(--vz-space-2);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  outline: none;
+  position: relative;
+  user-select: none;
+}
+
+.vz-avatar-tile:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.vz-avatar-tile--selected {
+  background: #ffffff;
+  border-color: var(--vz-primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 6px 16px rgba(99, 102, 241, 0.12);
+  transform: translateY(-2px);
+}
+
+.vz-avatar-tile-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.vz-avatar-tile-name {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--vz-text-primary, #0f172a);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.vz-avatar-tile--selected .vz-avatar-tile-name {
+  color: var(--vz-primary, #4f46e5);
+}
+
+.vz-avatar-tile-check {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  background: var(--vz-primary, #4f46e5);
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Privacy Assurance Box */
+.vz-setup-privacy-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vz-space-3);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--vz-radius-lg, 12px);
+  padding: var(--vz-space-4);
+}
+
+.vz-setup-shield-icon {
+  color: #059669;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.vz-setup-privacy-box strong {
+  display: block;
+  font-size: 0.86rem;
+  color: #065f46;
+  margin-bottom: 2px;
+}
+
+.vz-setup-privacy-box p {
+  font-size: 0.8rem;
+  color: #047857;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Submit CTA */
+.vz-setup-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vz-space-2);
+  width: 100%;
+  height: 48px;
+  background: var(--vz-primary, #4f46e5);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--vz-radius-lg, 12px);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  transition: all var(--vz-transition-fast, 150ms ease);
+}
+
+.vz-setup-submit-btn:hover:not(:disabled) {
+  background: #4338ca;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+  transform: translateY(-1px);
+}
+
+.vz-setup-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vz-setup-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: vzSpin 0.7s linear infinite;
+}
+
+@keyframes vzSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status Banners */
+.vz-setup-banner-error {
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-3);
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  padding: var(--vz-space-3) var(--vz-space-4);
+  border-radius: var(--vz-radius-md, 8px);
+  font-size: 0.88rem;
+  margin-bottom: var(--vz-space-4);
+}
+
+.vz-setup-banner-success {
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-3);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  padding: var(--vz-space-3) var(--vz-space-4);
+  border-radius: var(--vz-radius-md, 8px);
+  font-size: 0.88rem;
+  margin-bottom: var(--vz-space-4);
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vz-avatar-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .vz-setup-card {
+    padding: var(--vz-space-6) var(--vz-space-5);
+  }
+  .vz-setup-title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vz-avatar-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--vz-space-2);
+  }
+  .vz-setup-card {
+    padding: var(--vz-space-5) var(--vz-space-4);
+  }
+  .vz-setup-title {
+    font-size: 1.3rem;
+  }
+}
+

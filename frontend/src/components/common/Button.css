@@ -1,0 +1,129 @@
+.vz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vz-space-2);
+  font-family: var(--vz-font-sans);
+  font-weight: 600;
+  border-radius: var(--vz-radius-full);
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all var(--vz-transition-base);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+/* --- Sizes --- */
+.vz-btn--sm {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.vz-btn--md {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+}
+
+.vz-btn--lg {
+  padding: 14px 28px;
+  font-size: 1.05rem;
+}
+
+/* --- Variants --- */
+/* Primary: Dark charcoal pill (Brand hero button) */
+.vz-btn--primary {
+  background-color: var(--vz-dark-pill);
+  color: var(--vz-text-inverse);
+  box-shadow: var(--vz-shadow-sm);
+}
+
+.vz-btn--primary:hover:not(:disabled) {
+  background-color: var(--vz-dark-pill-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--vz-shadow-md);
+}
+
+/* Accent: Violet / Indigo button */
+.vz-btn--accent {
+  background: var(--vz-primary);
+  color: var(--vz-text-inverse);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+}
+
+.vz-btn--accent:hover:not(:disabled) {
+  background-color: var(--vz-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+}
+
+/* Secondary: Subtle warm neutral */
+.vz-btn--secondary {
+  background-color: var(--vz-bg-subtle);
+  color: var(--vz-text-primary);
+  border-color: var(--vz-border-light);
+}
+
+.vz-btn--secondary:hover:not(:disabled) {
+  background-color: var(--vz-bg-muted);
+  border-color: var(--vz-border-subtle);
+}
+
+/* Outline: Clean bordered button */
+.vz-btn--outline {
+  background-color: transparent;
+  color: var(--vz-text-primary);
+  border: 1.5px solid var(--vz-border-subtle);
+}
+
+.vz-btn--outline:hover:not(:disabled) {
+  background-color: var(--vz-bg-surface);
+  border-color: var(--vz-text-primary);
+}
+
+/* Ghost: Minimal text button */
+.vz-btn--ghost {
+  background-color: transparent;
+  color: var(--vz-text-secondary);
+}
+
+.vz-btn--ghost:hover:not(:disabled) {
+  background-color: var(--vz-bg-subtle);
+  color: var(--vz-text-primary);
+}
+
+/* Soft: Light violet tint */
+.vz-btn--soft {
+  background-color: var(--vz-primary-light);
+  color: var(--vz-primary);
+}
+
+.vz-btn--soft:hover:not(:disabled) {
+  background-color: #e0e7ff;
+}
+
+/* Full Width */
+.vz-btn--full {
+  width: 100%;
+}
+
+/* Disabled */
+.vz-btn--disabled,
+.vz-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.vz-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+}
+
+.vz-btn__icon--right {
+  margin-left: 2px;
+}

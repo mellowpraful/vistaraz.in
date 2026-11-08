@@ -1,0 +1,429 @@
+/**
+ * VideoCallPage.css
+ * Clean, professional video waiting-room experience inspired by Google Meet & Microsoft Teams.
+ */
+
+.vz-video-shell {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--vz-font-sans, system-ui, sans-serif);
+}
+
+/* ── Top Header ── */
+.vz-video-header {
+  padding: 16px 28px;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.vz-video-header__left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.vz-video-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.vz-video-room-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.vz-video-room-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #818cf8;
+}
+
+.vz-video-room-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.vz-video-header__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vz-video-enc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #34d399;
+  background-color: rgba(5, 150, 105, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 5px 12px;
+  border-radius: 9999px;
+}
+
+.vz-video-exit-btn {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vz-video-exit-btn:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+/* ── Workspace ── */
+.vz-video-workspace {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vz-video-stage-card {
+  width: 100%;
+  max-width: 1100px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Viewport ── */
+.vz-video-viewport {
+  position: relative;
+  min-height: 520px;
+  background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.vz-video-staging-content {
+  max-width: 600px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.vz-video-avatar-pulse-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vz-pulse-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  animation: vz-ring-ping 2.4s infinite cubic-bezier(0, 0, 0.2, 1);
+}
+
+.vz-pulse-ring--2 {
+  inset: -24px;
+  animation-delay: 0.8s;
+}
+
+@keyframes vz-ring-ping {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.vz-video-camera-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #312e81;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.vz-video-staging-title {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.vz-video-staging-subtitle {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.vz-video-safety-box {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+.vz-video-safety-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.86rem;
+  color: #cbd5e1;
+}
+
+.vz-video-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── PIP Self Staging ── */
+.vz-video-self-pip {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 180px;
+  height: 120px;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.vz-pip-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.vz-pip-icon {
+  font-size: 1.4rem;
+}
+
+.vz-pip-name {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.vz-pip-sub {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+/* ── Bottom Controls Toolbar ── */
+.vz-video-toolbar {
+  padding: 16px 24px;
+  background-color: #0f172a;
+  border-top: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.vz-video-toolbar__left {
+  display: flex;
+  align-items: center;
+}
+
+.vz-toolbar-room-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.vz-video-toolbar__center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vz-ctrl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  background-color: #334155;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vz-ctrl-pill:hover {
+  background-color: #475569;
+}
+
+.vz-ctrl-pill.muted {
+  background-color: #ef4444;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.vz-ctrl-pill.muted:hover {
+  background-color: #dc2626;
+}
+
+.vz-ctrl-pill--end {
+  background-color: #b91c1c;
+  border-color: #991b1b;
+  color: #ffffff;
+}
+
+.vz-ctrl-pill--end:hover {
+  background-color: #991b1b;
+}
+
+.vz-video-toolbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.vz-toolbar-safety-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f87171;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  transition: background-color 0.15s ease;
+}
+
+.vz-toolbar-safety-btn:hover {
+  background-color: rgba(248, 113, 113, 0.15);
+}
+
+/* ── Exit Modal ── */
+.vz-end-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.vz-end-modal {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 18px;
+  max-width: 440px;
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.vz-end-modal-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+}
+
+.vz-end-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+
+.vz-end-modal-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0 0 20px;
+}
+
+.vz-end-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.vz-end-confirm-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--vz-primary, #6366f1);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.vz-end-cancel-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: transparent;
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .vz-video-self-pip {
+    display: none;
+  }
+  .vz-video-toolbar {
+    justify-content: center;
+  }
+  .vz-video-toolbar__left,
+  .vz-video-toolbar__right {
+    display: none;
+  }
+}
