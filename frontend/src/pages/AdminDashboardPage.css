@@ -1,0 +1,1357 @@
+/* ══════════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD PAGE — Vistaraz Admin Portal
+   High-contrast dark executive design. Sidebar + content layout.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --vz-adm-bg:          #0d1117;
+  --vz-adm-surface:     #161b22;
+  --vz-adm-surface-2:   #1c2129;
+  --vz-adm-border:      rgba(255, 255, 255, 0.08);
+  --vz-adm-border-h:    rgba(255, 255, 255, 0.14);
+  --vz-adm-primary:     #6366f1;
+  --vz-adm-primary-h:   #4f46e5;
+  --vz-adm-text:        #e6edf3;
+  --vz-adm-text-muted:  #8b949e;
+  --vz-adm-text-faint:  #484f58;
+  --vz-adm-green:       #3fb950;
+  --vz-adm-yellow:      #d29922;
+  --vz-adm-red:         #f85149;
+  --vz-adm-blue:        #58a6ff;
+  --vz-adm-purple:      #bc8cff;
+  --vz-adm-pink:        #ec4899;
+  --vz-adm-cyan:        #39d0d8;
+  --vz-adm-sidebar-w:   260px;
+  --vz-adm-topbar-h:    60px;
+  --vz-adm-radius:      10px;
+  --vz-adm-radius-sm:   6px;
+  --vz-adm-radius-lg:   14px;
+}
+
+/* ════════════════════════════════════════
+   ROOT LAYOUT
+   ════════════════════════════════════════ */
+.vz-admin-layout {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--vz-adm-bg);
+  color: var(--vz-adm-text);
+  font-family: var(--vz-font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif);
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════
+   SIDEBAR
+   ════════════════════════════════════════ */
+.vz-admin-sidebar {
+  width: var(--vz-adm-sidebar-w);
+  min-width: var(--vz-adm-sidebar-w);
+  height: 100vh;
+  height: 100dvh;
+  background: var(--vz-adm-surface);
+  border-right: 1px solid var(--vz-adm-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.vz-admin-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sidebar Header / Brand */
+.vz-admin-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+.vz-admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--vz-adm-text);
+  transition: opacity 0.15s;
+}
+
+.vz-admin-brand:hover {
+  opacity: 0.85;
+}
+
+.vz-admin-brand-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+.vz-admin-brand-title {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.vz-admin-brand-sub {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--vz-adm-primary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.vz-admin-sidebar-close {
+  background: transparent;
+  border: none;
+  color: var(--vz-adm-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--vz-adm-radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.vz-admin-sidebar-close:hover {
+  color: var(--vz-adm-text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Sidebar Nav */
+.vz-admin-sidebar__nav {
+  flex: 1;
+  padding: 14px 12px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.vz-admin-sidebar__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.vz-admin-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vz-admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: var(--vz-adm-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--vz-adm-text-muted);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.vz-admin-nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--vz-adm-text);
+}
+
+.vz-admin-nav-link--active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.vz-admin-nav-link--active .vz-admin-nav-icon {
+  color: var(--vz-adm-primary);
+}
+
+.vz-admin-nav-icon {
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+/* Sidebar Footer */
+.vz-admin-sidebar__footer {
+  padding: 14px 12px;
+  border-top: 1px solid var(--vz-adm-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vz-admin-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--vz-adm-radius);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--vz-adm-border);
+  overflow: hidden;
+}
+
+.vz-admin-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  background: linear-gradient(135deg, var(--vz-adm-primary), #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.vz-admin-user-info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.vz-admin-user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--vz-adm-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vz-admin-user-role {
+  font-size: 0.72rem;
+  color: var(--vz-adm-primary);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.vz-admin-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  background: transparent;
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: var(--vz-adm-radius);
+  color: #f85149;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.vz-admin-logout-btn:hover {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: rgba(248, 81, 73, 0.6);
+}
+
+/* ════════════════════════════════════════
+   MAIN CONTENT AREA
+   ════════════════════════════════════════ */
+.vz-admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── Top Bar ── */
+.vz-admin-topbar {
+  height: var(--vz-adm-topbar-h);
+  background: var(--vz-adm-surface);
+  border-bottom: 1px solid var(--vz-adm-border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.vz-admin-hamburger {
+  background: transparent;
+  border: none;
+  color: var(--vz-adm-text-muted);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--vz-adm-radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.vz-admin-hamburger:hover {
+  color: var(--vz-adm-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.vz-admin-topbar__title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.vz-admin-topbar__title h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--vz-adm-text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vz-admin-badge-live {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--vz-adm-green);
+  letter-spacing: 0.03em;
+  padding: 2px 10px;
+  background: rgba(63, 185, 80, 0.1);
+  border: 1px solid rgba(63, 185, 80, 0.25);
+  border-radius: 9999px;
+  white-space: nowrap;
+  animation: vzLivePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes vzLivePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
+.vz-admin-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Admin Buttons ── */
+.vz-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--vz-adm-radius);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.vz-admin-btn--primary {
+  background: var(--vz-adm-primary);
+  color: #fff;
+  border-color: var(--vz-adm-primary);
+}
+
+.vz-admin-btn--primary:hover:not(:disabled) {
+  background: var(--vz-adm-primary-h);
+  border-color: var(--vz-adm-primary-h);
+}
+
+.vz-admin-btn--outline {
+  background: transparent;
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.vz-admin-btn--outline:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #818cf8;
+  color: #ffffff;
+}
+
+.vz-admin-btn--sm {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  border-radius: var(--vz-adm-radius-sm);
+}
+
+.vz-admin-btn--ghost {
+  background: transparent;
+  color: var(--vz-adm-text-muted);
+  border-color: var(--vz-adm-border);
+}
+
+.vz-admin-btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--vz-adm-text);
+  border-color: var(--vz-adm-border-h);
+}
+
+.vz-admin-btn--danger {
+  background: rgba(248, 81, 73, 0.12);
+  color: var(--vz-adm-red);
+  border-color: rgba(248, 81, 73, 0.3);
+}
+
+.vz-admin-btn--danger:hover:not(:disabled) {
+  background: rgba(248, 81, 73, 0.2);
+  border-color: rgba(248, 81, 73, 0.6);
+}
+
+.vz-admin-btn--success {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--vz-adm-green);
+  border-color: rgba(63, 185, 80, 0.3);
+}
+
+.vz-admin-btn--success:hover:not(:disabled) {
+  background: rgba(63, 185, 80, 0.2);
+  border-color: rgba(63, 185, 80, 0.6);
+}
+
+.vz-admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vz-spin {
+  animation: vzSpin 0.8s linear infinite;
+}
+
+@keyframes vzSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Alerts / Banners ── */
+.vz-admin-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  border-bottom: 1px solid transparent;
+}
+
+.vz-admin-alert--error {
+  background: rgba(248, 81, 73, 0.1);
+  color: #fca5a5;
+  border-bottom-color: rgba(248, 81, 73, 0.2);
+}
+
+.vz-admin-alert--success {
+  background: rgba(63, 185, 80, 0.1);
+  color: #86efac;
+  border-bottom-color: rgba(63, 185, 80, 0.2);
+}
+
+/* ── Governance & Privacy Notice Boxes ── */
+.vz-admin-notice-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--vz-adm-radius-lg);
+  color: #c7d2fe;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin-bottom: 22px;
+}
+
+.vz-admin-notice-box svg {
+  flex-shrink: 0;
+  color: #818cf8;
+  margin-top: 2px;
+}
+
+/* ── Body Scroll Area ── */
+.vz-admin-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 28px 48px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.vz-admin-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vz-admin-body::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+/* ════════════════════════════════════════
+   MODULE VIEW WRAPPERS
+   ════════════════════════════════════════ */
+.vz-admin-view {
+  max-width: 1200px;
+}
+
+.vz-admin-view--overview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vz-admin-section {
+  margin-bottom: 32px;
+}
+
+.vz-admin-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vz-adm-text);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+/* ── KPI Grid (Overview) ── */
+.vz-admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.vz-admin-kpi-card {
+  background: var(--vz-adm-surface-2);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.vz-admin-kpi-card:hover {
+  border-color: var(--vz-adm-border-h);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.vz-admin-kpi-card--highlight {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.vz-admin-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--vz-adm-text-muted);
+  font-weight: 500;
+}
+
+.vz-admin-kpi-val {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--vz-adm-text);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.vz-admin-kpi-sub {
+  font-size: 0.78rem;
+  color: var(--vz-adm-text-muted);
+}
+
+.vz-admin-kpi-link {
+  font-size: 0.8rem;
+  color: var(--vz-adm-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.vz-admin-kpi-link:hover {
+  color: #a5b4fc;
+}
+
+/* ── Action Cards (Quick Launchpad) ── */
+.vz-admin-action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vz-admin-action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--vz-adm-surface-2);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius-lg);
+  text-decoration: none;
+  color: var(--vz-adm-text);
+  transition: all 0.2s ease;
+}
+
+.vz-admin-action-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.05);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+
+.vz-admin-action-card > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.vz-admin-action-card strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.vz-admin-action-card p {
+  font-size: 0.82rem;
+  color: var(--vz-adm-text-muted);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vz-admin-action-arrow {
+  color: var(--vz-adm-text-faint);
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.vz-admin-action-card:hover .vz-admin-action-arrow {
+  color: var(--vz-adm-primary);
+  transform: translateX(2px);
+}
+
+/* ════════════════════════════════════════
+   TOOLBAR (Search + Filters)
+   ════════════════════════════════════════ */
+.vz-admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.vz-admin-search-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+  max-width: 480px;
+}
+
+.vz-admin-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--vz-adm-text-faint);
+  pointer-events: none;
+}
+
+.vz-admin-search-input {
+  flex: 1;
+  height: 38px;
+  background: var(--vz-adm-surface-2);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius);
+  padding: 0 12px 0 36px;
+  font-size: 0.875rem;
+  color: var(--vz-adm-text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.vz-admin-search-input::placeholder {
+  color: var(--vz-adm-text-faint);
+}
+
+.vz-admin-search-input:focus {
+  border-color: var(--vz-adm-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.vz-admin-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.vz-admin-filter-pill {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--vz-adm-border);
+  background: transparent;
+  color: var(--vz-adm-text-muted);
+  transition: all 0.15s ease;
+}
+
+.vz-admin-filter-pill:hover {
+  border-color: var(--vz-adm-border-h);
+  color: var(--vz-adm-text);
+}
+
+.vz-admin-filter-pill--active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+
+/* ════════════════════════════════════════
+   TABLE
+   ════════════════════════════════════════ */
+.vz-admin-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--vz-adm-radius-lg);
+  border: 1px solid var(--vz-adm-border);
+  background: var(--vz-adm-surface-2);
+}
+
+.vz-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 600px;
+}
+
+.vz-admin-table thead {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+.vz-admin-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vz-adm-text-muted);
+  white-space: nowrap;
+}
+
+.vz-admin-table td {
+  padding: 13px 16px;
+  color: var(--vz-adm-text);
+  border-bottom: 1px solid var(--vz-adm-border);
+  vertical-align: middle;
+}
+
+.vz-admin-table td code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 6px;
+  border-radius: var(--vz-adm-radius-sm);
+  color: #93c5fd;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Pagination bar */
+.vz-admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid var(--vz-adm-border);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.82rem;
+  color: var(--vz-adm-text-muted);
+}
+
+.vz-admin-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vz-admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vz-admin-table tbody tr {
+  transition: background 0.12s;
+}
+
+.vz-admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.vz-admin-empty {
+  text-align: center;
+  color: var(--vz-adm-text-muted);
+  font-size: 0.875rem;
+  padding: 36px 20px !important;
+  font-style: italic;
+}
+
+.vz-admin-avatar-stub {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Table action buttons */
+.vz-admin-table-action-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ════════════════════════════════════════
+   BADGES
+   ════════════════════════════════════════ */
+.vz-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.vz-badge--green {
+  background: rgba(63, 185, 80, 0.12);
+  color: #7ee787;
+  border: 1px solid rgba(63, 185, 80, 0.25);
+}
+
+.vz-badge--yellow {
+  background: rgba(210, 153, 34, 0.12);
+  color: #e3b341;
+  border: 1px solid rgba(210, 153, 34, 0.25);
+}
+
+.vz-badge--red {
+  background: rgba(248, 81, 73, 0.12);
+  color: #ff7b72;
+  border: 1px solid rgba(248, 81, 73, 0.25);
+}
+
+.vz-badge--blue {
+  background: rgba(88, 166, 255, 0.12);
+  color: #79c0ff;
+  border: 1px solid rgba(88, 166, 255, 0.25);
+}
+
+.vz-badge--gray {
+  background: rgba(139, 148, 158, 0.12);
+  color: #8b949e;
+  border: 1px solid rgba(139, 148, 158, 0.2);
+}
+
+.vz-badge--purple {
+  background: rgba(188, 140, 255, 0.12);
+  color: #d2a8ff;
+  border: 1px solid rgba(188, 140, 255, 0.25);
+}
+
+/* Chips (similar to badge but lighter) */
+.vz-chip {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.vz-chip.mint {
+  background: rgba(57, 208, 216, 0.1);
+  color: var(--vz-adm-cyan);
+  border: 1px solid rgba(57, 208, 216, 0.2);
+}
+
+/* ════════════════════════════════════════
+   SUB-TEXT / METADATA
+   ════════════════════════════════════════ */
+.vz-sub-meta {
+  font-size: 0.75rem;
+  color: var(--vz-adm-text-muted);
+  margin-top: 2px;
+}
+
+.vz-muted {
+  color: var(--vz-adm-text-faint);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ════════════════════════════════════════
+   REVIEW DETAIL CARD (Application Detail)
+   ════════════════════════════════════════ */
+.vz-admin-detail-card {
+  background: var(--vz-adm-surface-2);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--vz-adm-radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.vz-admin-detail-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vz-adm-text);
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+.vz-admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.vz-admin-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vz-admin-detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vz-adm-text-muted);
+}
+
+.vz-admin-detail-val {
+  font-size: 0.9rem;
+  color: var(--vz-adm-text);
+  font-weight: 500;
+}
+
+.vz-admin-detail-motivation {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--vz-adm-border);
+}
+
+.vz-admin-detail-motivation p {
+  font-size: 0.875rem;
+  color: var(--vz-adm-text-muted);
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+
+/* ── Review Notes / Textarea ── */
+.vz-admin-review-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--vz-adm-text-muted);
+  margin-bottom: 6px;
+}
+
+.vz-admin-review-textarea {
+  width: 100%;
+  min-height: 90px;
+  background: var(--vz-adm-surface);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius);
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: var(--vz-adm-text);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.vz-admin-review-textarea::placeholder {
+  color: var(--vz-adm-text-faint);
+}
+
+.vz-admin-review-textarea:focus {
+  border-color: var(--vz-adm-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.vz-admin-review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ════════════════════════════════════════
+   MODAL OVERLAY
+   ════════════════════════════════════════ */
+.vz-admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.vz-admin-modal {
+  background: var(--vz-adm-surface);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--vz-adm-radius-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.15);
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.vz-admin-modal::-webkit-scrollbar {
+  width: 4px;
+}
+
+.vz-admin-modal::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.vz-admin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--vz-adm-border);
+  flex-shrink: 0;
+}
+
+.vz-admin-modal-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--vz-adm-text);
+  margin: 0;
+}
+
+.vz-admin-modal-close,
+.vz-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--vz-adm-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--vz-adm-radius-sm);
+  transition: all 0.15s ease;
+}
+
+.vz-admin-modal-close:hover,
+.vz-modal-close:hover {
+  color: var(--vz-adm-text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.vz-admin-modal-body {
+  padding: 20px 22px;
+  flex: 1;
+}
+
+/* Modal Application Review Details */
+.vz-app-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+.vz-app-detail-row strong {
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vz-adm-text-muted);
+}
+
+.vz-app-detail-row span {
+  font-size: 0.92rem;
+  color: var(--vz-adm-text);
+}
+
+.vz-app-intro-box {
+  margin: 6px 0 0 0;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius);
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.vz-app-review-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--vz-adm-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vz-admin-auth-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.vz-admin-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius);
+  color: var(--vz-adm-text);
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.vz-admin-textarea:focus {
+  border-color: var(--vz-adm-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.vz-admin-modal-footer {
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--vz-adm-border);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════
+   SETTINGS / SPEC GRID
+   ════════════════════════════════════════ */
+.vz-admin-view--settings {
+  max-width: 760px;
+}
+
+.vz-admin-settings-card {
+  background: var(--vz-adm-surface-2);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius-lg);
+  padding: 28px;
+}
+
+.vz-admin-settings-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--vz-adm-text);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--vz-adm-border);
+}
+
+.vz-admin-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.vz-spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--vz-adm-surface);
+  border: 1px solid var(--vz-adm-border);
+  border-radius: var(--vz-adm-radius);
+}
+
+.vz-spec-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vz-adm-text-muted);
+}
+
+.vz-spec-val {
+  font-size: 0.9rem;
+  color: var(--vz-adm-text);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* ════════════════════════════════════════
+   LOADING SKELETON / SPINNER
+   ════════════════════════════════════════ */
+.vz-admin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 60px 20px;
+  color: var(--vz-adm-text-muted);
+  font-size: 0.9rem;
+}
+
+.vz-admin-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--vz-adm-primary);
+  border-radius: 50%;
+  animation: vzSpin 0.8s linear infinite;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — Mobile/Tablet
+   ════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  :root {
+    --vz-adm-sidebar-w: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Sidebar becomes off-canvas drawer */
+  .vz-admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .vz-admin-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .vz-admin-hamburger {
+    display: flex;
+  }
+
+  .vz-admin-sidebar-close {
+    display: flex;
+  }
+
+  .vz-show-mobile {
+    display: flex !important;
+  }
+
+  .vz-hide-mobile {
+    display: none !important;
+  }
+
+  .vz-admin-body {
+    padding: 20px 16px 40px;
+  }
+
+  .vz-admin-topbar {
+    padding: 0 16px;
+  }
+
+  .vz-admin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vz-admin-modal {
+    max-height: 92vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .vz-admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vz-admin-filter-group {
+    width: 100%;
+  }
+
+  .vz-admin-search-form {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .vz-admin-review-actions {
+    flex-direction: column;
+  }
+
+  .vz-admin-review-actions .vz-admin-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Overlay backdrop for mobile menu (clicks outside to close) */
+.vz-admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  .vz-admin-sidebar-overlay--visible {
+    display: block;
+  }
+}
+

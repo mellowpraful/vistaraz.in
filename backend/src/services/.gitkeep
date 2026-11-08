@@ -1,0 +1,4 @@
+# Phase 2: NeonDB client and query helpers will be placed here.
+# Example: src/services/db.js  — connection pool
+#          src/services/userService.js — user queries
+

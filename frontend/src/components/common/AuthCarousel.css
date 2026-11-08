@@ -1,0 +1,141 @@
+/* ══════════════════════════════════════════════════════════════════
+   VISTARAZ FULL-BLEED AUTH CAROUSEL (Right 50% Panel)
+   Full viewport height, edge-to-edge full-bleed presentation,
+   horizontal slide transitions (700ms), and subtle bottom dots.
+   ══════════════════════════════════════════════════════════════════ */
+
+.vz-auth-carousel {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+  background: #0d0e17;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* ── HORIZONTAL SLIDE TRACK ── */
+.vz-auth-carousel__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── INDIVIDUAL SLIDE (100% full bleed) ── */
+.vz-auth-carousel__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0f172a;
+}
+
+/* Slide Image */
+.vz-auth-carousel__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+/* ── SUBTLE ATMOSPHERIC OVERLAY ── */
+.vz-auth-carousel__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 14, 23, 0.04) 0%,
+    rgba(13, 14, 23, 0.12) 60%,
+    rgba(13, 14, 23, 0.35) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── SANCTUARY GRADIENT FALLBACK ── */
+.vz-auth-carousel__fallback {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+/* ── SUBTLE BOTTOM PAGINATION INDICATORS (Centered) ── */
+.vz-auth-carousel__indicators {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: rgba(13, 14, 23, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.vz-auth-carousel__indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  outline: none;
+}
+
+.vz-auth-carousel__indicator:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.vz-auth-carousel__indicator--active {
+  width: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.vz-auth-carousel__indicator:focus-visible {
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  .vz-auth-carousel__track {
+    transition: none !important;
+  }
+  .vz-auth-carousel__indicator {
+    transition: none !important;
+  }
+}
+
+/* ── RESPONSIVE ADAPTATIONS ── */
+@media (max-width: 1024px) {
+  .vz-auth-carousel {
+    display: none;
+  }
+}

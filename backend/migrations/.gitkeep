@@ -1,0 +1,4 @@
+# Phase 2: NeonDB migration files will live here.
+# Naming convention: YYYYMMDD_HHMMSS_description.sql
+# Example: 20261107_120000_create_profiles_table.sql
+
