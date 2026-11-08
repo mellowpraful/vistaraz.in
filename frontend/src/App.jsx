@@ -1,5 +1,6 @@
 import React from 'react';
 import AppRoutes from './routes/AppRoutes';
+import ScrollToTop from './components/common/ScrollToTop';
 import { AuthProvider } from './context/AuthContext';
 import './styles/variables.css';
 import './styles/global.css';
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <AuthProvider>
       <div className="vistaraz-app">
+        <ScrollToTop />
         <AppRoutes />
       </div>
     </AuthProvider>

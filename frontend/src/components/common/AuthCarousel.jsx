@@ -1,36 +1,45 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import slide1 from '../../assets/images/auth-carousel/Take a Break, Find Calm.png';
+import slide2 from '../../assets/images/auth-carousel/From Overwhelmed to Supported.png';
+import slide3 from '../../assets/images/auth-carousel/Sunset Pause_ Reflect and Get Support.png';
+import slide4 from '../../assets/images/auth-carousel/Your Wellbeing Journey, Step by Step.png';
 import './AuthCarousel.css';
 
 /**
  * 4 Full-Bleed Carousel Slides
+ * Uses the 4 sanctuary illustration images:
+ * 1. Take a Break, Find Calm.png
+ * 2. From Overwhelmed to Supported.png
+ * 3. Sunset Pause_ Reflect and Get Support.png
+ * 4. Your Wellbeing Journey, Step by Step.png
  */
 const CAROUSEL_SLIDES = [
   {
     id: 1,
-    src: '/assets/images/auth-carousel/slide-1.webp',
-    fallbackSrc: '/images/auth-carousel/slide-1.jpg',
-    alt: 'Tranquil sanctuary space with soft ambient light and lush plants',
+    src: slide1,
+    fallbackSrc: '/images/auth-carousel/Take a Break, Find Calm.png',
+    alt: 'Take a Break, Find Calm — Vistaraz mindful sanctuary',
     fallbackGradient: 'linear-gradient(135deg, #1e1b4b 0%, #2e1065 50%, #0f172a 100%)',
   },
   {
     id: 2,
-    src: '/assets/images/auth-carousel/slide-2.webp',
-    fallbackSrc: '/images/auth-carousel/slide-2.jpg',
-    alt: 'Tranquil misty morning lake symbolizing calm breathing and mindfulness',
+    src: slide2,
+    fallbackSrc: '/images/auth-carousel/From Overwhelmed to Supported.png',
+    alt: 'From Overwhelmed to Supported — empathetic peer support',
     fallbackGradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f172a 100%)',
   },
   {
     id: 3,
-    src: '/assets/images/auth-carousel/slide-3.webp',
-    fallbackSrc: '/images/auth-carousel/slide-3.jpg',
-    alt: 'Compassionate and empathetic peer connection in a sunlit sanctuary',
+    src: slide3,
+    fallbackSrc: '/images/auth-carousel/Sunset Pause_ Reflect and Get Support.png',
+    alt: 'Sunset Pause: Reflect and Get Support — peaceful emotional space',
     fallbackGradient: 'linear-gradient(135deg, #4c1d95 0%, #3b0764 50%, #0f172a 100%)',
   },
   {
     id: 4,
-    src: '/assets/images/auth-carousel/slide-4.webp',
-    fallbackSrc: '/images/auth-carousel/slide-4.jpg',
-    alt: 'Tranquil night sky with gentle aurora and stars inspiring serenity',
+    src: slide4,
+    fallbackSrc: '/images/auth-carousel/Your Wellbeing Journey, Step by Step.png',
+    alt: 'Your Wellbeing Journey, Step by Step — guided growth and calm',
     fallbackGradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #111827 100%)',
   },
 ];
@@ -87,7 +96,7 @@ export default function AuthCarousel({ className = '' }) {
   }, [isPaused, prefersReducedMotion, goToNext, currentIndex]);
 
   const handleImageError = (index, slide) => {
-    // If webp fails, try fallback jpeg first before showing gradient fallback
+    // If bundled import fails, try public fallback URL before gradient
     if (!failedImages[index]) {
       setFailedImages((prev) => ({ ...prev, [index]: 'fallback' }));
     } else {

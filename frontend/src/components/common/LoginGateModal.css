@@ -177,30 +177,7 @@
   outline-offset: 2px;
 }
 
-/* Google Action Button */
-.vz-login-gate-btn--google {
-  background-color: #ffffff;
-  color: var(--vz-text-primary);
-  border: 1px solid var(--vz-border-subtle);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.vz-login-gate-btn--google:hover {
-  background-color: #fbfbfb;
-  border-color: #d1d5db;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-
-.vz-login-gate-btn--google:active {
-  transform: translateY(0);
-}
-
-.vz-login-gate__icon-google {
-  flex-shrink: 0;
-}
-
-/* Email Action Button */
+/* Email & Password Action Button */
 .vz-login-gate-btn--email {
   background-color: var(--vz-dark-pill);
   color: #ffffff;
@@ -229,19 +206,6 @@
 .vz-login-gate-btn--ghost:hover {
   color: var(--vz-text-primary);
   background-color: var(--vz-bg-subtle);
-}
-
-/* Non-intrusive status notice */
-.vz-login-gate__notice {
-  font-size: 0.82rem;
-  color: var(--vz-primary);
-  background-color: var(--vz-primary-light);
-  border: 1px solid #c7d2fe;
-  padding: 8px 12px;
-  border-radius: var(--vz-radius-md);
-  text-align: center;
-  line-height: 1.4;
-  animation: vzLoginGateFadeIn 180ms ease forwards;
 }
 
 /* Keyframes */

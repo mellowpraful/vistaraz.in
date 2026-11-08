@@ -57,6 +57,7 @@ export default function AppRoutes() {
       <Route path="/get-started" element={<PurposeSelectionPage />} />
       <Route path="/purpose" element={<PurposeSelectionPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/signup" element={<Navigate to="/register" replace />} />
       <Route path="/login" element={<LoginPage />} />
 
       {/* --- First-Time Seeker Profile Setup --- */}

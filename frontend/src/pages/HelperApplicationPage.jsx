@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, Clock, CheckCircle2, AlertCircle, ArrowRight,
-  LogOut, Lock, Sparkles, FileText, Check
+  LogOut, Lock, FileText, Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { setHelperVerificationStatus } from '../services/authService';
 import './HelperApplicationPage.css';
 
 /**
@@ -36,16 +35,6 @@ export default function HelperApplicationPage() {
     });
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
-  };
-
-  const handleSimulateVerification = () => {
-    if (!user) return;
-    const newStatus = isVerified ? 'pending' : 'verified';
-    setHelperVerificationStatus(user.id, newStatus);
-    updateUser({
-      helperVerificationStatus: newStatus,
-      onboardingCompleted: newStatus === 'verified',
-    });
   };
 
   const handleLogout = () => {
@@ -218,29 +207,6 @@ export default function HelperApplicationPage() {
               </span>
             )}
           </form>
-
-          {/* Development / QA Testing Simulation Box */}
-          <div className="vz-helper-dev-box">
-            <div>
-              <p className="vz-helper-dev-text">
-                <strong>QA / Development Testing Simulation:</strong>
-              </p>
-              <p className="vz-helper-dev-text">
-                Toggle approval state to test unverified protection and verified access to the Listener Portal.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              id="simulate-verification-toggle-btn"
-              onClick={handleSimulateVerification}
-              className="vz-google-btn"
-              style={{ width: 'auto', padding: '8px 16px', fontSize: '0.85rem' }}
-            >
-              <Sparkles size={16} />
-              <span>{isVerified ? 'Simulate Revert to Pending' : 'Simulate Verification Approval'}</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
