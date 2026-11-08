@@ -1,0 +1,19 @@
+{
+  "name": "vistaraz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vistaraz - Youth Wellbeing Support Platform (Monorepo)",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "vistaraz",
+    "mental-health",
+    "youth-wellbeing"
+  ],
+  "author": "Vistaraz",
+  "license": "ISC"
+}
