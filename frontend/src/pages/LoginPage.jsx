@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
-import { Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getSavedPurpose, savePurpose } from '../services/authService';
+import AuthCarousel from '../components/common/AuthCarousel';
 import './LoginPage.css';
 
 /**
@@ -30,29 +31,6 @@ function GoogleIcon() {
     </svg>
   );
 }
-
-const SANCTUARY_FEATURES = [
-  {
-    icon: '🌬️',
-    title: 'Box Breathing Studio',
-    desc: '4-4-4-4 rhythm grounding and autonomic calming exercises.'
-  },
-  {
-    icon: '💬',
-    title: 'Encrypted Peer Circles',
-    desc: 'Safeguarded peer support rooms with zero permanent logs.'
-  },
-  {
-    icon: '📊',
-    title: '2-Min Wellbeing Check-In',
-    desc: 'Non-diagnostic emotional snapshot across 10 vital life areas.'
-  },
-  {
-    icon: '🤝',
-    title: 'Verified Active Listeners',
-    desc: 'Trained psychology students and compassionate care peers.'
-  }
-];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -166,7 +144,7 @@ export default function LoginPage() {
 
   const handleGoogleClick = (e) => {
     e.preventDefault();
-    setGoogleNotice('Google sign-in is coming soon. Please use your email and password.');
+    setGoogleNotice('Google sign-in is coming soon. Please use your email and password for login.');
   };
 
   const isSeeker = selectedRole === 'support_seeker';
@@ -385,42 +363,8 @@ export default function LoginPage() {
         </footer>
       </main>
 
-      {/* ── RIGHT COLUMN: VISUAL / BRAND-CONTENT PANEL (ElevenLabs reference) ── */}
-      <aside className="vz-auth-visual" aria-hidden="true">
-        <div className="vz-auth-visual__header">
-          <div className="vz-auth-visual__badge">
-            <Sparkles size={14} />
-            <span>Vistaraz Sanctuary Platform</span>
-          </div>
-          <h2 className="vz-auth-visual__headline">
-            A safe space to understand what you're feeling and <em>reach out.</em>
-          </h2>
-        </div>
-
-        {/* Sanctuary Showcase Tiles */}
-        <div className="vz-auth-tiles-grid">
-          {SANCTUARY_FEATURES.map((item, idx) => (
-            <div key={idx} className="vz-auth-tile">
-              <div className="vz-auth-tile__icon">{item.icon}</div>
-              <div>
-                <h3 className="vz-auth-tile__title">{item.title}</h3>
-                <p className="vz-auth-tile__desc">{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Visual Footer */}
-        <div className="vz-auth-visual__footer">
-          <p className="vz-auth-visual__quote">
-            "You don’t have to figure everything out alone. Anonymous peer support, clinical safety, and youth-centered mental wellbeing."
-          </p>
-          <div className="vz-auth-visual__nav-btns">
-            <span className="vz-auth-visual__circle-btn"><ChevronLeft size={18} /></span>
-            <span className="vz-auth-visual__circle-btn"><ChevronRight size={18} /></span>
-          </div>
-        </div>
-      </aside>
+      {/* ── RIGHT COLUMN: FULL-BLEED AUTOMATIC SLIDING IMAGE CAROUSEL ── */}
+      <AuthCarousel />
     </div>
   );
 }
