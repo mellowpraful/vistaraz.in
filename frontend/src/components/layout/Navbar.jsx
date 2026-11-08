@@ -29,22 +29,35 @@ export default function Navbar({
   return (
     <nav className={`vz-navbar vz-navbar--${direction} ${className}`} aria-label="Main Navigation">
       <ul className="vz-navbar__list">
-        {visibleItems.map((item) => (
-          <li key={item.to} className="vz-navbar__item">
-            <NavLink
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                `vz-navbar__link ${isActive ? 'vz-navbar__link--active' : ''}`
-              }
-              onClick={onItemClick}
-            >
-              {item.icon && <span className="vz-navbar__link-icon">{item.icon}</span>}
-              <span>{item.label}</span>
-              {item.badge && <span className="vz-navbar__link-badge">{item.badge}</span>}
-            </NavLink>
-          </li>
-        ))}
+        {visibleItems.map((item) => {
+          const itemKey = item.key || item.to || item.label;
+          const isEnd = item.end !== undefined
+            ? item.end
+            : (item.to === '/' || item.to === '/client-panel');
+
+          return (
+            <li key={itemKey} className="vz-navbar__item">
+              <NavLink
+                to={item.to}
+                end={isEnd}
+                className={({ isActive }) => {
+                  const active = typeof item.isActive === 'function'
+                    ? item.isActive({ isActive })
+                    : isActive;
+                  return `vz-navbar__link ${active ? 'vz-navbar__link--active' : ''}`;
+                }}
+                onClick={(e) => {
+                  if (item.onClick) item.onClick(e);
+                  if (onItemClick) onItemClick(e);
+                }}
+              >
+                {item.icon && <span className="vz-navbar__link-icon">{item.icon}</span>}
+                <span>{item.label}</span>
+                {item.badge && <span className="vz-navbar__link-badge">{item.badge}</span>}
+              </NavLink>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -13,12 +13,11 @@ import './ClientPanelPage.css';
 
 /**
  * ClientPanelPage
- * Assigned to: Developer 2
- * Source: client_panel.html
  * Route: /client-panel
  *
  * Client care management dashboard — mood check-in, session tracking,
  * wellbeing snapshot, care tools, privacy controls, and panic exit.
+ * Uses unified single client-dashboard navigation.
  */
 
 const MOODS = [
@@ -50,16 +49,38 @@ const CARE_TOOLS = [
   { icon: '⚡', label: 'Panic SOS', desc: 'Instant grounding guide', to: '/safety' },
 ];
 
-const NAV_VIEWS = ['Home', 'Sessions', 'Check-in', 'Community', 'Tools', 'Profile'];
-
 export default function ClientPanelPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState('Home');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Synchronize dashboard active view with URL search param
+  const rawTab = (searchParams.get('tab') || 'overview').toLowerCase();
+  const activeView =
+    rawTab === 'sessions'
+      ? 'Sessions'
+      : rawTab === 'check-ins' || rawTab === 'check-in'
+      ? 'Check-ins'
+      : rawTab === 'profile'
+      ? 'Profile'
+      : rawTab === 'community'
+      ? 'Community'
+      : rawTab === 'tools'
+      ? 'Tools'
+      : 'Overview';
+
+  const setActiveView = (view) => {
+    if (view === 'Overview' || view === 'Home') {
+      setSearchParams({});
+    } else {
+      const slug = view.toLowerCase().replace(/\s+/g, '-');
+      setSearchParams({ tab: slug });
+    }
+  };
+
   const [selectedMood, setSelectedMood] = useState(null);
   const [panicModalOpen, setPanicModalOpen] = useState(false);
   const [anonymousMode, setAnonymousMode] = useState(true);
-  const [notes, setNotes] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -72,7 +93,7 @@ export default function ClientPanelPage() {
   }
 
   return (
-    <AppLayout hasSidebar={false}>
+    <AppLayout hasSidebar={false} headerVariant="client-dashboard">
       {/* Panic Modal */}
       {panicModalOpen && (
         <div
@@ -112,39 +133,31 @@ export default function ClientPanelPage() {
       )}
 
       <div className="cp-page">
-        {/* Portal-level nav tabs */}
-        <nav className="cp-tabs" aria-label="Client panel navigation">
-          {NAV_VIEWS.map((v) => (
-            <button
-              key={v}
-              type="button"
-              className={`cp-tab ${activeView === v ? 'cp-tab--active' : ''}`}
-              onClick={() => setActiveView(v)}
-              aria-current={activeView === v ? 'page' : undefined}
-            >
-              {v}
-            </button>
-          ))}
-          {/* Panic exit button — always visible */}
+        {/* Care Space Status & Quick Exit Toolbar (preserves sanctuary emergency exit without duplicate navbar) */}
+        <div className="cp-top-bar">
+          <div className="cp-top-bar__status">
+            <span className="cp-status-dot" aria-hidden="true" />
+            <span>Confidential &amp; Encrypted Sanctuary Space</span>
+          </div>
           <button
             type="button"
             className="cp-panic-btn"
             onClick={() => setPanicModalOpen(true)}
-            title="Emergency exit"
+            title="Emergency exit to safety"
             aria-label="Emergency exit"
           >
-            🚪 Exit
+            🚪 Emergency Exit
           </button>
-        </nav>
+        </div>
 
-        {/* ── HOME VIEW ── */}
-        {activeView === 'Home' && (
+        {/* ── OVERVIEW (HOME) VIEW ── */}
+        {(activeView === 'Overview' || activeView === 'Home') && (
           <div className="cp-content">
             {/* Welcome Banner */}
             <div className="cp-welcome-banner">
               <div className="cp-welcome-text">
                 <span className="cp-eyebrow">YOUR PRIVATE CARE SPACE</span>
-                <h1 className="cp-welcome-title">Welcome back, <em>Friend</em> 👋</h1>
+                <h1 className="cp-welcome-title">Welcome back, <em>{user?.name || 'Friend'}</em> 👋</h1>
                 <p className="cp-welcome-desc">
                   You don't have to carry everything alone. Connect with a listener, run a
                   check-in, or explore your care tools at your own pace.
@@ -154,7 +167,7 @@ export default function ClientPanelPage() {
                 <button
                   type="button"
                   className="cp-action-primary"
-                  onClick={() => setActiveView('Check-in')}
+                  onClick={() => setActiveView('Check-ins')}
                 >
                   <HeartPulse size={15} /> Start Check-in
                 </button>
@@ -335,8 +348,8 @@ export default function ClientPanelPage() {
           </div>
         )}
 
-        {/* ── CHECK-IN VIEW ── */}
-        {activeView === 'Check-in' && (
+        {/* ── CHECK-INS VIEW ── */}
+        {(activeView === 'Check-ins' || activeView === 'Check-in') && (
           <div className="cp-content">
             <h2 className="cp-section-title">Mental Health Check-in</h2>
             <Card variant="lavender" padding="lg">
@@ -354,12 +367,12 @@ export default function ClientPanelPage() {
         {/* ── PROFILE VIEW ── */}
         {activeView === 'Profile' && (
           <div className="cp-content">
-            <h2 className="cp-section-title">My Profile & Privacy</h2>
+            <h2 className="cp-section-title">My Profile &amp; Privacy</h2>
             <Card variant="default" padding="lg" className="cp-profile-card">
               <div className="cp-profile-avatar-row">
                 <div className="cp-profile-avatar">🦊</div>
                 <div>
-                  <h3 className="cp-profile-name">Friend</h3>
+                  <h3 className="cp-profile-name">{user?.name || 'Friend'}</h3>
                   <span className="cp-profile-plan">Free Sanctuary Member</span>
                 </div>
               </div>
@@ -400,7 +413,7 @@ export default function ClientPanelPage() {
           </div>
         )}
 
-        {/* ── Other views (Community, Tools) redirect to actual pages ── */}
+        {/* ── Community & Tools Quick Access fallbacks ── */}
         {(activeView === 'Community' || activeView === 'Tools') && (
           <div className="cp-content" style={{ textAlign: 'center', padding: 'var(--vz-space-16)' }}>
             <p style={{ marginBottom: 'var(--vz-space-4)' }}>

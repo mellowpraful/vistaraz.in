@@ -96,42 +96,34 @@
   border-color: var(--vz-text-muted);
 }
 
-/* ── Nav Tabs ── */
-.cp-tabs {
+/* ── Sanctuary Care Space Top Bar (Emergency Exit & Assurance) ── */
+.cp-top-bar {
   display: flex;
   align-items: center;
-  gap: 2px;
-  border-bottom: 1.5px solid var(--vz-border-light);
-  margin-bottom: var(--vz-space-8);
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-top: var(--vz-space-6);
+  justify-content: space-between;
+  padding: var(--vz-space-4) 0;
+  margin-bottom: var(--vz-space-6);
+  border-bottom: 1px solid var(--vz-border-light);
 }
 
-.cp-tabs::-webkit-scrollbar { display: none; }
-
-.cp-tab {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
+.cp-top-bar__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vz-space-2);
+  font-size: 0.86rem;
+  font-weight: 500;
   color: var(--vz-text-muted);
-  padding: var(--vz-space-3) var(--vz-space-4);
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color var(--vz-transition-fast), border-color var(--vz-transition-fast);
-  white-space: nowrap;
-  margin-bottom: -1.5px;
 }
 
-.cp-tab:hover { color: var(--vz-text-primary); }
-
-.cp-tab--active {
-  color: var(--vz-primary);
-  border-bottom-color: var(--vz-primary);
+.cp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--vz-status-online, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
-/* ── Panic button in tabs ── */
+/* ── Panic button ── */
 .cp-panic-btn {
   margin-left: auto;
   background: var(--vz-pastel-pink-bg);

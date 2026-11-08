@@ -119,3 +119,98 @@
   color: var(--vz-text-secondary);
   padding: var(--vz-space-2);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   UNIFIED CLIENT DASHBOARD HEADER STYLES
+   Logo Left | Centered Nav (Overview, Sessions, Check-ins, Community, Tools) | Profile & Sign Out Right
+   ══════════════════════════════════════════════════════════════════ */
+
+.vz-header--dashboard {
+  background-color: rgba(250, 248, 245, 0.96);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.vz-header--dashboard .vz-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vz-header--dashboard .vz-header__brand {
+  flex: 0 0 auto;
+}
+
+.vz-header--dashboard .vz-header__nav-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.vz-header--dashboard .vz-header__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--vz-space-3);
+}
+
+.vz-header__profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vz-text-secondary);
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full);
+  transition: all var(--vz-transition-fast);
+  text-decoration: none;
+}
+
+.vz-header__profile-link:hover {
+  color: var(--vz-text-primary);
+  background-color: var(--vz-bg-subtle);
+}
+
+.vz-header__profile-link--active {
+  color: var(--vz-primary) !important;
+  font-weight: 600 !important;
+  background-color: var(--vz-primary-light) !important;
+}
+
+.vz-header__signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--vz-text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--vz-radius-full);
+  transition: all var(--vz-transition-fast);
+}
+
+.vz-header__signout-btn:hover {
+  color: #be185d;
+  background-color: rgba(190, 24, 93, 0.08);
+}
+
+/* Tablet adjustments (769px to 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .vz-header--dashboard .vz-navbar__list {
+    gap: var(--vz-space-2);
+  }
+  .vz-header--dashboard .vz-navbar__link {
+    padding: 6px 10px;
+    font-size: 0.86rem;
+  }
+  .vz-header__profile-link {
+    padding: 6px 10px;
+    font-size: 0.86rem;
+  }
+  .vz-header__signout-btn {
+    padding: 6px 10px;
+    font-size: 0.86rem;
+  }
+}
+
