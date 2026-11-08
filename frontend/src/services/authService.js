@@ -41,12 +41,14 @@ export function normalizeUser(apiData) {
 
   return {
     id: data.id,
-    name: data.name || data.profile?.display_name || 'Sanctuary Friend',
+    name: data.seekerProfile?.realName || data.name || data.profile?.display_name || 'Sanctuary Friend',
     email: data.email,
     emailVerified: Boolean(data.emailVerified),
     role: primaryRole,
     roles: rawRoles,
     profile: data.profile || {},
+    seekerProfile: data.seekerProfile || null,
+    isSeekerProfileCompleted: Boolean(data.isSeekerProfileCompleted),
     helper: data.helper || null,
     professional: data.professional || null,
     helperVerificationStatus: helperStatus,
@@ -246,3 +248,78 @@ export function savePurpose(purpose) {
     // Ignore in non-browser environments
   }
 }
+
+/**
+ * GET /api/users/me/profile
+ * Checks whether the authenticated seeker's profile exists.
+ * Returns { profileExists: boolean, data: SeekerProfile | null }
+ */
+export async function getSeekerProfile() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/users/me/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      return { success: true, profileExists: false, data: null };
+    }
+
+    if (!res.ok) {
+      return { success: false, profileExists: false, data: null };
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.warn('[authService] Error fetching seeker profile:', err.message);
+    return { success: false, profileExists: false, data: null };
+  }
+}
+
+/**
+ * POST /api/users/me/profile
+ * Creates the initial Seeker Profile with realName and avatarId.
+ */
+export async function createSeekerProfile({ realName, avatarId }) {
+  const res = await fetch(`${API_BASE_URL}/api/users/me/profile`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ realName, avatarId }),
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.error || 'Failed to create seeker profile.');
+  }
+
+  return json;
+}
+
+/**
+ * PATCH /api/users/me/profile
+ * Updates existing Seeker Profile fields.
+ */
+export async function updateSeekerProfile({ realName, avatarId }) {
+  const res = await fetch(`${API_BASE_URL}/api/users/me/profile`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ realName, avatarId }),
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.error || 'Failed to update seeker profile.');
+  }
+
+  return json;
+}
+

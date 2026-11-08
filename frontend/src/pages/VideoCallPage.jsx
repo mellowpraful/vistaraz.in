@@ -1,402 +1,248 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, Send, Lock, Clock
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  PhoneOff,
+  Lock,
+  Clock,
+  Shield,
+  ShieldAlert,
+  ArrowLeft,
+  Sparkles,
+  Info,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import logoImg from '../assets/images/logo.png';
+import SupportDisclaimerModal from '../components/common/SupportDisclaimerModal';
+import Button from '../components/common/Button';
+import { useAuth } from '../context/AuthContext';
 import './VideoCallPage.css';
 
 /**
  * VideoCallPage
- * Assigned to: Developer 2
- * Source: video-call.html
- * Route: /video-call
+ * Full-page Video Support Waiting Room.
  *
- * Live tele-support voice & video session room.
- * Includes: WebRTC camera/microphone access, media stream viewport,
- * audio mute / video pause buttons, live session timer,
- * in-call chat panel, private notes, and emergency exit.
+ * Professional UI refinement inspired by Google Meet & Microsoft Teams.
+ * In accordance with launch requirements:
+ * - Fictional doctor/listener "Dr. Nidhi Sharma", simulated participant streams, and fake chat removed.
+ * - Does not pretend WebRTC is functional; does not activate user camera/mic unprompted.
+ * - Displays a polished "Video Support Coming Soon" state.
+ * - Enforces mandatory clinical/emergency disclaimer before entering the room.
  */
-
-const INITIAL_CHAT = [
-  { id: 1, type: 'system', text: '🔒 Session started. Your chat is encrypted and private.' },
-  { id: 2, type: 'listener', sender: 'Dr. Nidhi Sharma', text: 'Hello! I am right here with you. Take your time.' },
-];
-
 export default function VideoCallPage() {
   const navigate = useNavigate();
-  const localVideoRef = useRef(null);
-  const localStreamRef = useRef(null);
+  const { user, seekerProfile } = useAuth();
 
-  const [connecting, setConnecting] = useState(true);
-  const [connectProgress, setConnectProgress] = useState(15);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCamOff, setIsCamOff] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [chatMessages, setChatMessages] = useState(INITIAL_CHAT);
-  const [chatInput, setChatInput] = useState('');
-  const [notes, setNotes] = useState('');
-  const [camFallback, setCamFallback] = useState(false);
-  const [endModalOpen, setEndModalOpen] = useState(false);
-  const chatContainerRef = useRef(null);
+  // Disclaimer modal
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [hasAcknowledged, setHasAcknowledged] = useState(false);
 
-  // ── Connection sequence ──
-  useEffect(() => {
-    const t1 = setTimeout(() => setConnectProgress(60), 500);
-    const t2 = setTimeout(() => setConnectProgress(100), 1600);
-    const t3 = setTimeout(() => {
-      setConnecting(false);
-      setTimerRunning(true);
-    }, 2200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []);
+  // Staging control states (visual only, hardware safely unprompted)
+  const [isMicMuted, setIsMicMuted] = useState(true);
+  const [isCamOff, setIsCamOff] = useState(true);
+  const [exitModalOpen, setExitModalOpen] = useState(false);
 
-  // ── WebCam access ──
-  useEffect(() => {
-    async function initWebcam() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localStreamRef.current = stream;
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-        }
-      } catch {
-        setCamFallback(true);
-      }
-    }
-    initWebcam();
-    return () => {
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach((t) => t.stop());
-      }
-    };
-  }, []);
-
-  // ── Session timer ──
-  useEffect(() => {
-    if (!timerRunning) return;
-    const interval = setInterval(() => setTimerSeconds((s) => s + 1), 1000);
-    return () => clearInterval(interval);
-  }, [timerRunning]);
-
-  const formattedTimer = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
-
-  // ── Auto-scroll chat ──
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [chatMessages]);
-
-  // ── Mute toggle ──
-  function toggleMute() {
-    if (localStreamRef.current) {
-      const track = localStreamRef.current.getAudioTracks()[0];
-      if (track) {
-        track.enabled = !track.enabled;
-        setIsMuted(!track.enabled);
-        return;
-      }
-    }
-    setIsMuted((v) => !v);
-  }
-
-  // ── Camera toggle ──
-  function toggleCamera() {
-    if (localStreamRef.current) {
-      const track = localStreamRef.current.getVideoTracks()[0];
-      if (track) {
-        track.enabled = !track.enabled;
-        setIsCamOff(!track.enabled);
-        setCamFallback(!track.enabled);
-        return;
-      }
-    }
-    setIsCamOff((v) => !v);
-    setCamFallback((v) => !v);
-  }
-
-  // ── Screen share ──
-  async function toggleScreenShare() {
-    try {
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = displayStream;
-      }
-    } catch {
-      // User cancelled — no action needed
-    }
-  }
-
-  // ── Send chat ──
-  function handleSendChat(e) {
-    e.preventDefault();
-    const msg = chatInput.trim();
-    if (!msg) return;
-    setChatMessages((prev) => [
-      ...prev,
-      { id: Date.now(), type: 'self', text: msg },
-    ]);
-    setChatInput('');
-  }
-
-  // ── End call ──
-  function endCall() {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((t) => t.stop());
-    }
-    setTimerRunning(false);
-    navigate('/listener-portal');
-  }
+  const seekerName = seekerProfile?.realName || user?.seekerProfile?.realName || user?.name || 'Support Seeker';
 
   return (
-    <div className="vc-shell">
-      {/* Connecting Overlay */}
-      {connecting && (
-        <div className="vc-connecting-overlay" role="status" aria-label="Connecting to session">
-          <div className="vc-connecting-rings" aria-hidden="true">
-            <div className="vc-ring vc-ring--ping" />
-            <div className="vc-ring vc-ring--spin" />
-            <div className="vc-connecting-icon">📹</div>
-          </div>
-          <h2 className="vc-connecting-title">Connecting with your listener...</h2>
-          <p className="vc-connecting-sub">Establishing peer-to-peer HD video session and verifying microphone feed.</p>
-          <div className="vc-progress-track" aria-hidden="true">
-            <div className="vc-progress-fill" style={{ width: `${connectProgress}%` }} />
-          </div>
-          <p className="vc-connecting-enc">
-            <Lock size={12} /> 256-Bit End-to-End Encrypted Session
-          </p>
-        </div>
-      )}
+    <div className="vz-video-shell">
+      {/* ── Mandatory Disclaimer Modal ── */}
+      <SupportDisclaimerModal
+        isOpen={!disclaimerAccepted}
+        mode="video"
+        hasAcknowledged={hasAcknowledged}
+        setHasAcknowledged={setHasAcknowledged}
+        onAcknowledge={() => setDisclaimerAccepted(true)}
+        onCancel={() => navigate('/client-panel')}
+      />
 
-      {/* Header */}
-      <header className="vc-header">
-        <div className="vc-header-left">
-          <a href="/" className="vc-brand" aria-label="Vistaraz home">
-            <img src={logoImg} alt="Vistaraz" height={36} />
-          </a>
-          <div className="vc-session-info">
-            <span className="vc-session-dot" aria-hidden="true" />
-            <span className="vc-session-status" id="callStatusText">Session Live</span>
-            <span className="vc-separator" aria-hidden="true">·</span>
-            <span className="vc-timer" id="callTimer" aria-label={`Session duration: ${formattedTimer}`}>
-              <Clock size={12} /> {formattedTimer}
-            </span>
+      {/* Header bar matching Google Meet / Teams style */}
+      <header className="vz-video-header">
+        <div className="vz-video-header__left">
+          <Link to="/client-panel" className="vz-video-brand" aria-label="Return to Client Panel">
+            <img src={logoImg} alt="Vistaraz" height={32} />
+          </Link>
+          <div className="vz-video-room-meta">
+            <span className="vz-video-room-tag">VIDEO SANCTUARY STAGING</span>
+            <span className="vz-video-room-title">Peer Video Waiting Room</span>
           </div>
         </div>
-        <div className="vc-header-right">
-          <span className="vc-enc-badge" aria-label="End-to-end encrypted">
-            <Lock size={12} /> E2E Encrypted
-          </span>
+
+        <div className="vz-video-header__right">
+          <div className="vz-video-enc-pill" aria-label="Encryption status">
+            <Lock size={12} />
+            <span>E2E Encrypted Architecture</span>
+          </div>
+
           <button
             type="button"
-            className="vc-exit-link"
-            onClick={() => setEndModalOpen(true)}
-            aria-label="Exit session room"
+            className="vz-video-exit-btn"
+            onClick={() => setExitModalOpen(true)}
           >
-            Exit Room
+            Leave Waiting Room
           </button>
         </div>
       </header>
 
-      {/* Main workspace */}
-      <main className="vc-workspace">
-        {/* Primary video area */}
-        <div className="vc-primary-area">
-          <div className="vc-remote-viewport">
-            {/* Remote listener view (no photo — abstract presence) */}
-            <div className="vc-remote-content" aria-label="Listener video feed">
-              <div className="vc-glow-ring vc-glow-ring--1" aria-hidden="true" />
-              <div className="vc-glow-ring vc-glow-ring--2" aria-hidden="true" />
-
-              {/* Animated listener avatar */}
-              <div className="vc-listener-avatar-wrap" aria-hidden="true">
-                <div className="vc-listener-pulse vc-listener-pulse--outer" />
-                <div className="vc-listener-pulse vc-listener-pulse--spin" />
-                <div className="vc-listener-avatar">🩺</div>
-              </div>
-
-              <h3 className="vc-listener-name">Dr. Nidhi Sharma</h3>
-              <p className="vc-listener-role">Verified Support Listener · Live Stream</p>
-              <div className="vc-enc-pill" aria-label="HD Audio and data encrypted">
-                <span className="vc-enc-dot" aria-hidden="true" />
-                HD Audio &amp; Data Encrypted
-              </div>
-            </div>
-
-            {/* Top info badge */}
-            <div className="vc-info-badge" aria-live="polite">
-              <span className="vc-badge-dot" aria-hidden="true" />
-              <span className="vc-badge-name">Dr. Nidhi Sharma</span>
-              <span className="vc-badge-role">· Peer Support Listener</span>
-            </div>
-
-            {/* Audio waveform indicator */}
-            <div className="vc-waveform" aria-hidden="true">
-              <Mic size={12} />
-              <span className="vc-bar vc-bar--1" />
-              <span className="vc-bar vc-bar--2" />
-              <span className="vc-bar vc-bar--3" />
-              <span className="vc-bar vc-bar--4" />
-              <span className="vc-waveform-label">Audio Active</span>
-            </div>
-
-            {/* PIP self-cam */}
-            <div className="vc-pip" aria-label="Your camera feed">
-              <video
-                ref={localVideoRef}
-                id="localVideo"
-                className="vc-pip-video"
-                autoPlay
-                playsInline
-                muted
-              />
-              {camFallback && (
-                <div id="camFallback" className="vc-pip-fallback">
-                  <div className="vc-pip-fallback-avatar">YOU</div>
-                  <span className="vc-pip-fallback-label">Camera Off</span>
+      {/* Main Video Stage */}
+      <main className="vz-video-workspace">
+        <div className="vz-video-stage-card">
+          {/* Central Waiting Screen (Google Meet / Teams Staging View) */}
+          <div className="vz-video-viewport">
+            <div className="vz-video-staging-content">
+              {/* Abstract Calm Animated Graphic */}
+              <div className="vz-video-avatar-pulse-wrap" aria-hidden="true">
+                <div className="vz-pulse-ring vz-pulse-ring--1" />
+                <div className="vz-pulse-ring vz-pulse-ring--2" />
+                <div className="vz-video-camera-icon">
+                  <Video size={36} color="var(--vz-primary, #6366f1)" />
                 </div>
-              )}
-              <div className="vc-pip-badge" aria-hidden="true">
-                <span className="vc-pip-dot" />
-                You
+              </div>
+
+              <span className="vz-chip lavender" style={{ margin: '0 auto 10px' }}>
+                SERVICE NOTICE
+              </span>
+
+              <h1 className="vz-video-staging-title">Video Support Coming Soon</h1>
+
+              <p className="vz-video-staging-subtitle">
+                High-definition, peer-to-peer encrypted video consultations are currently being prepared with strict clinical privacy safeguards. Live video sessions are not active yet.
+              </p>
+
+              <div className="vz-video-safety-box">
+                <div className="vz-video-safety-item">
+                  <CheckCircle2 size={16} className="vz-check-icon" />
+                  <span>Hardware camera and microphone are safely inactive</span>
+                </div>
+                <div className="vz-video-safety-item">
+                  <CheckCircle2 size={16} className="vz-check-icon" />
+                  <span>No simulated recordings or fictional doctor personas</span>
+                </div>
+                <div className="vz-video-safety-item">
+                  <CheckCircle2 size={16} className="vz-check-icon" />
+                  <span>Emergency crisis support remains available 24/7 via helpline <strong>112</strong></span>
+                </div>
+              </div>
+
+              <div className="vz-video-actions">
+                <Button
+                  to="/client-panel"
+                  variant="primary"
+                  size="md"
+                  icon={<ArrowLeft size={16} />}
+                  iconPosition="left"
+                >
+                  Return to Care Panel
+                </Button>
+
+                <Button
+                  to="/assessment"
+                  variant="outline"
+                  size="md"
+                  icon={<Sparkles size={16} />}
+                >
+                  Take Wellbeing Assessment Instead
+                </Button>
               </div>
             </div>
 
-            {/* Controls toolbar */}
-            <div className="vc-controls" role="toolbar" aria-label="Call controls">
+            {/* Self-Preview Staging Window (Clean Placeholder, no invasive webcam auto-trigger) */}
+            <div className="vz-video-self-pip">
+              <div className="vz-pip-content">
+                <span className="vz-pip-icon">🛡️</span>
+                <span className="vz-pip-name">You (Camera Paused)</span>
+                <span className="vz-pip-sub">Microphone Muted</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Minimal Bottom Control Toolbar (Meet / Teams reference) */}
+          <footer className="vz-video-toolbar" role="toolbar" aria-label="Meeting controls">
+            <div className="vz-video-toolbar__left">
+              <span className="vz-toolbar-room-id">
+                <Shield size={14} color="#059669" />
+                <span>Sanctuary Room: Ready for Onboarding</span>
+              </span>
+            </div>
+
+            <div className="vz-video-toolbar__center">
               <button
-                id="btnMute"
                 type="button"
-                className={`vc-ctrl-btn ${isMuted ? 'vc-ctrl-btn--off' : ''}`}
-                onClick={toggleMute}
-                title={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
-                aria-pressed={isMuted}
-                aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+                className={`vz-ctrl-pill ${isMicMuted ? 'muted' : ''}`}
+                onClick={() => setIsMicMuted((v) => !v)}
+                title={isMicMuted ? 'Microphone is off' : 'Microphone is on'}
+                aria-label="Toggle microphone state"
               >
-                {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                {isMicMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                <span>{isMicMuted ? 'Mic Off' : 'Mic On'}</span>
               </button>
 
               <button
-                id="btnCam"
                 type="button"
-                className={`vc-ctrl-btn ${isCamOff ? 'vc-ctrl-btn--off' : ''}`}
-                onClick={toggleCamera}
-                title={isCamOff ? 'Start Camera' : 'Stop Camera'}
-                aria-pressed={isCamOff}
-                aria-label={isCamOff ? 'Turn camera on' : 'Turn camera off'}
+                className={`vz-ctrl-pill ${isCamOff ? 'muted' : ''}`}
+                onClick={() => setIsCamOff((v) => !v)}
+                title={isCamOff ? 'Camera is off' : 'Camera is on'}
+                aria-label="Toggle camera state"
               >
                 {isCamOff ? <VideoOff size={18} /> : <Video size={18} />}
-              </button>
-
-              <button
-                id="btnShare"
-                type="button"
-                className="vc-ctrl-btn"
-                onClick={toggleScreenShare}
-                title="Share Screen"
-                aria-label="Share your screen"
-              >
-                <MonitorUp size={18} />
+                <span>{isCamOff ? 'Camera Off' : 'Camera On'}</span>
               </button>
 
               <button
                 type="button"
-                className="vc-ctrl-btn vc-ctrl-btn--end"
-                onClick={() => setEndModalOpen(true)}
-                title="End Session"
-                aria-label="End call"
+                className="vz-ctrl-pill vz-ctrl-pill--end"
+                onClick={() => setExitModalOpen(true)}
+                title="Leave Video Waiting Room"
+                aria-label="Leave video room"
               >
-                <PhoneOff size={18} /> <span>End</span>
+                <PhoneOff size={18} />
+                <span>Leave</span>
               </button>
             </div>
-          </div>
+
+            <div className="vz-video-toolbar__right">
+              <Link to="/safety" className="vz-toolbar-safety-btn" title="Crisis Helplines">
+                <ShieldAlert size={16} />
+                <span className="vz-hide-mobile">Helplines (112)</span>
+              </Link>
+            </div>
+          </footer>
         </div>
-
-        {/* Side panel */}
-        <aside className="vc-side-panel">
-          {/* In-call chat */}
-          <div className="vc-chat-panel">
-            <div className="vc-chat-header">
-              <div className="vc-chat-title-row">
-                <span className="vc-chat-title">In-Session Chat</span>
-                <span className="vc-chat-live">● Active</span>
-              </div>
-            </div>
-
-            <div className="vc-chat-messages" ref={chatContainerRef} aria-live="polite" aria-label="Chat messages">
-              {chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`vc-chat-msg vc-chat-msg--${msg.type}`}
-                >
-                  {msg.type === 'listener' && (
-                    <span className="vc-chat-sender">{msg.sender}</span>
-                  )}
-                  {msg.type === 'self' && (
-                    <span className="vc-chat-sender vc-chat-sender--you">You</span>
-                  )}
-                  <span className="vc-chat-text">{msg.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <form className="vc-chat-form" onSubmit={handleSendChat}>
-              <input
-                id="chatInput"
-                type="text"
-                className="vc-chat-input"
-                placeholder="Type a message..."
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                aria-label="Chat message input"
-                autoComplete="off"
-              />
-              <button type="submit" className="vc-chat-send" aria-label="Send message">
-                <Send size={15} />
-              </button>
-            </form>
-          </div>
-
-          {/* Private Notes */}
-          <div className="vc-notes-panel">
-            <h3 className="vc-notes-title">📋 Private Notes</h3>
-            <textarea
-              id="privateNotes"
-              className="vc-notes-input"
-              placeholder="Write any notes or reminders for yourself during the session..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              aria-label="Private session notes"
-            />
-          </div>
-        </aside>
       </main>
 
-      {/* End Call Confirmation Modal */}
-      {endModalOpen && (
+      {/* Exit Confirmation Modal */}
+      {exitModalOpen && (
         <div
-          className="vc-end-modal-overlay"
+          className="vz-end-modal-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="End session confirmation"
-          onClick={(e) => { if (e.target === e.currentTarget) setEndModalOpen(false); }}
+          aria-label="Leave waiting room confirmation"
+          onClick={(e) => { if (e.target === e.currentTarget) setExitModalOpen(false); }}
         >
-          <div className="vc-end-modal">
-            <div className="vc-end-modal-icon" aria-hidden="true">📞</div>
-            <h2 className="vc-end-modal-title">End Session?</h2>
-            <p className="vc-end-modal-desc">
-              Are you sure you want to end this session? Your notes will be saved. If you're in
-              crisis, please contact a helpline before leaving.
+          <div className="vz-end-modal">
+            <div className="vz-end-modal-icon" aria-hidden="true">🚪</div>
+            <h2 className="vz-end-modal-title">Leave Waiting Room?</h2>
+            <p className="vz-end-modal-desc">
+              You will be returned to your Client Care Panel. When live sessions open, you will be notified in your dashboard.
             </p>
-            <div className="vc-end-modal-actions">
-              <button type="button" className="vc-end-confirm-btn" onClick={endCall}>
-                End Session
+            <div className="vz-end-modal-actions">
+              <button
+                type="button"
+                className="vz-end-confirm-btn"
+                onClick={() => navigate('/client-panel')}
+              >
+                Return to Panel
               </button>
-              <button type="button" className="vc-end-cancel-btn" onClick={() => setEndModalOpen(false)}>
-                Continue Session
+              <button
+                type="button"
+                className="vz-end-cancel-btn"
+                onClick={() => setExitModalOpen(false)}
+              >
+                Stay Here
               </button>
             </div>
           </div>

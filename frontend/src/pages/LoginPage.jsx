@@ -126,7 +126,9 @@ export default function LoginPage() {
     }
 
     if (user.role === 'support_seeker' || user.role === 'user') {
-      if (!user.onboardingCompleted) {
+      if (!user.isSeekerProfileCompleted) {
+        navigate('/seeker-setup', { replace: true });
+      } else if (!user.onboardingCompleted) {
         navigate('/assessment', { replace: true });
       } else {
         navigate('/client-panel', { replace: true });

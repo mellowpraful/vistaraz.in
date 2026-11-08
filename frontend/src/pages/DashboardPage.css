@@ -228,3 +228,26 @@
   font-size: 1.2rem;
   color: var(--vz-text-muted);
 }
+
+
+/* Spin animation for loaders */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Alert banners (shared with ClientPanelPage) */
+.cp-alert {
+  padding: 12px 16px;
+  border-radius: var(--vz-radius-lg);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.cp-alert--info    { background: #eff6ff; color: #1d4ed8; border-left: 4px solid #3b82f6; }
+.cp-alert--success { background: #f0fdf4; color: #15803d; border-left: 4px solid #22c55e; }
+.cp-alert--warning { background: #fffbeb; color: #92400e; border-left: 4px solid #f59e0b; }
+.cp-alert--error   { background: #fef2f2; color: #b91c1c; border-left: 4px solid #ef4444; }

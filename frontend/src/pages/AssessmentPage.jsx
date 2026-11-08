@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   ExternalLink
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { saveAssessment } from '../services/clientService';
 import './AssessmentPage.css';
 
 const ASSESSMENT_QUESTIONS = [
@@ -157,10 +159,14 @@ const ASSESSMENT_QUESTIONS = [
 
 export default function AssessmentPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
   const [showLoginGate, setShowLoginGate] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [savedToDB, setSavedToDB] = useState(false);
 
   const question = ASSESSMENT_QUESTIONS[currentStep];
   const progressPercent = Math.round(((currentStep + 1) / ASSESSMENT_QUESTIONS.length) * 100);
@@ -177,7 +183,36 @@ export default function AssessmentPage() {
     if (currentStep < ASSESSMENT_QUESTIONS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setIsCompleted(true);
+      handleComplete();
+    }
+  };
+
+  const handleComplete = async () => {
+    setIsCompleted(true);
+    setSaveError(null);
+
+    if (isAuthenticated) {
+      setIsSaving(true);
+      try {
+        const scoreMap = {};
+        ASSESSMENT_QUESTIONS.forEach((q) => {
+          scoreMap[q.category] = answers[q.id] || 3;
+        });
+        await saveAssessment({
+          answers: scoreMap,
+          resultTier: {
+            title: resultTier.title,
+            summary: resultTier.summary,
+            percentage,
+          },
+        });
+        setSavedToDB(true);
+      } catch (err) {
+        console.error('[AssessmentPage] Save failed:', err);
+        setSaveError('Your reflection could not be saved. Results are still shown below.');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -192,6 +227,9 @@ export default function AssessmentPage() {
     setCurrentStep(0);
     setIsCompleted(false);
     setShowLoginGate(false);
+    setSaveError(null);
+    setSavedToDB(false);
+    setIsSaving(false);
   };
 
   // Score calculation
@@ -329,6 +367,24 @@ export default function AssessmentPage() {
           /* Assessment Results Screen */
           <div className="vz-assessment-results">
             <Card variant="default" padding="lg" className="vz-results-card">
+
+              {/* Save status banners */}
+              {isSaving && (
+                <div className="cp-alert cp-alert--info" style={{ marginBottom: '16px' }}>
+                  💾 Saving your reflection to your profile…
+                </div>
+              )}
+              {savedToDB && !isSaving && (
+                <div className="cp-alert cp-alert--success" style={{ marginBottom: '16px' }}>
+                  ✅ Reflection saved to your Seeker Profile.
+                </div>
+              )}
+              {saveError && (
+                <div className="cp-alert cp-alert--warning" style={{ marginBottom: '16px' }}>
+                  ⚠️ {saveError}
+                </div>
+              )}
+
               <div className="vz-results-header" style={{ backgroundColor: resultTier.bg }}>
                 <div className="vz-results-score-circle" style={{ borderColor: resultTier.color }}>
                   <span className="vz-results-score-number" style={{ color: resultTier.color }}>

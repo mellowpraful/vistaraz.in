@@ -208,7 +208,7 @@ export default function SupportPage() {
           </div>
         </section>
 
-        {/* Level 01: Chat Listeners */}
+        {/* Level 01: Chat Listeners — Coming Soon Banner */}
         {showListeners && (
           <section className="vz-support-section">
             <div className="vz-support-section__title-row">
@@ -218,56 +218,30 @@ export default function SupportPage() {
                 </span>
                 <h2>Start with someone who listens.</h2>
               </div>
-              <span className="vz-chip mint">
-                First conversation is 100% free
+              <span className="vz-chip lavender">
+                Listener Network Preparing
               </span>
             </div>
 
-            <div className="vz-support-grid-3">
-              {LISTENERS.map((listener) => (
-                <Card key={listener.id} variant="default" padding="lg" hoverable={true} className="vz-listener-card">
-                  <div className="vz-listener-card__header">
-                    <div className="vz-listener-card__avatar">
-                      {listener.avatar}
-                    </div>
-                    <div>
-                      <h3 style={{ fontSize: '1.25rem' }}>{listener.name}</h3>
-                      <div className="vz-listener-card__status">
-                        {listener.available ? (
-                          <>
-                            <span className="vz-status-dot online"></span>
-                            <span style={{ color: '#10b981', fontWeight: 600 }}>Available Now</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="vz-status-dot busy"></span>
-                            <span style={{ color: '#d97706', fontWeight: 600 }}>In Session</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="vz-listener-card__tags">
-                    {listener.topics.map((t) => (
-                      <span key={t} className="vz-chip sky">{t}</span>
-                    ))}
-                    <span className="vz-chip lavender">{listener.languages.join(', ')}</span>
-                  </div>
-
-                  <p className="vz-listener-card__bio">{listener.bio}</p>
-
-                  <div className="vz-listener-card__footer">
-                    <div style={{ fontSize: '0.82rem', color: 'var(--vz-text-muted)' }}>
-                      ★ {listener.rating} ({listener.sessionsCount} chats)
-                    </div>
-                    <Button onClick={handleStartChat} variant="primary" size="sm" icon={<ArrowRight size={14} />}>
-                      Start Free Chat
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <Card variant="default" padding="lg" style={{ textAlign: 'center', padding: '48px 24px', borderRadius: '20px' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ede9fe', color: 'var(--vz-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <Sparkles size={32} />
+              </div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '0 0 10px', color: 'var(--vz-text-primary)' }}>
+                Listener Support Coming Soon
+              </h3>
+              <p style={{ maxWidth: '580px', margin: '0 auto 24px', color: 'var(--vz-text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                We are preparing a trusted listener network so you can connect with someone who is ready to listen. This service is not available yet.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Button to="/assessment" variant="primary" size="md" icon={<ArrowRight size={16} />}>
+                  Take a Wellbeing Assessment
+                </Button>
+                <Button to="/tools" variant="outline" size="md">
+                  Explore Grounding Tools
+                </Button>
+              </div>
+            </Card>
           </section>
         )}
 

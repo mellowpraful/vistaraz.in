@@ -1,285 +1,298 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import SupportDisclaimerModal from '../components/common/SupportDisclaimerModal';
+import { useAuth } from '../context/AuthContext';
 import {
-  Send,
-  Video,
-  Wind,
+  MessageSquare,
   Shield,
   ShieldAlert,
   ArrowLeft,
-  CheckCircle2,
   Clock,
   Sparkles,
-  Phone,
-  User,
-  Heart
+  Lock,
+  Heart,
+  Info,
+  CheckCircle2,
+  Calendar,
+  AlertTriangle,
 } from 'lucide-react';
 import './ChatPage.css';
 
-const INITIAL_MESSAGES = [
-  {
-    id: 1,
-    sender: 'listener',
-    text: "Hi! 👋 It's good to have you here. This is a safe, judgment-free space. What's on your mind today?",
-    time: '10:32 AM',
-  },
-  {
-    id: 2,
-    sender: 'user',
-    text: "I've been feeling really stressed about exams. And I just needed to talk to someone...",
-    time: '10:33 AM',
-  },
-  {
-    id: 3,
-    sender: 'listener',
-    text: "That sounds really tough. You're not alone in feeling this. Want to tell me more about what's been the most stressful part?",
-    time: '10:34 AM',
-  },
-];
-
-const LISTENER_REPLIES = [
-  "I hear you. Take a deep breath. We can take this one step at a time. What is the very first thing worrying you the most right now?",
-  "It is completely valid to feel exhausted when you've been carrying this alone. How has your sleep and rest been over the past few days?",
-  "Thank you for sharing that with me. Remember you don't have to prove anything to anyone here. What would feel like a small relief right now?",
-  "That makes so much sense. Often our minds tell us we have to figure everything out at once. What if we focus just on today?",
-];
-
+/**
+ * ChatPage
+ * Dedicated full-page Peer Chat Support Space.
+ *
+ * Professional UI refinement inspired by modern communication platforms (Intercom, Microsoft Teams, Telehealth).
+ * In accordance with launch requirements:
+ * - Fictional listener "Aanya", simulated replies, and fake online status have been removed.
+ * - Displays a clear, professional "Listener Support Coming Soon" state.
+ * - Enforces mandatory clinical/emergency disclaimer before viewing the space.
+ * - Highlights genuine seeker privacy boundaries: no real name is exposed to peers.
+ */
 export default function ChatPage() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
-  const [inputText, setInputText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showBreathAlert, setShowBreathAlert] = useState(false);
-  const chatBottomRef = useRef(null);
+  const { user, seekerProfile } = useAuth();
 
-  useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+  // Disclaimer modal state
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [hasAcknowledged, setHasAcknowledged] = useState(false);
 
-  const handleSendMessage = (textToSend) => {
-    const text = (textToSend || inputText).trim();
-    if (!text) return;
+  // Active view tab in side drawer
+  const [sideTab, setSideTab] = useState('privacy'); // 'privacy' | 'safety' | 'topics'
 
-    const newMsg = {
-      id: Date.now(),
-      sender: 'user',
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
-    setInputText('');
-
-    // Simulate listener response
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      const randomReply = LISTENER_REPLIES[Math.floor(Math.random() * LISTENER_REPLIES.length)];
-      const replyMsg = {
-        id: Date.now() + 1,
-        sender: 'listener',
-        text: randomReply,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, replyMsg]);
-    }, 1800);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const quickChips = [
-    'Academic Burnout',
-    'Exams & Placement Fear',
-    'Feeling Lonely',
-    'Sleep & Racing Thoughts',
-  ];
+  const seekerName = seekerProfile?.realName || user?.seekerProfile?.realName || user?.name || 'Support Seeker';
+  const seekerAvatarId = seekerProfile?.avatarId || 'avatar_01';
 
   return (
-    <AppLayout hasSidebar={true}>
-      <div className="vz-chat-page-container">
-        {/* Main Chat Interface */}
-        <div className="vz-chat-main">
-          {/* Header */}
-          <div className="vz-chat-header">
-            <div className="vz-chat-header__profile">
-              <div className="vz-chat-header__avatar">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-                  alt="Aanya"
-                  className="vz-avatar"
-                />
-                <span className="vz-status-dot online vz-chat-header__dot" />
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Aanya</h2>
-                  <CheckCircle2 size={16} color="var(--vz-primary)" />
-                </div>
-                <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>
-                  Trained Listener · Online
-                </span>
-              </div>
-            </div>
+    <AppLayout hasSidebar={false} headerVariant="client-dashboard">
+      {/* ── Mandatory Disclaimer Modal ── */}
+      <SupportDisclaimerModal
+        isOpen={!disclaimerAccepted}
+        mode="chat"
+        hasAcknowledged={hasAcknowledged}
+        setHasAcknowledged={setHasAcknowledged}
+        onAcknowledge={() => setDisclaimerAccepted(true)}
+        onCancel={() => navigate('/client-panel')}
+      />
 
-            <div className="vz-chat-header__actions">
-              <button
-                type="button"
-                className="vz-chat-action-btn"
-                onClick={() => setShowBreathAlert(!showBreathAlert)}
-                title="Breathe together"
-              >
-                <Wind size={18} />
-                <span className="vz-hide-mobile">Take a Breath</span>
-              </button>
-              <Link to="/video-call" className="vz-chat-action-btn" title="Switch to video call">
-                <Video size={18} />
-                <span className="vz-hide-mobile">Video Call</span>
-              </Link>
-              <Link to="/safety" className="vz-chat-action-btn danger" title="Urgent Safety">
-                <ShieldAlert size={18} />
-              </Link>
-            </div>
+      <div className="vz-chat-shell">
+        {/* Top Breadcrumb & Status Bar */}
+        <div className="vz-chat-top-bar">
+          <div className="vz-chat-top-bar__left">
+            <Link to="/client-panel" className="vz-chat-back-link">
+              <ArrowLeft size={16} />
+              <span>Back to Client Panel</span>
+            </Link>
+            <span className="vz-chat-divider" aria-hidden="true">/</span>
+            <span className="vz-chat-breadcrumb-curr">Peer Chat Sanctuary</span>
           </div>
 
-          {/* Quick Breath Notification */}
-          {showBreathAlert && (
-            <div className="vz-chat-breath-toast">
-              <Wind size={18} color="var(--vz-primary)" />
-              <span>Gently pause for a second. Drop your shoulders away from your ears.</span>
-              <button type="button" onClick={() => setShowBreathAlert(false)}>✕</button>
+          <div className="vz-chat-top-bar__right">
+            <div className="vz-chat-status-pill vz-chat-status-pill--staging">
+              <span className="vz-chat-pulse-dot" />
+              <span>Listener Network Preparing</span>
             </div>
-          )}
-
-          {/* Chat Feed */}
-          <div className="vz-chat-stream">
-            <div className="vz-chat-notice">
-              <span>🔒 100% Private & Anonymous Session · First 15 minutes are on us</span>
-            </div>
-
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`vz-chat-bubble-row ${m.sender === 'user' ? 'user' : 'listener'}`}
-              >
-                {m.sender === 'listener' && (
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80"
-                    alt="Aanya"
-                    className="vz-chat-msg-avatar"
-                  />
-                )}
-                <div className="vz-chat-bubble-container">
-                  <div className={`vz-chat-bubble ${m.sender}`}>
-                    <p>{m.text}</p>
-                  </div>
-                  <span className="vz-chat-bubble-time">{m.time}</span>
-                </div>
-              </div>
-            ))}
-
-            {isTyping && (
-              <div className="vz-chat-bubble-row listener">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80"
-                  alt="Aanya"
-                  className="vz-chat-msg-avatar"
-                />
-                <div className="vz-chat-typing-card">
-                  <span>Aanya is typing...</span>
-                  <div className="vz-typing-dots">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={chatBottomRef} />
-          </div>
-
-          {/* Quick Prompt Chips */}
-          <div className="vz-chat-chips">
-            {quickChips.map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                className="vz-chat-chip-btn"
-                onClick={() => handleSendMessage(chip)}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          {/* Composer Input */}
-          <div className="vz-chat-composer">
-            <textarea
-              className="vz-chat-composer__input"
-              rows={1}
-              placeholder="Type your message... you are completely safe."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <Button
-              variant="accent"
-              size="md"
-              icon={<Send size={16} />}
-              onClick={() => handleSendMessage()}
-              disabled={!inputText.trim()}
-            >
-              Send
-            </Button>
+            <Link to="/safety" className="vz-chat-crisis-badge" title="Urgent Crisis Resources">
+              <ShieldAlert size={14} />
+              <span>Crisis Safety (112)</span>
+            </Link>
           </div>
         </div>
 
-        {/* Right Listener Profile Card matching reference image */}
-        <aside className="vz-chat-listener-sidebar">
-          <Card variant="default" padding="lg" className="vz-chat-profile-card">
-            <div className="vz-chat-profile-card__avatar-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80"
-                alt="Aanya"
-                className="vz-chat-profile-card__img"
-              />
-              <span className="vz-status-dot online vz-chat-profile-card__dot" />
+        {/* Main Work Area */}
+        <div className="vz-chat-workspace">
+          {/* Central Conversation Stage */}
+          <main className="vz-chat-stage">
+            {/* Stage Header */}
+            <header className="vz-stage-header">
+              <div className="vz-stage-header__info">
+                <div className="vz-stage-icon-wrap" aria-hidden="true">
+                  <MessageSquare size={20} className="vz-stage-icon" />
+                </div>
+                <div>
+                  <h1 className="vz-stage-title">Confidential Peer Support Queue</h1>
+                  <p className="vz-stage-subtitle">
+                    A judgment-free space to speak with trained, empathetic listeners.
+                  </p>
+                </div>
+              </div>
+
+              <div className="vz-stage-header__meta">
+                <div className="vz-meta-tag">
+                  <Lock size={12} />
+                  <span>256-Bit Encrypted Space</span>
+                </div>
+              </div>
+            </header>
+
+            {/* Conversation Stream (Coming Soon State) */}
+            <div className="vz-stage-stream">
+              {/* Privacy Notice Banner */}
+              <div className="vz-stream-notice">
+                <Shield size={14} color="var(--vz-primary)" />
+                <span>
+                  <strong>Privacy Safeguard:</strong> Your real name (<em>{seekerName}</em>) is strictly shielded. When connected, listeners only see your chosen avatar and a randomized session handle.
+                </span>
+              </div>
+
+              {/* Central Coming Soon Card */}
+              <div className="vz-queue-staging-card">
+                <div className="vz-queue-icon-bubble" aria-hidden="true">
+                  <Sparkles size={32} />
+                </div>
+
+                <span className="vz-chip lavender" style={{ margin: '0 auto 12px' }}>
+                  SANCTUARY UPDATE
+                </span>
+
+                <h2 className="vz-queue-staging-title">Listener Support Coming Soon</h2>
+
+                <p className="vz-queue-staging-desc">
+                  We are actively training and vetting our peer listener community to ensure every conversation is empathetic, respectful, and safe. Live 1-on-1 peer matching is currently in final onboarding and will open shortly.
+                </p>
+
+                <div className="vz-queue-guidelines-box">
+                  <div className="vz-guideline-item">
+                    <CheckCircle2 size={16} className="vz-check-icon" />
+                    <span>Free, 100% confidential active listening</span>
+                  </div>
+                  <div className="vz-guideline-item">
+                    <CheckCircle2 size={16} className="vz-check-icon" />
+                    <span>No personal identification shared with peers</span>
+                  </div>
+                  <div className="vz-guideline-item">
+                    <CheckCircle2 size={16} className="vz-check-icon" />
+                    <span>Safe moderation backed by clinical safety protocols</span>
+                  </div>
+                </div>
+
+                <div className="vz-queue-actions">
+                  <Button
+                    to="/assessment"
+                    variant="primary"
+                    size="md"
+                    icon={<Sparkles size={16} />}
+                  >
+                    Take a 2-Minute Wellbeing Check-in
+                  </Button>
+
+                  <Button
+                    to="/tools"
+                    variant="outline"
+                    size="md"
+                  >
+                    Explore Grounding &amp; Breath Tools
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px' }}>
-              <h3 style={{ fontSize: '1.35rem', margin: 0 }}>Aanya</h3>
-              <CheckCircle2 size={18} color="var(--vz-primary)" />
-            </div>
-            <span style={{ fontSize: '0.85rem', color: 'var(--vz-text-muted)' }}>Trained Listener</span>
-            <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 600, marginTop: '2px' }}>● Online</span>
+            {/* Disabled Composer (Transparent about state) */}
+            <footer className="vz-stage-composer-bar">
+              <div className="vz-composer-disabled-banner">
+                <Info size={16} />
+                <span>
+                  Message composer is paused while listener onboarding is underway. No messages are sent.
+                </span>
+              </div>
+              <div className="vz-composer-mock-input">
+                <input
+                  type="text"
+                  placeholder="Chat input will be enabled once your assigned listener joins..."
+                  disabled
+                  aria-label="Disabled chat input"
+                />
+                <button type="button" disabled aria-label="Send disabled">
+                  Send
+                </button>
+              </div>
+            </footer>
+          </main>
 
-            <div className="vz-chat-profile-card__tags">
-              <span className="vz-chip mint">Anxiety</span>
-              <span className="vz-chip peach">Stress</span>
-              <span className="vz-chip lavender">Academic Support</span>
-            </div>
+          {/* Right Sidebar: Context, Privacy & Support Guidance */}
+          <aside className="vz-chat-sidebar">
+            <Card variant="default" padding="md" className="vz-chat-info-card">
+              <div className="vz-sidebar-tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sideTab === 'privacy'}
+                  className={`vz-sidebar-tab ${sideTab === 'privacy' ? 'active' : ''}`}
+                  onClick={() => setSideTab('privacy')}
+                >
+                  <Shield size={14} />
+                  <span>Privacy</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sideTab === 'safety'}
+                  className={`vz-sidebar-tab ${sideTab === 'safety' ? 'active' : ''}`}
+                  onClick={() => setSideTab('safety')}
+                >
+                  <ShieldAlert size={14} />
+                  <span>Crisis Safety</span>
+                </button>
+              </div>
 
-            <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-secondary)', textAlign: 'center', margin: '14px 0' }}>
-              "Here to offer a patient ear without unsolicited advice. Let's untangle whatever feels noisy right now."
-            </p>
+              {sideTab === 'privacy' && (
+                <div className="vz-sidebar-tab-content">
+                  <h3 className="vz-sidebar-heading">Anonymous Care Commitment</h3>
+                  <p className="vz-sidebar-text">
+                    Vistaraz was engineered from the ground up to protect your peace of mind.
+                  </p>
+                  <ul className="vz-sidebar-features">
+                    <li>
+                      <strong>Zero Identity Leakage:</strong> Your email, real name, and phone number are never visible to listeners.
+                    </li>
+                    <li>
+                      <strong>Voluntary Disclosure:</strong> You are never required to share personal background, institution, or workplace.
+                    </li>
+                    <li>
+                      <strong>Right to Exit:</strong> You may leave or terminate a conversation at any moment without penalty.
+                    </li>
+                  </ul>
 
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <Button to="/support" variant="outline" size="sm" fullWidth>
-                View Listener Profile
-              </Button>
-              <Button to="/safety" variant="ghost" size="sm" icon={<ShieldAlert size={14} />} fullWidth>
-                Crisis Resources
-              </Button>
-            </div>
-          </Card>
-        </aside>
+                  <div className="vz-identity-preview-box">
+                    <span className="vz-identity-label">Your Active Session Persona:</span>
+                    <div className="vz-identity-badge">
+                      <span className="vz-persona-avatar" aria-hidden="true">🛡️</span>
+                      <div>
+                        <strong>Confidential Seeker</strong>
+                        <small>Real name protected</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {sideTab === 'safety' && (
+                <div className="vz-sidebar-tab-content">
+                  <h3 className="vz-sidebar-heading" style={{ color: '#b91c1c' }}>Emergency Protocols</h3>
+                  <p className="vz-sidebar-text">
+                    Peer listeners provide empathetic conversations, but cannot substitute for emergency clinical care.
+                  </p>
+
+                  <div className="vz-crisis-callout">
+                    <strong>National Emergency Helpline:</strong>
+                    <div className="vz-crisis-number">112</div>
+                    <span>Available 24/7 across India</span>
+                  </div>
+
+                  <div className="vz-crisis-callout" style={{ marginTop: '10px' }}>
+                    <strong>Tele-MANAS Mental Health Helpline:</strong>
+                    <div className="vz-crisis-number">14416</div>
+                    <span>Toll-free government mental health support</span>
+                  </div>
+
+                  <Button
+                    to="/safety"
+                    variant="soft"
+                    size="sm"
+                    fullWidth
+                    style={{ marginTop: '14px' }}
+                  >
+                    View All Crisis Resources
+                  </Button>
+                </div>
+              )}
+            </Card>
+
+            {/* Quick Grounding Tip Card */}
+            <Card variant="lavender" padding="md" className="vz-tip-card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <Heart size={16} color="var(--vz-primary)" />
+                <strong style={{ fontSize: '0.9rem', color: 'var(--vz-primary)' }}>Gentle Reminder</strong>
+              </div>
+              <p style={{ fontSize: '0.84rem', color: 'var(--vz-text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                You don't need to have the perfect words ready. Sometimes just typing out what is heavy is enough to create space.
+              </p>
+            </Card>
+          </aside>
+        </div>
       </div>
     </AppLayout>
   );

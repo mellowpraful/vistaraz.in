@@ -22,7 +22,8 @@ export async function getMe(req, res) {
 
     // Fetch sanctuary profile
     const profileRes = await authPool.query(
-      `SELECT display_name, nickname, avatar_url, preferred_language, privacy_preferences, bio
+      `SELECT display_name, nickname, avatar_url, preferred_language, privacy_preferences, bio,
+              real_name, avatar_id, is_seeker_profile_completed, created_at, updated_at
        FROM profiles
        WHERE user_id = $1`,
       [user.id]
@@ -32,6 +33,9 @@ export async function getMe(req, res) {
       display_name: user.name,
       nickname: (user.name || '').split(' ')[0],
       preferred_language: 'en',
+      real_name: null,
+      avatar_id: null,
+      is_seeker_profile_completed: false,
     };
 
     // If helper, fetch verification status
@@ -63,6 +67,14 @@ export async function getMe(req, res) {
         emailVerified: user.emailVerified,
         roles,
         profile,
+        seekerProfile: profile.is_seeker_profile_completed && profile.avatar_id && profile.real_name ? {
+          userId: user.id,
+          realName: profile.real_name,
+          avatarId: profile.avatar_id,
+          createdAt: profile.created_at,
+          updatedAt: profile.updated_at,
+        } : null,
+        isSeekerProfileCompleted: Boolean(profile.is_seeker_profile_completed && profile.avatar_id && profile.real_name),
         helper: helperStatus,
         professional: professionalStatus,
       },

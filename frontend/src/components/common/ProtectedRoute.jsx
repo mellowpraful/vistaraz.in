@@ -5,23 +5,30 @@ import { useAuth } from '../../context/AuthContext';
 /**
  * ProtectedRoute Component
  * 
- * Enforces server-verified authentication and role-based access control.
- * Supports both canonical server roles ('user', 'helper', 'professional', 'admin')
- * and frontend role alias ('support_seeker').
+ * Enforces server-verified authentication, role-based access control,
+ * and first-time Seeker Profile verification.
  * 
  * @param {React.ReactNode} children - Target component
  * @param {Array<string>} [allowedRoles] - Roles permitted ('support_seeker', 'user', 'helper', etc.)
  * @param {boolean} [requireVerifiedHelper] - If true, requires helperVerificationStatus === 'verified'
+ * @param {boolean} [requireSeekerProfile] - If true, requires seeker profile setup completed
  */
 export default function ProtectedRoute({
   children,
   allowedRoles,
   requireVerifiedHelper = false,
+  requireSeekerProfile = false,
 }) {
-  const { user, isAuthenticated, loading, roles = [] } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    loading,
+    profileLoading,
+    isSeekerProfileCompleted,
+  } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || (profileLoading && requireSeekerProfile)) {
     return (
       <div
         style={{
@@ -140,6 +147,20 @@ export default function ProtectedRoute({
         state={{
           warningMessage:
             'Your helper application is pending verification. Verified listener access is required to enter the live queue.',
+        }}
+      />
+    );
+  }
+
+  // Seeker profile verification guard: block seekers without completed profile from Client Dashboard
+  const isSeeker = user.role === 'support_seeker' || user.role === 'user';
+  if (requireSeekerProfile && isSeeker && !isSeekerProfileCompleted) {
+    return (
+      <Navigate
+        to="/seeker-setup"
+        replace
+        state={{
+          from: location,
         }}
       />
     );

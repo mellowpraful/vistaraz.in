@@ -1,12 +1,17 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Core Authentication & Onboarding Pages
 import PurposeSelectionPage from '../pages/PurposeSelectionPage';
 import RegisterPage from '../pages/RegisterPage';
 import LoginPage from '../pages/LoginPage';
+import SeekerProfileSetupPage from '../pages/SeekerProfileSetupPage';
 import HelperApplicationPage from '../pages/HelperApplicationPage';
 import ProtectedRoute from '../components/common/ProtectedRoute';
+
+// Admin Portal
+import AdminLoginPage from '../pages/AdminLoginPage';
+import AdminDashboardPage from '../pages/AdminDashboardPage';
 
 // Developer 1 Pages (1 to 8)
 import HomePage from '../pages/HomePage';
@@ -46,8 +51,6 @@ export default function AppRoutes() {
       <Route path="/tools" element={<ToolsPage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/community" element={<CommunityPage />} />
-      <Route path="/chat" element={<ChatPage />} />
-      <Route path="/video-call" element={<VideoCallPage />} />
       <Route path="/error-500" element={<ServerErrorPage />} />
 
       {/* --- Authentication & Onboarding Flow --- */}
@@ -56,6 +59,16 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
 
+      {/* --- First-Time Seeker Profile Setup --- */}
+      <Route
+        path="/seeker-setup"
+        element={
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
+            <SeekerProfileSetupPage />
+          </ProtectedRoute>
+        }
+      />
+
       {/* --- Support Seeker Journey & Check-in --- */}
       <Route path="/assessment" element={<AssessmentPage />} />
 
@@ -63,16 +76,31 @@ export default function AppRoutes() {
       <Route
         path="/client-panel"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
             <ClientPanelPage />
           </ProtectedRoute>
         }
       />
+      {/* Automatically redirect /dashboard to /client-panel to avoid duplicate experiences */}
       <Route
         path="/dashboard"
+        element={<Navigate to="/client-panel" replace />}
+      />
+
+      {/* --- Protected Support Interaction Routes --- */}
+      <Route
+        path="/chat"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
-            <DashboardPage />
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/video-call"
+        element={
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
+            <VideoCallPage />
           </ProtectedRoute>
         }
       />
@@ -91,6 +119,76 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['helper']} requireVerifiedHelper={true}>
             <ListenerPortalPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ── Admin Portal (direct URL access only, no public link) ── */}
+      {/* Public admin login — no auth required */}
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+
+      {/* Protected admin dashboard routes */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/seekers"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/listener-applications"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/intern-applications"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/professionals"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/sessions"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/reports"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboardPage />
           </ProtectedRoute>
         }
       />

@@ -1,53 +1,73 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import {
-  Watch,
   Calendar,
   MessageSquare,
   Video,
   LogOut,
   ArrowRight,
-  Sparkles,
-  Settings,
   Smile,
   Activity,
   Heart,
-  X,
-  CheckCircle2,
-  Clock
+  ClipboardList,
+  BarChart2,
+  Loader2,
 } from 'lucide-react';
 import './DashboardPage.css';
-
 import { useAuth } from '../context/AuthContext';
+import { getDashboardStats } from '../services/clientService';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [showWearableBanner, setShowWearableBanner] = useState(true);
   const userName = user?.name || 'Friend';
-  const [userPlan, setUserPlan] = useState('Silver');
 
-  const handleSignOut = () => {
-    logout();
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchStats() {
+      setStatsLoading(true);
+      setStatsError(null);
+      try {
+        const json = await getDashboardStats();
+        if (!cancelled) setStats(json.data);
+      } catch (err) {
+        if (!cancelled) setStatsError('Could not load your dashboard data.');
+      } finally {
+        if (!cancelled) setStatsLoading(false);
+      }
+    }
+    fetchStats();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleSignOut = async () => {
+    await logout();
     navigate('/login', { replace: true });
   };
 
   return (
     <AppLayout hasSidebar={true}>
       <div className="vz-dashboard-page">
+
         {/* Welcome Header */}
         <div className="vz-dashboard-header">
           <div className="vz-dashboard-header__user">
-            <div className="vz-dashboard-avatar">🦊</div>
+            <div className="vz-dashboard-avatar">
+              {userName.charAt(0).toUpperCase()}
+            </div>
             <div>
               <h1 className="vz-dashboard-title">
                 Welcome back, <em className="vz-text-violet">{userName}</em>
               </h1>
               <p className="vz-dashboard-subtitle">
-                Here is a summary of your wellbeing, upcoming support, and active care plan.
+                Here is a live summary of your wellbeing and care activity.
               </p>
             </div>
           </div>
@@ -67,132 +87,107 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Wearable Insight Banner */}
-        {showWearableBanner && (
-          <div className="vz-wearable-card">
-            <div className="vz-wearable-card__left">
-              <div className="vz-wearable-icon-wrap">
-                <Watch size={24} color="var(--vz-primary)" />
-              </div>
-              <div>
-                <h3 className="vz-wearable-card__title">Wearable Insight</h3>
-                <p className="vz-wearable-card__desc">
-                  Your average sleep duration dropped by 1.5 hours over the last 3 days. Would you like to do a quick 2-minute check-in?
-                </p>
-              </div>
-            </div>
-            <div className="vz-wearable-card__actions">
-              <button
-                type="button"
-                className="vz-btn vz-btn--ghost vz-btn--sm"
-                onClick={() => setShowWearableBanner(false)}
-              >
-                Dismiss
-              </button>
-              <Button to="/assessment" variant="primary" size="sm" icon={<ArrowRight size={14} />}>
-                Check-in
-              </Button>
-            </div>
+        {/* Stats Error */}
+        {statsError && (
+          <div className="cp-alert cp-alert--warning" style={{ marginBottom: '24px' }}>
+            ⚠️ {statsError}
           </div>
         )}
 
-        {/* 3 Core Overview Cards */}
+        {/* Live Stats Cards */}
         <div className="vz-dashboard-grid-3">
-          {/* Card 1: Active Membership */}
+
+          {/* Card 1: Sessions */}
           <Card variant="default" padding="lg" className="vz-dash-card">
-            <span className="vz-eyebrow">YOUR PLAN</span>
-            <h2 className="vz-dash-card__title">{userPlan} Membership</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-muted)', marginBottom: '20px' }}>
-              Renewal Date: 28th of this month
-            </p>
-
-            <div className="vz-dash-meter-group">
-              <div className="vz-dash-meter-header">
-                <span>Chat Allowance</span>
-                <strong>3.5 / 4.0 hrs used</strong>
+            <span className="vz-eyebrow" style={{ color: 'var(--vz-primary)' }}>SESSIONS</span>
+            {statsLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                <Loader2 size={18} className="spin" color="var(--vz-primary)" />
+                <span style={{ color: 'var(--vz-text-muted)', fontSize: '0.9rem' }}>Loading…</span>
               </div>
-              <div className="vz-dash-meter-track">
-                <div className="vz-dash-meter-fill" style={{ width: '85%', backgroundColor: '#f59e0b' }} />
-              </div>
-            </div>
-
-            <div className="vz-dash-meter-group" style={{ marginTop: '16px' }}>
-              <div className="vz-dash-meter-header">
-                <span>Voice / Video</span>
-                <strong>0 / 30 mins used</strong>
-              </div>
-              <div className="vz-dash-meter-track">
-                <div className="vz-dash-meter-fill" style={{ width: '15%', backgroundColor: '#10b981' }} />
-              </div>
-            </div>
-
+            ) : (
+              <>
+                <h2 className="vz-dash-card__title" style={{ fontSize: '2.5rem', fontWeight: 700, margin: '8px 0 4px' }}>
+                  {stats?.totalCompletedSessions ?? 0}
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-muted)', marginBottom: '20px' }}>
+                  Total completed sessions
+                </p>
+                {(stats?.upcomingSessionsCount ?? 0) > 0 && (
+                  <span className="vz-chip mint" style={{ fontSize: '0.78rem' }}>
+                    {stats.upcomingSessionsCount} upcoming
+                  </span>
+                )}
+              </>
+            )}
             <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
-              <Button to="/plans" variant="outline" size="sm" fullWidth>
-                Upgrade to Gold Plan
+              <Button to="/client-panel" variant="outline" size="sm" fullWidth icon={<ArrowRight size={14} />}>
+                View All Sessions
               </Button>
             </div>
           </Card>
 
-          {/* Card 2: Upcoming Support */}
+          {/* Card 2: Mood Check-ins */}
           <Card variant="default" padding="lg" className="vz-dash-card">
-            <span className="vz-eyebrow" style={{ color: '#059669' }}>
-              UPCOMING SUPPORT
-            </span>
-            <h2 className="vz-dash-card__title">Live Video Session</h2>
-
-            <div className="vz-dash-session-preview">
-              <div className="vz-dash-session-avatar">S</div>
-              <div>
-                <strong>Dr. Nidhi M.</strong>
-                <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-secondary)', margin: '2px 0 0' }}>
-                  Tomorrow at 4:00 PM (45 mins)
-                </p>
-                <span className="vz-chip mint" style={{ marginTop: '6px', fontSize: '0.74rem' }}>
-                  Confirmed Booking
-                </span>
+            <span className="vz-eyebrow" style={{ color: '#059669' }}>MOOD CHECK-INS</span>
+            {statsLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                <Loader2 size={18} className="spin" color="#059669" />
+                <span style={{ color: 'var(--vz-text-muted)', fontSize: '0.9rem' }}>Loading…</span>
               </div>
-            </div>
-
-            <div style={{ marginTop: 'auto', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <Button to="/video-call" variant="primary" size="sm" fullWidth icon={<Video size={14} />}>
-                Join Waiting Room
-              </Button>
-              <Button to="/chat" variant="ghost" size="sm" fullWidth>
-                Message Listener First
+            ) : (
+              <>
+                <h2 className="vz-dash-card__title" style={{ fontSize: '2.5rem', fontWeight: 700, margin: '8px 0 4px' }}>
+                  {stats?.totalMoodCheckins ?? 0}
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-muted)', marginBottom: '12px' }}>
+                  Total mood logs recorded
+                </p>
+                {stats?.latestMood ? (
+                  <span className="vz-chip mint" style={{ fontSize: '0.78rem', textTransform: 'capitalize' }}>
+                    Latest: {stats.latestMood}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.82rem', color: 'var(--vz-text-muted)' }}>No check-ins yet</span>
+                )}
+              </>
+            )}
+            <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
+              <Button to="/client-panel" variant="outline" size="sm" fullWidth icon={<Smile size={14} />}>
+                Log Today's Mood
               </Button>
             </div>
           </Card>
 
-          {/* Card 3: Connected Devices */}
+          {/* Card 3: Wellbeing Assessments */}
           <Card variant="default" padding="lg" className="vz-dash-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="vz-eyebrow" style={{ color: 'var(--vz-primary)' }}>
-                CONNECTED DEVICES
-              </span>
-              <span className="vz-chip mint" style={{ fontSize: '0.72rem' }}>
-                Active Sync
-              </span>
-            </div>
-            <h2 className="vz-dash-card__title">Apple Watch Series 8</h2>
-
-            <div className="vz-dash-device-box">
-              <Watch size={32} color="var(--vz-primary)" />
-              <div>
-                <strong>Syncing Health Signals</strong>
-                <p style={{ fontSize: '0.82rem', color: 'var(--vz-text-secondary)', margin: 0 }}>
-                  Sleep stages & resting heart rate
-                </p>
+            <span className="vz-eyebrow" style={{ color: '#7c3aed' }}>WELLBEING</span>
+            {statsLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                <Loader2 size={18} className="spin" color="#7c3aed" />
+                <span style={{ color: 'var(--vz-text-muted)', fontSize: '0.9rem' }}>Loading…</span>
               </div>
-            </div>
-
-            <p style={{ fontSize: '0.82rem', color: 'var(--vz-text-muted)', lineHeight: '1.4', marginTop: '14px' }}>
-              Your biometric signals are never diagnosed. They only provide gentle cues to pause when strain is detected.
-            </p>
-
-            <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-              <button type="button" className="vz-btn vz-btn--outline vz-btn--sm vz-btn--full">
-                <Settings size={14} style={{ marginRight: '6px' }} /> Manage Permissions
-              </button>
+            ) : (
+              <>
+                <h2 className="vz-dash-card__title" style={{ fontSize: '2.5rem', fontWeight: 700, margin: '8px 0 4px' }}>
+                  {stats?.assessmentCount ?? 0}
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--vz-text-muted)', marginBottom: '12px' }}>
+                  Wellbeing reflections completed
+                </p>
+                {stats?.latestAssessment ? (
+                  <span className="vz-chip" style={{ fontSize: '0.78rem', backgroundColor: '#ede9fe', color: '#7c3aed' }}>
+                    Latest: {stats.latestAssessment.resultTitle || 'Completed'}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.82rem', color: 'var(--vz-text-muted)' }}>No assessment yet</span>
+                )}
+              </>
+            )}
+            <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
+              <Button to="/assessment" variant="outline" size="sm" fullWidth icon={<ClipboardList size={14} />}>
+                Start Reflection
+              </Button>
             </div>
           </Card>
         </div>
@@ -226,6 +221,20 @@ export default function DashboardPage() {
             <Link to="/community" className="vz-dash-quick-arrow">→</Link>
           </Card>
         </div>
+
+        {/* Client Panel CTA */}
+        <Card variant="default" padding="lg" style={{ marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h3 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 600 }}>View Your Full Care Panel</h3>
+            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--vz-text-secondary)' }}>
+              See your complete session history, mood timeline, and support requests.
+            </p>
+          </div>
+          <Button to="/client-panel" variant="primary" size="md" icon={<ArrowRight size={16} />}>
+            Open Client Panel
+          </Button>
+        </Card>
+
       </div>
     </AppLayout>
   );

@@ -100,10 +100,10 @@ export const auth = betterAuth({
         after: async (newUser) => {
           logger.info(`Better Auth: User created [id: ${newUser.id}] — provisioning sanctuary profile and baseline role.`);
           try {
-            // 1. Provision default Vistaraz sanctuary profile
+            // 1. Provision baseline Vistaraz sanctuary profile stub (seeker profile uncompleted)
             await authPool.query(
-              `INSERT INTO profiles (user_id, display_name, nickname, preferred_language)
-               VALUES ($1, $2, $3, 'en')
+              `INSERT INTO profiles (user_id, display_name, nickname, preferred_language, is_seeker_profile_completed)
+               VALUES ($1, $2, $3, 'en', false)
                ON CONFLICT (user_id) DO NOTHING`,
               [newUser.id, newUser.name || 'Sanctuary Seeker', (newUser.name || 'Friend').split(' ')[0]]
             );
