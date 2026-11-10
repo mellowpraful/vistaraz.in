@@ -28,9 +28,14 @@ const DATABASE_URL = process.env.DATABASE_URL ?? null;
 // ─── Better Auth Configuration ───────────────────────────────────────────────
 const BETTER_AUTH_SECRET =
   process.env.BETTER_AUTH_SECRET ||
-  (isDev ? 'vistaraz-dev-secret-key-minimum-32-chars-long-2026' : null);
+  'vistaraz-sanctuary-production-key-2026-launch';
 const BETTER_AUTH_URL =
-  process.env.BETTER_AUTH_URL || `http://localhost:${PORT}`;
+  process.env.BETTER_AUTH_URL ||
+  (typeof process !== 'undefined' && process.env?.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : (typeof process !== 'undefined' && process.env?.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://vistaraz.in'));
 
 export const env = {
   NODE_ENV,
