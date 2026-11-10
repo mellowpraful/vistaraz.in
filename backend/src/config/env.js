@@ -16,7 +16,7 @@ const PORT = parseInt(process.env.PORT ?? '5000', 10);
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 // Accept a comma-separated list of allowed origins.
-const rawOrigins = process.env.CORS_ORIGINS ?? 'http://localhost:3000';
+const rawOrigins = process.env.CORS_ORIGINS ?? 'http://localhost:3000,https://vistaraz.in,https://www.vistaraz.in';
 const CORS_ORIGINS = rawOrigins
   .split(',')
   .map((o) => o.trim())

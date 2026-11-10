@@ -20,7 +20,19 @@ export const corsOptions = {
       return callback(null, true);
     }
 
-    if (env.CORS_ORIGINS.includes(requestOrigin)) {
+    const allowedOrigins = [
+      ...env.CORS_ORIGINS,
+      'https://vistaraz.in',
+      'https://www.vistaraz.in',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
+    ];
+
+    const isVercel = requestOrigin.endsWith('.vercel.app');
+
+    if (allowedOrigins.includes(requestOrigin) || isVercel) {
       return callback(null, true);
     }
 
