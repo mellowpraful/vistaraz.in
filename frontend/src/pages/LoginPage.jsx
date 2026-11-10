@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { authClient } from '../services/authClient';
 import { getSavedPurpose, savePurpose } from '../services/authService';
 import AuthCarousel from '../components/common/AuthCarousel';
 import './LoginPage.css';
@@ -148,13 +149,18 @@ export default function LoginPage() {
     e.preventDefault();
     setGoogleNotice(null);
     try {
-      await authClient.signIn.social({
+      const res = await authClient.signIn.social({
         provider: 'google',
         callbackURL: window.location.origin + (isSeeker ? '/client-panel' : '/listener-portal'),
       });
+      if (res?.data?.url) {
+        window.location.href = res.data.url;
+      } else if (res?.error) {
+        setGoogleNotice(res.error.message || 'Google authentication failed.');
+      }
     } catch (err) {
       console.error('Google sign-in error:', err);
-      setGoogleNotice('Unable to connect to Google. Please ensure Google OAuth credentials are set in environment variables.');
+      setGoogleNotice(err?.message || 'Unable to connect to Google. Please check your credentials or network.');
     }
   };
 

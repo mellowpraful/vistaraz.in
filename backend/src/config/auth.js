@@ -29,11 +29,15 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: Array.from(new Set([
     ...env.CORS_ORIGINS,
+    'https://vistaraz.in',
+    'https://www.vistaraz.in',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
     'http://127.0.0.1:5096',
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    ...(process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : []),
   ])),
 
   emailAndPassword: {
