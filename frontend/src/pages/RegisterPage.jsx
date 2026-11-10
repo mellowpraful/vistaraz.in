@@ -131,9 +131,18 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleClick = (e) => {
+  const handleGoogleClick = async (e) => {
     e.preventDefault();
-    setGoogleNotice('Google sign-up is coming soon. Please use your email and password For Register New Account.');
+    setGoogleNotice(null);
+    try {
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: window.location.origin + (isSeeker ? '/seeker/setup' : '/helper-application'),
+      });
+    } catch (err) {
+      console.error('Google sign-up error:', err);
+      setGoogleNotice('Unable to connect to Google. Please ensure Google OAuth credentials are set in environment variables.');
+    }
   };
 
   const isSeeker = role === 'support_seeker';

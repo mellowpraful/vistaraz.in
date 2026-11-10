@@ -144,9 +144,18 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleClick = (e) => {
+  const handleGoogleClick = async (e) => {
     e.preventDefault();
-    setGoogleNotice('Google sign-in is coming soon. Please use your email and password for login.');
+    setGoogleNotice(null);
+    try {
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: window.location.origin + (isSeeker ? '/client-panel' : '/listener-portal'),
+      });
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      setGoogleNotice('Unable to connect to Google. Please ensure Google OAuth credentials are set in environment variables.');
+    }
   };
 
   const isSeeker = selectedRole === 'support_seeker';
