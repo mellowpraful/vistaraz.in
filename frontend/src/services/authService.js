@@ -295,6 +295,10 @@ export async function createSeekerProfile({ realName, avatarId }) {
 
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
+    if (res.status === 409) {
+      // If profile already exists in DB, update it cleanly
+      return updateSeekerProfile({ realName, avatarId });
+    }
     throw new Error(json.error || 'Failed to create seeker profile.');
   }
 

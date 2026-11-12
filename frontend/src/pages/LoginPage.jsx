@@ -4,6 +4,7 @@ import { Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, CheckCircle2 } from 
 import { useAuth } from '../context/AuthContext';
 import { authClient } from '../services/authClient';
 import { getSavedPurpose, savePurpose } from '../services/authService';
+import { resolveAuthRedirect, setStoredRedirect, clearStoredRedirect } from '../utils/redirectHelper';
 import AuthCarousel from '../components/common/AuthCarousel';
 import './LoginPage.css';
 
@@ -57,7 +58,12 @@ export default function LoginPage() {
       setSelectedRole('support_seeker');
       savePurpose('support_seeker');
     }
-  }, [rawRole]);
+
+    const redirectTarget = resolveAuthRedirect(searchParams, location);
+    if (redirectTarget) {
+      setStoredRedirect(redirectTarget);
+    }
+  }, [rawRole, searchParams, location]);
 
   // Form Fields State
   const [email, setEmail] = useState('');
@@ -119,22 +125,38 @@ export default function LoginPage() {
   };
 
   const redirectUserByRole = (user) => {
-    // If the user was trying to access a specific protected page, check if permitted
-    const intendedFrom = location.state?.from?.pathname;
-    if (intendedFrom && intendedFrom !== '/login' && intendedFrom !== '/register') {
-      navigate(intendedFrom, { replace: true });
-      return;
-    }
+    const intendedTarget = resolveAuthRedirect(searchParams, location);
 
     if (user.role === 'support_seeker' || user.role === 'user') {
       if (!user.isSeekerProfileCompleted) {
-        navigate('/seeker-setup', { replace: true });
-      } else if (!user.onboardingCompleted) {
+        navigate(
+          intendedTarget ? `/seeker-setup?redirect=${encodeURIComponent(intendedTarget)}` : '/seeker-setup',
+          { replace: true }
+        );
+        return;
+      }
+
+      if (intendedTarget) {
+        clearStoredRedirect();
+        navigate(intendedTarget, { replace: true });
+        return;
+      }
+
+      if (!user.onboardingCompleted) {
         navigate('/assessment', { replace: true });
       } else {
         navigate('/client-panel', { replace: true });
       }
-    } else if (user.role === 'helper') {
+      return;
+    }
+
+    if (intendedTarget) {
+      clearStoredRedirect();
+      navigate(intendedTarget, { replace: true });
+      return;
+    }
+
+    if (user.role === 'helper') {
       if (user.helperVerificationStatus === 'verified') {
         navigate('/listener-portal', { replace: true });
       } else {
@@ -149,9 +171,16 @@ export default function LoginPage() {
     e.preventDefault();
     setGoogleNotice(null);
     try {
+      const redirectTarget = resolveAuthRedirect(searchParams, location);
+      if (redirectTarget) {
+        setStoredRedirect(redirectTarget);
+      }
+      const targetQuery = redirectTarget ? `?redirect=${encodeURIComponent(redirectTarget)}` : '';
+      const callbackDest = (isSeeker ? '/client-panel' : '/listener-portal') + targetQuery;
+
       const res = await authClient.signIn.social({
         provider: 'google',
-        callbackURL: window.location.origin + (isSeeker ? '/client-panel' : '/listener-portal'),
+        callbackURL: window.location.origin + callbackDest,
       });
       if (res?.data?.url) {
         window.location.href = res.data.url;
@@ -361,7 +390,14 @@ export default function LoginPage() {
           <div className="vz-auth-switch">
             <span>Don't have an account?</span>
             <Link
-              to={selectedRole ? `/register?role=${selectedRole}` : '/get-started'}
+              to={(() => {
+                const redirectTarget = resolveAuthRedirect(searchParams, location);
+                const q = redirectTarget ? `redirect=${encodeURIComponent(redirectTarget)}` : '';
+                if (selectedRole) {
+                  return `/register?role=${selectedRole}${q ? `&${q}` : ''}`;
+                }
+                return `/get-started${q ? `?${q}` : ''}`;
+              })()}
               className="vz-auth-switch-link"
               id="link-to-register"
             >

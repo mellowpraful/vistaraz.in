@@ -115,29 +115,7 @@ export async function createSeekerProfile(req, res) {
       });
     }
 
-    // Check for existing completed profile to prevent duplicates
-    const existingRes = await authPool.query(
-      `SELECT is_seeker_profile_completed, real_name, avatar_id
-       FROM profiles
-       WHERE user_id = $1`,
-      [userId]
-    );
-
-    const existing = existingRes.rows[0];
-    if (existing && existing.is_seeker_profile_completed && existing.avatar_id && existing.real_name) {
-      return res.status(409).json({
-        success: false,
-        error: 'Seeker profile already exists. Use PATCH to update.',
-        code: 'PROFILE_ALREADY_EXISTS',
-        data: {
-          userId,
-          realName: existing.real_name,
-          avatarId: existing.avatar_id,
-        },
-      });
-    }
-
-    // Upsert seeker profile into NeonDB
+    // Upsert seeker profile into NeonDB (idempotent: sets or updates real_name & avatar)
     const insertRes = await authPool.query(
       `INSERT INTO profiles (
          user_id,

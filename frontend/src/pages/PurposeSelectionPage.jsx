@@ -1,7 +1,8 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ArrowRight, Check, ShieldCheck, HeartHandshake, Sparkles, Heart } from 'lucide-react';
 import { savePurpose } from '../services/authService';
+import { resolveAuthRedirect, setStoredRedirect } from '../utils/redirectHelper';
 import './PurposeSelectionPage.css';
 
 /**
@@ -16,11 +17,26 @@ import './PurposeSelectionPage.css';
  */
 export default function PurposeSelectionPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  const redirectTarget = resolveAuthRedirect(searchParams, location);
+
+  useEffect(() => {
+    if (redirectTarget) {
+      setStoredRedirect(redirectTarget);
+    }
+  }, [redirectTarget]);
 
   const handleSelectPurpose = (role) => {
     savePurpose(role);
-    navigate(`/register?role=${role}`);
+    const q = redirectTarget ? `&redirect=${encodeURIComponent(redirectTarget)}` : '';
+    navigate(`/register?role=${role}${q}`);
   };
+
+  const loginUrl = redirectTarget
+    ? `/login?redirect=${encodeURIComponent(redirectTarget)}`
+    : '/login';
 
   return (
     <div className="vz-purpose-page">
@@ -31,7 +47,7 @@ export default function PurposeSelectionPage() {
             <img src="/logo.png" alt="Vistaraz" height="48" />
           </Link>
 
-          <Link to="/login" className="vz-purpose-login-link">
+          <Link to={loginUrl} className="vz-purpose-login-link">
             Already have an account? <strong>Log in</strong>
           </Link>
         </header>

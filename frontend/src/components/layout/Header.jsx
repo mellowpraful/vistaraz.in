@@ -24,6 +24,21 @@ export default function Header({ variant = 'default' }) {
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
+  // Preserve return route for login and registration CTA links
+  const currentPath = location.pathname + location.search;
+  const isAuthPath =
+    location.pathname === '/login' ||
+    location.pathname === '/register' ||
+    location.pathname === '/get-started' ||
+    location.pathname === '/purpose' ||
+    location.pathname === '/seeker-setup';
+  const loginUrl = !isAuthPath && location.pathname !== '/'
+    ? `/login?redirect=${encodeURIComponent(currentPath)}`
+    : '/login';
+  const getStartedUrl = !isAuthPath && location.pathname !== '/'
+    ? `/get-started?redirect=${encodeURIComponent(currentPath)}`
+    : '/get-started';
+
   const handleLogout = () => {
     logout();
     closeMobileMenu();
@@ -160,7 +175,7 @@ export default function Header({ variant = 'default' }) {
           ) : (
             <>
               <Link
-                to="/login"
+                to={loginUrl}
                 className="vz-header__login-link vz-hide-mobile"
                 id="header-login-link"
               >
@@ -168,7 +183,7 @@ export default function Header({ variant = 'default' }) {
               </Link>
 
               <Button
-                to="/get-started"
+                to={getStartedUrl}
                 variant="primary"
                 size="sm"
                 icon={<ArrowRight size={15} />}
@@ -252,14 +267,14 @@ export default function Header({ variant = 'default' }) {
                   ) : (
                     <>
                       <Link
-                        to="/login"
+                        to={loginUrl}
                         className="vz-header__mobile-secondary-link"
                         onClick={closeMobileMenu}
                       >
                         Log In
                       </Link>
                       <Button
-                        to="/get-started"
+                        to={getStartedUrl}
                         variant="primary"
                         fullWidth
                         icon={<ArrowRight size={16} />}

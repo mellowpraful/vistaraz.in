@@ -177,6 +177,24 @@
   outline-offset: 2px;
 }
 
+/* Google OAuth Action Button */
+.vz-login-gate-btn--google {
+  background-color: #ffffff;
+  color: var(--vz-text-primary);
+  border: 1px solid var(--vz-border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.vz-login-gate-btn--google:hover {
+  background-color: var(--vz-bg-subtle);
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.vz-login-gate-btn--google:active {
+  transform: translateY(0);
+}
+
 /* Email & Password Action Button */
 .vz-login-gate-btn--email {
   background-color: var(--vz-dark-pill);

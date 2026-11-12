@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createSeekerProfile } from '../services/authService';
+import { resolveAuthRedirect, clearStoredRedirect, setStoredRedirect } from '../utils/redirectHelper';
 import { AVATAR_LIST, AvatarImage } from '../utils/avatars';
 import { ShieldCheck, ArrowRight, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import './SeekerProfileSetupPage.css';
@@ -18,6 +19,15 @@ export default function SeekerProfileSetupPage() {
   const { user, isSeekerProfileCompleted, checkSeekerProfile, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // Persist any explicit redirect query param
+  useEffect(() => {
+    const qRedirect = searchParams.get('redirect');
+    if (qRedirect) {
+      setStoredRedirect(qRedirect);
+    }
+  }, [searchParams]);
 
   const [realName, setRealName] = useState(user?.seekerProfile?.realName || user?.name || '');
   const [selectedAvatarId, setSelectedAvatarId] = useState(
@@ -28,13 +38,14 @@ export default function SeekerProfileSetupPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
-  // If the profile already exists, redirect directly to the Client Dashboard
+  // If the profile already exists, redirect directly to original destination or Client Dashboard
   useEffect(() => {
     if (isSeekerProfileCompleted) {
-      const returnPath = location.state?.from?.pathname || '/client-panel';
+      const returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+      clearStoredRedirect();
       navigate(returnPath, { replace: true });
     }
-  }, [isSeekerProfileCompleted, navigate, location]);
+  }, [isSeekerProfileCompleted, navigate, location, searchParams]);
 
   const validate = () => {
     const errs = {};
@@ -73,9 +84,11 @@ export default function SeekerProfileSetupPage() {
         // Refresh seeker profile state in context
         await checkSeekerProfile();
 
-        // Graceful redirect to client dashboard
+        const returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+        clearStoredRedirect();
+
+        // Graceful redirect to intended destination or client dashboard
         setTimeout(() => {
-          const returnPath = location.state?.from?.pathname || '/client-panel';
           navigate(returnPath, { replace: true });
         }, 800);
       }

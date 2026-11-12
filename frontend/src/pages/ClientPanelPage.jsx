@@ -5,6 +5,7 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { useAuth } from '../context/AuthContext';
 import { AvatarImage } from '../utils/avatars';
+import { resolveAuthRedirect, clearStoredRedirect } from '../utils/redirectHelper';
 import * as clientService from '../services/clientService';
 import {
   Heart,
@@ -65,6 +66,15 @@ export default function ClientPanelPage() {
 
   const seekerName = seekerProfile?.realName || user?.seekerProfile?.realName || user?.name || 'Friend';
   const seekerAvatarId = seekerProfile?.avatarId || user?.seekerProfile?.avatarId || 'avatar_01';
+
+  // Forward user to original intended destination (e.g. /community) if returning from auth
+  useEffect(() => {
+    const intended = resolveAuthRedirect(searchParams);
+    if (intended && !intended.startsWith('/client-panel')) {
+      clearStoredRedirect();
+      navigate(intended, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   // Synchronize dashboard active view with URL search param
   const rawTab = (searchParams.get('tab') || 'overview').toLowerCase();

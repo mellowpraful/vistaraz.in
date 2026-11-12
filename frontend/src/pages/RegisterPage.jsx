@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { authClient } from '../services/authClient';
 import { getSavedPurpose, savePurpose } from '../services/authService';
+import { resolveAuthRedirect, setStoredRedirect, clearStoredRedirect } from '../utils/redirectHelper';
 import AuthCarousel from '../components/common/AuthCarousel';
 import './RegisterPage.css';
 
@@ -36,7 +37,16 @@ function GoogleIcon() {
 export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { register } = useAuth();
+
+  // Persist redirect param
+  useEffect(() => {
+    const redirectTarget = resolveAuthRedirect(searchParams, location);
+    if (redirectTarget) {
+      setStoredRedirect(redirectTarget);
+    }
+  }, [searchParams, location]);
 
   // Role discovery & preservation
   const rawRole = searchParams.get('role');
@@ -51,11 +61,13 @@ export default function RegisterPage() {
   // Redirect to Purpose Selection if no role is chosen
   useEffect(() => {
     if (!role) {
-      navigate('/get-started', { replace: true });
+      const redirectTarget = resolveAuthRedirect(searchParams, location);
+      const q = redirectTarget ? `?redirect=${encodeURIComponent(redirectTarget)}` : '';
+      navigate(`/get-started${q}`, { replace: true });
     } else {
       savePurpose(role);
     }
-  }, [role, navigate]);
+  }, [role, navigate, searchParams, location]);
 
   // Form Fields State
   const [name, setName] = useState('');
@@ -117,8 +129,17 @@ export default function RegisterPage() {
         role,
       });
 
+      const redirectTarget = resolveAuthRedirect(searchParams, location);
+
       // Role-Based Next Journey Redirect
-      if (newUser.role === 'support_seeker' || newUser.role === 'user') {
+      if (redirectTarget) {
+        if (newUser.role === 'support_seeker' || newUser.role === 'user') {
+          navigate(`/seeker-setup?redirect=${encodeURIComponent(redirectTarget)}`, { replace: true });
+        } else {
+          clearStoredRedirect();
+          navigate(redirectTarget, { replace: true });
+        }
+      } else if (newUser.role === 'support_seeker' || newUser.role === 'user') {
         navigate('/assessment', { replace: true });
       } else if (newUser.role === 'helper') {
         navigate('/helper-application', { replace: true });
@@ -136,9 +157,16 @@ export default function RegisterPage() {
     e.preventDefault();
     setGoogleNotice(null);
     try {
+      const redirectTarget = resolveAuthRedirect(searchParams, location);
+      if (redirectTarget) {
+        setStoredRedirect(redirectTarget);
+      }
+      const targetQuery = redirectTarget ? `?redirect=${encodeURIComponent(redirectTarget)}` : '';
+      const callbackDest = (isSeeker ? '/seeker-setup' : '/helper-application') + targetQuery;
+
       const res = await authClient.signIn.social({
         provider: 'google',
-        callbackURL: window.location.origin + (isSeeker ? '/seeker-setup' : '/helper-application'),
+        callbackURL: window.location.origin + callbackDest,
       });
       if (res?.data?.url) {
         window.location.href = res.data.url;
@@ -396,7 +424,15 @@ export default function RegisterPage() {
           {/* Link to Login */}
           <div className="vz-auth-switch">
             <span>Already have an account?</span>
-            <Link to={`/login?role=${role}`} className="vz-auth-switch-link" id="link-to-login">
+            <Link
+              to={(() => {
+                const redirectTarget = resolveAuthRedirect(searchParams, location);
+                const q = redirectTarget ? `&redirect=${encodeURIComponent(redirectTarget)}` : '';
+                return `/login?role=${role}${q}`;
+              })()}
+              className="vz-auth-switch-link"
+              id="link-to-login"
+            >
               Log in
             </Link>
           </div>
