@@ -16,7 +16,7 @@ import './SeekerProfileSetupPage.css';
  * - Redirects to the Client Dashboard upon completion.
  */
 export default function SeekerProfileSetupPage() {
-  const { user, isSeekerProfileCompleted, checkSeekerProfile, logout } = useAuth();
+  const { user, isSeekerProfileCompleted, checkSeekerProfile, refreshUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -41,7 +41,10 @@ export default function SeekerProfileSetupPage() {
   // If the profile already exists, redirect directly to original destination or Client Dashboard
   useEffect(() => {
     if (isSeekerProfileCompleted) {
-      const returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+      let returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+      if (!returnPath || returnPath.startsWith('/seeker-setup')) {
+        returnPath = '/client-panel';
+      }
       clearStoredRedirect();
       navigate(returnPath, { replace: true });
     }
@@ -83,14 +86,20 @@ export default function SeekerProfileSetupPage() {
         setSuccess(true);
         // Refresh seeker profile state in context
         await checkSeekerProfile();
+        if (typeof refreshUser === 'function') {
+          await refreshUser();
+        }
 
-        const returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+        let returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+        if (!returnPath || returnPath.startsWith('/seeker-setup')) {
+          returnPath = '/client-panel';
+        }
         clearStoredRedirect();
 
         // Graceful redirect to intended destination or client dashboard
         setTimeout(() => {
           navigate(returnPath, { replace: true });
-        }, 800);
+        }, 500);
       }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to save your profile. Please try again.');

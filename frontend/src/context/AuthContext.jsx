@@ -38,6 +38,11 @@ export function AuthProvider({ children }) {
       const res = await authService.getSeekerProfile();
       if (res && res.profileExists && res.data) {
         setSeekerProfile(res.data);
+        setUser((prev) => (prev ? {
+          ...prev,
+          isSeekerProfileCompleted: true,
+          seekerProfile: res.data,
+        } : prev));
         return { profileExists: true, data: res.data };
       } else {
         setSeekerProfile(null);
@@ -90,6 +95,11 @@ export function AuthProvider({ children }) {
               const res = await authService.getSeekerProfile();
               if (isMounted && res && res.profileExists && res.data) {
                 setSeekerProfile(res.data);
+                setUser((prev) => (prev ? {
+                  ...prev,
+                  isSeekerProfileCompleted: true,
+                  seekerProfile: res.data,
+                } : prev));
               }
             }
           }
@@ -154,8 +164,12 @@ export function AuthProvider({ children }) {
   const isAuthenticated = Boolean(user);
   const roles = user?.roles || (user?.role ? [user.role] : []);
   const isSeekerProfileCompleted = Boolean(
-    seekerProfile?.avatarId && seekerProfile?.realName
-  ) || Boolean(user?.isSeekerProfileCompleted);
+    (seekerProfile?.avatarId && seekerProfile?.realName) ||
+    (seekerProfile?.avatar_id && seekerProfile?.real_name) ||
+    user?.isSeekerProfileCompleted ||
+    (user?.seekerProfile?.avatarId && user?.seekerProfile?.realName) ||
+    (user?.seekerProfile?.avatar_id && user?.seekerProfile?.real_name)
+  );
 
   return (
     <AuthContext.Provider

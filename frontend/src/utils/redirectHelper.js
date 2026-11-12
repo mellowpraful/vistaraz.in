@@ -11,8 +11,16 @@ export function isValidRedirect(url) {
   // Must be an internal relative path starting with a single '/'
   if (!url.startsWith('/') || url.startsWith('//')) return false;
 
-  const base = url.split('?')[0];
-  const authRoutes = ['/login', '/register', '/get-started', '/purpose'];
+  const base = url.split('?')[0].toLowerCase().trim();
+  const authRoutes = [
+    '/login',
+    '/register',
+    '/get-started',
+    '/purpose',
+    '/seeker-setup',
+    '/seeker/setup',
+    '/signup',
+  ];
   return !authRoutes.includes(base);
 }
 
@@ -60,3 +68,4 @@ export function resolveAuthRedirect(searchParams, location) {
 
   return null;
 }
+
