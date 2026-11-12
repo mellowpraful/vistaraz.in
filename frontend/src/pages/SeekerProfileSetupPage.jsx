@@ -38,17 +38,31 @@ export default function SeekerProfileSetupPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
-  // If the profile already exists, redirect directly to original destination or Client Dashboard
+  // Check on mount if profile already exists in DB or state
   useEffect(() => {
-    if (isSeekerProfileCompleted) {
-      let returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
-      if (!returnPath || returnPath.startsWith('/seeker-setup')) {
-        returnPath = '/client-panel';
+    let isMounted = true;
+    async function verifyAndRedirect() {
+      let isCompleted = isSeekerProfileCompleted;
+      if (!isCompleted && typeof checkSeekerProfile === 'function') {
+        const res = await checkSeekerProfile();
+        if (res && res.profileExists) {
+          isCompleted = true;
+        }
       }
-      clearStoredRedirect();
-      navigate(returnPath, { replace: true });
+
+      if (isMounted && isCompleted) {
+        let returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
+        if (!returnPath || returnPath.startsWith('/seeker-setup')) {
+          returnPath = '/client-panel';
+        }
+        clearStoredRedirect();
+        window.location.href = returnPath;
+      }
     }
-  }, [isSeekerProfileCompleted, navigate, location, searchParams]);
+
+    verifyAndRedirect();
+    return () => { isMounted = false; };
+  }, [isSeekerProfileCompleted, searchParams, location, checkSeekerProfile]);
 
   const validate = () => {
     const errs = {};
@@ -84,22 +98,23 @@ export default function SeekerProfileSetupPage() {
 
       if (response.success) {
         setSuccess(true);
-        // Refresh seeker profile state in context
-        await checkSeekerProfile();
-        if (typeof refreshUser === 'function') {
-          await refreshUser();
-        }
-
         let returnPath = resolveAuthRedirect(searchParams, location) || '/client-panel';
         if (!returnPath || returnPath.startsWith('/seeker-setup')) {
           returnPath = '/client-panel';
         }
         clearStoredRedirect();
 
-        // Graceful redirect to intended destination or client dashboard
+        // Refresh state and navigate
+        if (typeof checkSeekerProfile === 'function') {
+          await checkSeekerProfile();
+        }
+        if (typeof refreshUser === 'function') {
+          await refreshUser();
+        }
+
         setTimeout(() => {
-          navigate(returnPath, { replace: true });
-        }, 500);
+          window.location.href = returnPath;
+        }, 400);
       }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to save your profile. Please try again.');
@@ -115,14 +130,24 @@ export default function SeekerProfileSetupPage() {
           <Link to="/" className="vz-setup-brand" aria-label="Return to Vistaraz Home">
             <img src="/logo.png" alt="Vistaraz" height="42" />
           </Link>
-          <button
-            type="button"
-            onClick={logout}
-            className="vz-setup-signout-btn"
-            title="Sign out of current account"
-          >
-            Sign Out
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Link
+              to="/client-panel"
+              className="vz-setup-signout-btn"
+              style={{ textDecoration: 'none', background: 'var(--vz-primary-light, #eef2ff)', color: 'var(--vz-primary, #6366f1)', fontWeight: 600 }}
+              title="Skip directly to dashboard"
+            >
+              Go to Dashboard &rarr;
+            </Link>
+            <button
+              type="button"
+              onClick={logout}
+              className="vz-setup-signout-btn"
+              title="Sign out of current account"
+            >
+              Sign Out
+            </button>
+          </div>
         </header>
 
         {/* Main Setup Card */}

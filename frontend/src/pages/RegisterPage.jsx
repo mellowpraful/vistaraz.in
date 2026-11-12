@@ -38,7 +38,22 @@ export default function RegisterPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { register } = useAuth();
+  const { user, isAuthenticated, register } = useAuth();
+
+  // If already authenticated, redirect immediately
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const redirectTarget = resolveAuthRedirect(searchParams, location);
+      if (redirectTarget) {
+        clearStoredRedirect();
+        navigate(redirectTarget, { replace: true });
+      } else if (user.role === 'helper') {
+        navigate('/helper-application', { replace: true });
+      } else {
+        navigate('/client-panel', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, searchParams, location, navigate]);
 
   // Persist redirect param
   useEffect(() => {
@@ -133,14 +148,10 @@ export default function RegisterPage() {
 
       // Role-Based Next Journey Redirect
       if (redirectTarget) {
-        if (newUser.role === 'support_seeker' || newUser.role === 'user') {
-          navigate(`/seeker-setup?redirect=${encodeURIComponent(redirectTarget)}`, { replace: true });
-        } else {
-          clearStoredRedirect();
-          navigate(redirectTarget, { replace: true });
-        }
+        clearStoredRedirect();
+        navigate(redirectTarget, { replace: true });
       } else if (newUser.role === 'support_seeker' || newUser.role === 'user') {
-        navigate('/assessment', { replace: true });
+        navigate('/client-panel', { replace: true });
       } else if (newUser.role === 'helper') {
         navigate('/helper-application', { replace: true });
       } else {
@@ -162,7 +173,7 @@ export default function RegisterPage() {
         setStoredRedirect(redirectTarget);
       }
       const targetQuery = redirectTarget ? `?redirect=${encodeURIComponent(redirectTarget)}` : '';
-      const callbackDest = (isSeeker ? '/seeker-setup' : '/helper-application') + targetQuery;
+      const callbackDest = (isSeeker ? '/client-panel' : '/helper-application') + targetQuery;
 
       const res = await authClient.signIn.social({
         provider: 'google',

@@ -38,7 +38,7 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
 
   // Role detection from query or session
   const rawRole = searchParams.get('role');
@@ -64,6 +64,13 @@ export default function LoginPage() {
       setStoredRedirect(redirectTarget);
     }
   }, [rawRole, searchParams, location]);
+
+  // If already authenticated, redirect immediately away from login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      redirectUserByRole(user);
+    }
+  }, [isAuthenticated, user]);
 
   // Form Fields State
   const [email, setEmail] = useState('');
@@ -127,32 +134,14 @@ export default function LoginPage() {
   const redirectUserByRole = (user) => {
     const intendedTarget = resolveAuthRedirect(searchParams, location);
 
-    if (user.role === 'support_seeker' || user.role === 'user') {
-      if (!user.isSeekerProfileCompleted) {
-        navigate(
-          intendedTarget ? `/seeker-setup?redirect=${encodeURIComponent(intendedTarget)}` : '/seeker-setup',
-          { replace: true }
-        );
-        return;
-      }
-
-      if (intendedTarget) {
-        clearStoredRedirect();
-        navigate(intendedTarget, { replace: true });
-        return;
-      }
-
-      if (!user.onboardingCompleted) {
-        navigate('/assessment', { replace: true });
-      } else {
-        navigate('/client-panel', { replace: true });
-      }
-      return;
-    }
-
     if (intendedTarget) {
       clearStoredRedirect();
       navigate(intendedTarget, { replace: true });
+      return;
+    }
+
+    if (user.role === 'support_seeker' || user.role === 'user') {
+      navigate('/client-panel', { replace: true });
       return;
     }
 
@@ -176,7 +165,8 @@ export default function LoginPage() {
         setStoredRedirect(redirectTarget);
       }
       const targetQuery = redirectTarget ? `?redirect=${encodeURIComponent(redirectTarget)}` : '';
-      const callbackDest = (isSeeker ? '/client-panel' : '/listener-portal') + targetQuery;
+      const isHelper = selectedRole === 'helper';
+      const callbackDest = (isHelper ? '/listener-portal' : '/client-panel') + targetQuery;
 
       const res = await authClient.signIn.social({
         provider: 'google',

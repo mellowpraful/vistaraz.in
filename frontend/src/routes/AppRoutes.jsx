@@ -77,7 +77,7 @@ export default function AppRoutes() {
       <Route
         path="/client-panel"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
             <ClientPanelPage />
           </ProtectedRoute>
         }
@@ -92,7 +92,7 @@ export default function AppRoutes() {
       <Route
         path="/chat"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
             <ChatPage />
           </ProtectedRoute>
         }
@@ -100,7 +100,7 @@ export default function AppRoutes() {
       <Route
         path="/video-call"
         element={
-          <ProtectedRoute allowedRoles={['support_seeker', 'user']} requireSeekerProfile={true}>
+          <ProtectedRoute allowedRoles={['support_seeker', 'user']}>
             <VideoCallPage />
           </ProtectedRoute>
         }
