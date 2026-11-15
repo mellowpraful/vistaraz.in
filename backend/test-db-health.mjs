@@ -108,7 +108,10 @@ server.listen(TEST_PORT, '127.0.0.1', async () => {
     console.error('Test execution error:', err);
     process.exitCode = 1;
   } finally {
-    server.close();
+    server.close(() => {
+      process.exit(failures === 0 ? 0 : 1);
+    });
+    setTimeout(() => process.exit(failures === 0 ? 0 : 1), 500);
   }
 });
 

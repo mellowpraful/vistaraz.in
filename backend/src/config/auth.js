@@ -62,6 +62,12 @@ export const auth = betterAuth({
     },
   },
 
+  advanced: {
+    ipAddress: {
+      ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
+    },
+  },
+
   // Map Better Auth logical camelCase properties to Neon PostgreSQL snake_case columns
   user: {
     fields: {

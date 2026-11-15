@@ -180,8 +180,9 @@ async function runValidation() {
     console.error('Validation test error:', err);
     process.exitCode = 1;
   } finally {
-    client.release();
+    if (client) client.release();
     await pool.end();
+    process.exit(failures === 0 ? 0 : 1);
   }
 }
 

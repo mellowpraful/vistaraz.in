@@ -274,9 +274,10 @@ async function runTests() {
     console.log('\n----------------------------------------');
     if (failures === 0) {
       console.log('🎉 ALL 9 SEEKER PROFILE TESTS PASSED SUCCESSFULLY!\n');
+      process.exit(0);
     } else {
       console.error(`💥 ${failures} TEST(S) FAILED.\n`);
-      process.exitCode = 1;
+      process.exit(1);
     }
   }
 }

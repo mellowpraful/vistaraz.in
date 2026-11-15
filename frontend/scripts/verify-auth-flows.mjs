@@ -345,3 +345,4 @@ if (backendReachable) {
 }
 
 console.log('\n🎉 ALL FRONTEND AUTHENTICATION & RBAC TESTS PASSED SUCCESSFULLY!\n');
+process.exit(0);

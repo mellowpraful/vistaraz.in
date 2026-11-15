@@ -30,7 +30,8 @@ export const corsOptions = {
       'http://127.0.0.1:5000',
     ];
 
-    const isVercel = requestOrigin.endsWith('.vercel.app');
+    // Strictly allow only official Vistaraz Vercel deployments (prevents rogue .vercel.app credentialed CORS)
+    const isVercel = /^https:\/\/(?:vistaraz[a-z0-9-]*)\.vercel\.app$/.test(requestOrigin);
 
     if (allowedOrigins.includes(requestOrigin) || isVercel) {
       return callback(null, true);

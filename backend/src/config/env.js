@@ -7,6 +7,14 @@
  */
 
 import 'dotenv/config';
+import dns from 'dns';
+
+// Ensure IPv4 is prioritized to prevent dual-stack EHOSTUNREACH/ENOTFOUND on platforms without IPv6 routing
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {
+  // Ignored in environments where setDefaultResultOrder is not supported
+}
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 const isDev = NODE_ENV === 'development';

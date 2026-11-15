@@ -490,10 +490,13 @@ export default function LoginPage() {
                     ✓
                   </div>
                   <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px' }}>
-                    Recovery Instructions Logged
+                    Account Recovery Guidance
                   </h3>
-                  <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '20px' }}>
-                    If an account is associated with <strong>{resetEmail}</strong>, instructions to reset your password have been issued. If you previously registered using Google, you can sign in directly with Google.
+                  <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '16px' }}>
+                    Automated email password delivery is currently in setup for the Free Beta. If you previously registered or signed in with Google, you can sign in instantly via <strong>Continue with Google</strong> using {resetEmail || 'your email'}.
+                  </p>
+                  <p style={{ color: 'var(--vz-text-muted)', fontSize: '0.82rem', marginBottom: '20px' }}>
+                    For direct account recovery support, our care team is available at <a href="mailto:vistaraz26@gmail.com" style={{ color: 'var(--vz-primary)', fontWeight: 600 }}>vistaraz26@gmail.com</a>.
                   </p>
                   <button
                     type="button"
