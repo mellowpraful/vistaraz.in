@@ -26,11 +26,24 @@ const authPool = new Pool({
 export const auth = betterAuth({
   database: authPool,
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: {
+    allowedHosts: [
+      'vistaraz.in',
+      'www.vistaraz.in',
+      'vistaraz-in.vercel.app',
+      '*.vercel.app',
+      'localhost:5000',
+      'localhost:3000',
+      '127.0.0.1:5000',
+      '127.0.0.1:3000',
+    ],
+    fallback: env.BETTER_AUTH_URL || 'https://vistaraz.in',
+  },
   trustedOrigins: Array.from(new Set([
     ...env.CORS_ORIGINS,
     'https://vistaraz.in',
     'https://www.vistaraz.in',
+    'https://vistaraz-in.vercel.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5000',
@@ -63,6 +76,7 @@ export const auth = betterAuth({
   },
 
   advanced: {
+    trustedProxyHeaders: true,
     ipAddress: {
       ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
     },
