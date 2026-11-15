@@ -137,7 +137,7 @@ export default function ListenerPortalPage() {
   };
 
   return (
-    <AppLayout hasSidebar={false}>
+    <AppLayout>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="lp-toast" role="status" aria-live="polite">

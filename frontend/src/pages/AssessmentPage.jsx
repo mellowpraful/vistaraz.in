@@ -267,7 +267,7 @@ export default function AssessmentPage() {
   }
 
   return (
-    <AppLayout hasSidebar={true}>
+    <AppLayout>
       <div className="vz-assessment-container">
         {!isCompleted ? (
           <div className="vz-assessment-wizard">

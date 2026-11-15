@@ -181,7 +181,7 @@ export default function SupportPage() {
   const showPros = activeTab !== 'listeners';
 
   return (
-    <AppLayout hasSidebar={true}>
+    <AppLayout>
       <div className="vz-support-page">
         {/* Header Hero */}
         <section className="vz-support-header">

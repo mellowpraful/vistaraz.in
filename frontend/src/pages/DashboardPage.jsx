@@ -53,7 +53,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <AppLayout hasSidebar={true}>
+    <AppLayout>
       <div className="vz-dashboard-page">
 
         {/* Welcome Header */}

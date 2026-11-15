@@ -199,7 +199,7 @@ export default function ClientPanelPage() {
   );
 
   return (
-    <AppLayout hasSidebar={false} headerVariant="client-dashboard">
+    <AppLayout headerVariant="client-dashboard">
       {/* Panic Modal */}
       {panicModalOpen && (
         <div

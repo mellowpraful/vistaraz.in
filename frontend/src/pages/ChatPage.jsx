@@ -47,7 +47,7 @@ export default function ChatPage() {
   const seekerAvatarId = seekerProfile?.avatarId || 'avatar_01';
 
   return (
-    <AppLayout hasSidebar={false} headerVariant="client-dashboard">
+    <AppLayout headerVariant="client-dashboard">
       {/* ── Mandatory Disclaimer Modal ── */}
       <SupportDisclaimerModal
         isOpen={!disclaimerAccepted}

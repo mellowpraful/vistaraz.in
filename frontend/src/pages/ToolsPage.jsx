@@ -217,7 +217,7 @@ export default function ToolsPage() {
   ];
 
   return (
-    <AppLayout hasSidebar={true}>
+    <AppLayout>
       <div className="vz-tools-container">
         {/* Header */}
         <section className="vz-tools-header">
