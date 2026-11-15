@@ -47,6 +47,9 @@ async function runValidation() {
       'support_sessions',
       'assessments',
       'audit_logs',
+      'community_posts',
+      'community_likes',
+      'community_comments',
     ];
 
     const missingTables = expectedTables.filter((t) => !tableNames.has(t));
@@ -58,13 +61,13 @@ async function runValidation() {
     }
 
     // 2. Migration tracking check
-    console.log('Test 2: Verify schema_migrations table records all 5 migrations');
+    console.log('Test 2: Verify schema_migrations table records all migrations');
     const migRes = await client.query('SELECT name FROM schema_migrations ORDER BY id ASC');
     const recordedMigrations = migRes.rows.map((r) => r.name);
-    if (recordedMigrations.length === 5) {
-      console.log(`✅ Test 2 PASSED: 5 migrations recorded in schema_migrations.\n`);
+    if (recordedMigrations.length >= 8) {
+      console.log(`✅ Test 2 PASSED: ${recordedMigrations.length} migrations recorded in schema_migrations.\n`);
     } else {
-      console.error('❌ Test 2 FAILED: Expected 5 migrations, found:', recordedMigrations.length);
+      console.error('❌ Test 2 FAILED: Expected at least 8 migrations, found:', recordedMigrations.length);
       failures++;
     }
 

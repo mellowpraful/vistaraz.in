@@ -16,6 +16,8 @@ import {
   getSeekerProfile,
   createSeekerProfile,
   updateSeekerProfile,
+  getHelperProfile,
+  updateHelperProfile,
 } from '../controllers/profileController.js';
 import {
   getDashboardStats,
@@ -96,5 +98,17 @@ router.post('/me/profile', requireAuth, createSeekerProfile);
  * Allows updating user's Real Name or Avatar selection.
  */
 router.patch('/me/profile', requireAuth, updateSeekerProfile);
+
+/**
+ * GET /api/users/me/helper-profile
+ * Returns authenticated user's helper profile & verification status.
+ */
+router.get('/me/helper-profile', requireAuth, getHelperProfile);
+
+/**
+ * PUT /api/users/me/helper-profile
+ * Saves helper qualifications, languages, and statement into helper_profiles.
+ */
+router.put('/me/helper-profile', requireAuth, updateHelperProfile);
 
 export default router;

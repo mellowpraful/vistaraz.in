@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, Clock, CheckCircle2, AlertCircle, ArrowRight,
-  LogOut, Lock, FileText, Check
+  LogOut, Lock, FileText, Check, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getHelperProfile, updateHelperProfile } from '../services/authService';
 import './HelperApplicationPage.css';
 
 /**
@@ -23,18 +24,74 @@ export default function HelperApplicationPage() {
   const [statement, setStatement] = useState('');
   const [agreedCode, setAgreedCode] = useState(true);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [dbVerificationStatus, setDbVerificationStatus] = useState(null);
+  const [dbApplicationStatus, setDbApplicationStatus] = useState(null);
 
-  const isVerified = user?.helperVerificationStatus === 'verified';
+  // Load existing helper profile from backend database on mount
+  useEffect(() => {
+    let isMounted = true;
+    async function loadProfile() {
+      try {
+        setIsLoading(true);
+        const res = await getHelperProfile();
+        if (isMounted && res.data) {
+          if (res.data.qualification) setQualification(res.data.qualification);
+          if (res.data.languages) {
+            setLanguages(Array.isArray(res.data.languages) ? res.data.languages.join(', ') : res.data.languages);
+          }
+          if (res.data.introduction) setStatement(res.data.introduction);
+          if (res.data.verificationStatus) setDbVerificationStatus(res.data.verificationStatus);
+          if (res.data.applicationStatus) setDbApplicationStatus(res.data.applicationStatus);
+        }
+      } catch (err) {
+        // Fallback to authContext if initial query fails
+        console.warn('Could not load helper profile from DB, using session state:', err.message);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
 
-  const handleSaveDetails = (e) => {
+    loadProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const isVerified = (dbVerificationStatus || user?.helperVerificationStatus) === 'verified';
+
+  const handleSaveDetails = async (e) => {
     e.preventDefault();
-    updateUser({
-      helperQualification: qualification,
-      helperLanguages: languages,
-      helperStatement: statement,
-    });
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setErrorMessage('');
+    setIsSaving(true);
+
+    try {
+      const res = await updateHelperProfile({
+        qualification,
+        languages,
+        statement,
+      });
+
+      if (res.data) {
+        if (res.data.verificationStatus) setDbVerificationStatus(res.data.verificationStatus);
+        if (res.data.applicationStatus) setDbApplicationStatus(res.data.applicationStatus);
+      }
+
+      updateUser({
+        helperQualification: qualification,
+        helperLanguages: languages,
+        helperStatement: statement,
+      });
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 4000);
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to save application details. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = () => {
@@ -134,6 +191,12 @@ export default function HelperApplicationPage() {
         <div className="vz-helper-form-card">
           <h2 className="vz-helper-form-title">Helper Profile Details</h2>
 
+          {errorMessage && (
+            <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              {errorMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSaveDetails}>
             <div className="vz-helper-form-grid">
               <div className="vz-auth-field">
@@ -143,6 +206,7 @@ export default function HelperApplicationPage() {
                   className="vz-auth-input"
                   value={qualification}
                   onChange={(e) => setQualification(e.target.value)}
+                  disabled={isSaving}
                 >
                   <option value="Psychology Student / Intern">Psychology Student / Intern</option>
                   <option value="Trained Peer Listener">Trained Peer Listener</option>
@@ -160,6 +224,7 @@ export default function HelperApplicationPage() {
                   value={languages}
                   onChange={(e) => setLanguages(e.target.value)}
                   placeholder="e.g. English, Hindi, Bengali"
+                  disabled={isSaving}
                 />
               </div>
             </div>
@@ -176,6 +241,7 @@ export default function HelperApplicationPage() {
                 value={statement}
                 onChange={(e) => setStatement(e.target.value)}
                 style={{ resize: 'vertical' }}
+                disabled={isSaving}
               />
             </div>
 
@@ -186,6 +252,7 @@ export default function HelperApplicationPage() {
                   className="vz-auth-terms-checkbox"
                   checked={agreedCode}
                   onChange={(e) => setAgreedCode(e.target.checked)}
+                  required
                 />
                 <span>
                   I pledge to uphold the Vistaraz Safeguarding Code of Ethics and report active crisis risks immediately.
@@ -193,19 +260,23 @@ export default function HelperApplicationPage() {
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="vz-auth-submit-btn"
-              style={{ width: 'auto', padding: '10px 24px' }}
-            >
-              <span>Save Application Details</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                type="submit"
+                className="vz-auth-submit-btn"
+                style={{ width: 'auto', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                disabled={isSaving}
+              >
+                {isSaving && <Loader2 size={16} className="vz-spin" />}
+                <span>{isSaving ? 'Saving to Database...' : 'Save Application Details'}</span>
+              </button>
 
-            {saveSuccess && (
-              <span style={{ marginLeft: '14px', color: '#10b981', fontSize: '0.875rem' }}>
-                ✓ Application updated successfully
-              </span>
-            )}
+              {saveSuccess && (
+                <span style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: 600 }}>
+                  ✓ Application saved to database
+                </span>
+              )}
+            </div>
           </form>
         </div>
       </div>

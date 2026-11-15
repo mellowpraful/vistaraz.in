@@ -62,6 +62,27 @@ export async function requireAuth(req, res, next) {
 }
 
 /**
+ * Optional session middleware: if user has an active session, attaches req.user.
+ * If not, proceeds without error.
+ */
+export async function optionalAuth(req, res, next) {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (session && session.user) {
+      req.user = session.user;
+      req.session = session.session;
+    }
+  } catch {
+    // Non-blocking: proceed as unauthenticated
+  }
+  next();
+}
+
+
+/**
  * Enforces that the authenticated user possesses at least one of the specified roles.
  *
  * @param {...string} allowedRoles Roles permitted (e.g. 'user', 'helper', 'professional', 'admin')

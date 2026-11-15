@@ -1,0 +1,230 @@
+/**
+ * AboutPages.css — Shared styles for /how-it-works, /about, /faq, /contact
+ */
+
+.vz-info-page-container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.vz-info-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.vz-info-hero__title {
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  font-weight: 800;
+  margin: 12px 0 16px;
+  line-height: 1.15;
+}
+
+.vz-info-hero__desc {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.6;
+}
+
+/* 5 Steps Grid */
+.vz-steps-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 56px;
+}
+
+.vz-step-card {
+  position: relative;
+  transition: all var(--vz-transition-base);
+  border-radius: var(--vz-radius-xl);
+}
+
+.vz-step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(79, 70, 229, 0.08);
+}
+
+.vz-step-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.vz-step-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #c7d2fe;
+  line-height: 1;
+}
+
+.vz-step-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--vz-radius-lg);
+  background-color: var(--vz-primary-light);
+  color: var(--vz-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vz-step-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--vz-text-primary);
+}
+
+.vz-step-desc {
+  font-size: 0.95rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.vz-step-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: var(--vz-bg-subtle);
+  padding: 10px 14px;
+  border-radius: var(--vz-radius-md);
+  font-size: 0.88rem;
+  color: var(--vz-text-primary);
+}
+
+.vz-step-check {
+  color: #059669;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* CTA Box */
+.vz-info-cta-box {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #c7d2fe;
+  border-radius: var(--vz-radius-2xl);
+  padding: 44px 24px;
+  text-align: center;
+}
+
+.vz-info-cta-box h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 12px 0 8px;
+}
+
+.vz-info-cta-box p {
+  font-size: 1rem;
+  color: var(--vz-text-secondary);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* About Pillars */
+.vz-about-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 860px) {
+  .vz-about-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vz-pillar-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.vz-pillar-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.vz-pillar-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+
+.vz-pillar-card p {
+  font-size: 0.92rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.vz-about-story-section {
+  margin-bottom: 40px;
+}
+
+.vz-about-story-section h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 8px 0 14px;
+}
+
+.vz-about-story-section p {
+  font-size: 0.96rem;
+  color: var(--vz-text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.vz-about-contact-box {
+  background-color: var(--vz-primary-light);
+  border: 1px solid #ddd6fe;
+  border-radius: var(--vz-radius-xl);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #3730a3;
+}
+
+/* FAQ */
+.vz-faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.vz-faq-card {
+  transition: all var(--vz-transition-fast);
+}
+
+.vz-faq-card:hover {
+  border-color: #c7d2fe;
+}
+
+/* Contact Grid */
+.vz-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .vz-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vz-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}

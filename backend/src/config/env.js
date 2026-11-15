@@ -28,7 +28,11 @@ const DATABASE_URL = process.env.DATABASE_URL ?? null;
 // ─── Better Auth Configuration ───────────────────────────────────────────────
 const BETTER_AUTH_SECRET =
   process.env.BETTER_AUTH_SECRET ||
-  'vistaraz-sanctuary-production-key-2026-launch';
+  (isDev ? 'vistaraz-sanctuary-dev-secret-key-32charsmin' : null);
+
+if (!BETTER_AUTH_SECRET && !isDev) {
+  throw new Error('FATAL: BETTER_AUTH_SECRET environment variable is strictly required in production.');
+}
 const BETTER_AUTH_URL =
   process.env.BETTER_AUTH_URL ||
   (typeof process !== 'undefined' && process.env?.VERCEL_PROJECT_PRODUCTION_URL

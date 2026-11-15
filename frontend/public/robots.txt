@@ -1,0 +1,24 @@
+# Vistaraz Mental Wellbeing Sanctuary - Robots Policy
+User-agent: *
+Allow: /
+Allow: /tools
+Allow: /support
+Allow: /plans
+Allow: /assessment
+Allow: /about
+Allow: /how-it-works
+Allow: /contact
+Allow: /faq
+Allow: /rules
+Allow: /safety
+Allow: /community
+
+# Disallow private user workspaces and admin consoles from indexing
+Disallow: /client-panel
+Disallow: /listener-portal
+Disallow: /admin
+Disallow: /api/
+Disallow: /chat
+Disallow: /video-call
+
+Sitemap: https://vistaraz.in/sitemap.xml

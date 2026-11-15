@@ -254,3 +254,123 @@ export async function updateSeekerProfile(req, res) {
   }
 }
 
+/**
+ * GET /api/users/me/helper-profile
+ * Returns authenticated user's helper profile details.
+ */
+export async function getHelperProfile(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const queryRes = await authPool.query(
+      `SELECT id, user_id, introduction, qualification, languages, verification_status, application_status, availability, created_at, updated_at
+       FROM helper_profiles
+       WHERE user_id = $1`,
+      [userId]
+    );
+
+    const row = queryRes.rows[0];
+    if (!row) {
+      return res.status(200).json({
+        success: true,
+        exists: false,
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      exists: true,
+      data: {
+        id: row.id,
+        userId: row.user_id,
+        introduction: row.introduction,
+        qualification: row.qualification,
+        languages: row.languages,
+        verificationStatus: row.verification_status,
+        applicationStatus: row.application_status,
+        availability: row.availability,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      },
+    });
+  } catch (err) {
+    logger.error('Failed to get helper profile in getHelperProfile', { error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve helper profile.',
+      code: 'SERVER_ERROR',
+    });
+  }
+}
+
+/**
+ * PUT /api/users/me/helper-profile
+ * Updates helper qualification, languages, and statement/introduction.
+ * Strictly prevents self-updating verification_status or application_status.
+ */
+export async function updateHelperProfile(req, res) {
+  try {
+    const userId = req.user.id;
+    const { qualification, languages, statement, introduction } = req.body;
+
+    const introText = statement !== undefined ? statement : (introduction || '');
+    const qualText = typeof qualification === 'string' && qualification.trim() ? qualification.trim() : 'Psychology Student / Intern';
+
+    let langArray = ['English', 'Hindi'];
+    if (Array.isArray(languages)) {
+      langArray = languages.map((l) => String(l).trim()).filter(Boolean);
+    } else if (typeof languages === 'string') {
+      langArray = languages.split(',').map((l) => l.trim()).filter(Boolean);
+    }
+    if (langArray.length === 0) langArray = ['English'];
+
+    const upsertRes = await authPool.query(
+      `INSERT INTO helper_profiles (
+         user_id,
+         qualification,
+         languages,
+         introduction,
+         verification_status,
+         application_status,
+         created_at,
+         updated_at
+       )
+       VALUES ($1, $2, $3, $4, 'pending', 'submitted', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id) DO UPDATE SET
+         qualification = EXCLUDED.qualification,
+         languages = EXCLUDED.languages,
+         introduction = EXCLUDED.introduction,
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING id, user_id, introduction, qualification, languages, verification_status, application_status, updated_at`,
+      [userId, qualText, langArray, introText]
+    );
+
+    const saved = upsertRes.rows[0];
+    logger.info(`Helper profile updated for user [id: ${userId}]`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Helper application details updated successfully.',
+      data: {
+        id: saved.id,
+        userId: saved.user_id,
+        introduction: saved.introduction,
+        qualification: saved.qualification,
+        languages: saved.languages,
+        verificationStatus: saved.verification_status,
+        applicationStatus: saved.application_status,
+        updatedAt: saved.updated_at,
+      },
+    });
+  } catch (err) {
+    logger.error('Failed to update helper profile in updateHelperProfile', { error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update helper profile.',
+      code: 'SERVER_ERROR',
+    });
+  }
+}
+
+

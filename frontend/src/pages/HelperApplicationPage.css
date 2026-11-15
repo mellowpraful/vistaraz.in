@@ -207,3 +207,12 @@
 }
 
 
+
+@keyframes vzSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vz-spin {
+  animation: vzSpin 1s linear infinite;
+}

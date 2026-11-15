@@ -22,34 +22,13 @@ import './ListenerPortalPage.css';
  * and certified provider profile.
  */
 
-const INITIAL_REQUESTS = [
-  {
-    id: 'req-1',
-    seekerId: 'Anonymous_2047',
-    mode: 'Chat Support',
-    topic: 'Grief & loss processing',
-    duration: '45 mins',
-    urgency: 'Moderate',
-    timeReceived: '3 mins ago'
-  },
-  {
-    id: 'req-2',
-    seekerId: 'Anonymous_3108',
-    mode: 'Audio Call',
-    topic: 'Panic & academic pressure before exams',
-    duration: '30 mins',
-    urgency: 'High',
-    timeReceived: '6 mins ago'
-  }
-];
-
 export default function ListenerPortalPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [status, setStatus] = useState('available');
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [sessionFilter, setSessionFilter] = useState('active');
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [requests, setRequests] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
 
   // Modals state

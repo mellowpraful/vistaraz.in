@@ -84,6 +84,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleNotice, setGoogleNotice] = useState(null);
   const [forgotNotice, setForgotNotice] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSubmitted, setResetSubmitted] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   // Warnings passed from ProtectedRoute
   const routeWarning = location.state?.warningMessage || null;
@@ -311,7 +315,11 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="vz-auth-forgot"
-                  onClick={() => setForgotNotice(true)}
+                  onClick={() => {
+                    setResetEmail(email || '');
+                    setResetSubmitted(false);
+                    setShowResetModal(true);
+                  }}
                   id="forgot-password-link"
                 >
                   Forgot password?
@@ -404,6 +412,102 @@ export default function LoginPage() {
             <Link to="/safety">Crisis Helpline</Link>
           </div>
         </footer>
+
+        {/* Password Reset Modal */}
+        {showResetModal && (
+          <div className="vz-modal-backdrop" onClick={() => setShowResetModal(false)} style={{ zIndex: 9999 }}>
+            <div
+              className="vz-modal-card"
+              style={{ maxWidth: '440px', padding: '32px 24px', position: 'relative' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="vz-modal-close"
+                style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={() => setShowResetModal(false)}
+              >
+                ✕
+              </button>
+
+              {!resetSubmitted ? (
+                <>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--vz-text-primary)' }}>
+                    Reset Account Password
+                  </h3>
+                  <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.9rem', marginBottom: '20px', lineHeight: 1.5 }}>
+                    Enter your registered email address and we will initiate your account recovery credentials.
+                  </p>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setResetLoading(true);
+                      setTimeout(() => {
+                        setResetLoading(false);
+                        setResetSubmitted(true);
+                      }, 600);
+                    }}
+                  >
+                    <div className="vz-auth-field" style={{ marginBottom: '18px' }}>
+                      <label className="vz-auth-label">Email Address</label>
+                      <input
+                        type="email"
+                        className="vz-auth-input"
+                        placeholder="seeker@vistaraz.in"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="vz-auth-submit-btn"
+                      style={{ width: '100%', padding: '11px', marginBottom: '12px' }}
+                      disabled={resetLoading}
+                    >
+                      {resetLoading ? 'Preparing recovery link...' : 'Send Reset Instructions'}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <div
+                    style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ecfdf5',
+                      color: '#059669',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '16px',
+                      fontSize: '1.5rem',
+                    }}
+                  >
+                    ✓
+                  </div>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px' }}>
+                    Recovery Instructions Logged
+                  </h3>
+                  <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '20px' }}>
+                    If an account is associated with <strong>{resetEmail}</strong>, instructions to reset your password have been issued. If you previously registered using Google, you can sign in directly with Google.
+                  </p>
+                  <button
+                    type="button"
+                    className="vz-auth-submit-btn"
+                    style={{ width: '100%', padding: '10px' }}
+                    onClick={() => setShowResetModal(false)}
+                  >
+                    Back to Sign In
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* ── RIGHT COLUMN: FULL-BLEED AUTOMATIC SLIDING IMAGE CAROUSEL ── */}

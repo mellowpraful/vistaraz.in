@@ -121,7 +121,7 @@ export default function HomePage() {
               <Button to="/get-started" variant="primary" size="lg" icon={<ArrowRight size={18} />} id="home-hero-get-started-btn">
                 Get Started
               </Button>
-              <Button to="/assessment" variant="outline" size="lg" icon={<Play size={16} fill="currentColor" />} iconPosition="left">
+              <Button to="/how-it-works" variant="outline" size="lg" icon={<Play size={16} fill="currentColor" />} iconPosition="left">
                 How it works
               </Button>
               <button

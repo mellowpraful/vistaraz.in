@@ -24,88 +24,73 @@ import './SupportPage.css';
 
 const LISTENERS = [
   {
-    id: 'aanya',
-    name: 'Aanya R.',
-    role: 'Verified Listener',
-    roleTag: 'Peer Listener',
-    languages: ['English', 'Hindi'],
-    topics: ['Academic Stress', 'Placements', 'Self-Doubt'],
-    bio: 'Warm, structured conversations for when college pressure and deadlines are crowding everything else.',
-    rating: 4.9,
-    sessionsCount: 142,
+    id: 'peer-listener-community',
+    name: 'Trained Peer Listeners',
+    role: 'Active Listening Sanctuary',
+    roleTag: 'Peer Support',
+    languages: ['English', 'Hindi', 'Regional Languages'],
+    topics: ['Academic Stress', 'Loneliness', 'Overthinking', 'College Transitions'],
+    bio: 'Empathetic, non-judgmental peer listeners trained in active listening and psychological first aid. Peer listeners provide emotional grounding and safe space to talk, but do not provide clinical therapy or medical diagnosis.',
+    sessionsCount: 'Community Queue',
     available: true,
-    avatar: '👩‍🎓',
-    type: 'listener',
-  },
-  {
-    id: 'kunal',
-    name: 'Kunal S.',
-    role: 'Peer Supporter',
-    roleTag: 'Peer Listener',
-    languages: ['Hindi', 'English'],
-    topics: ['Connection', 'Loneliness', 'Transitions'],
-    bio: 'A gentle, practical space for loneliness, changing cities, and navigating difficult family conversations.',
-    rating: 4.8,
-    sessionsCount: 98,
-    available: true,
-    avatar: '👨‍🎓',
-    type: 'listener',
-  },
-  {
-    id: 'meera',
-    name: 'Meera P.',
-    role: 'Supervised Trainee',
-    roleTag: 'Peer Listener',
-    languages: ['English'],
-    topics: ['Overthinking', 'Anxiety', 'Sleep'],
-    bio: 'Calm support for repetitive overthinking and the late-night moments when a worrying thought won’t let go.',
-    rating: 4.9,
-    sessionsCount: 76,
-    available: false,
-    avatar: '🌿',
+    avatar: '🌱',
     type: 'listener',
   },
 ];
 
-const PROFESSIONALS = [
+// Verified National Mental Health Resources & Partner Clinical Care
+const VERIFIED_CLINICAL_RESOURCES = [
   {
-    id: 'rhea',
-    name: 'Dr. Rhea Mehta',
-    title: 'Clinical Psychologist',
-    spec: 'M.Phil, Ph.D. Clinical Psychology',
-    rating: 4.8,
-    experience: '8+ yrs exp',
-    languages: ['English', 'Hindi'],
-    specialties: ['CBT', 'Anxiety Disorders', 'Student Burnout'],
-    bio: 'Evidence-based cognitive therapy tailored for university students and young working professionals.',
-    avatar: 'https://images.unsplash.com/photo-1594824813593-37599c1d1a64?auto=format&fit=crop&w=300&q=80',
+    id: 'tele-manas',
+    name: 'Tele-MANAS (Govt. of India)',
+    title: 'National Tele Mental Health Programme',
+    affiliation: 'Ministry of Health & Family Welfare',
+    helpline: '14416',
+    altHelpline: '1800-891-4416',
+    languages: ['Hindi', 'English', '20+ Indian Languages'],
+    specialties: ['Clinical Evaluation', 'Crisis Counseling', 'Psychiatric Guidance'],
+    bio: 'India’s 24/7 free national digital mental health service providing immediate access to certified counselors and clinical mental health specialists.',
     type: 'psychologist',
+    isEmergency: true,
   },
   {
-    id: 'arjun',
-    name: 'Dr. Arjun Singh',
-    title: 'Licensed Counselor',
-    spec: 'M.A. Applied Psychology, Certified Counselor',
-    rating: 4.7,
-    experience: '6+ yrs exp',
-    languages: ['English', 'Punjabi', 'Hindi'],
-    specialties: ['Relationship Dynamics', 'Family Stress', 'Identity'],
-    bio: 'Compassionate narrative therapy helping young people navigate identity, emotional regulation, and boundaries.',
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=300&q=80',
+    id: 'nimhans',
+    name: 'NIMHANS Center for Well-Being',
+    title: 'Institute of National Importance',
+    affiliation: 'National Institute of Mental Health and Neurosciences',
+    helpline: '080-46110007',
+    altHelpline: null,
+    languages: ['English', 'Hindi', 'Kannada', 'Tamil'],
+    specialties: ['Youth & Student Mental Health', 'Anxiety & Mood Disorders', 'Clinical Therapy'],
+    bio: 'Premier national mental health institution offering evidence-based psychosocial support and clinical interventions for youth and young adults.',
+    type: 'psychologist',
+    isEmergency: false,
+  },
+  {
+    id: 'vandrevala-foundation',
+    name: 'Vandrevala Foundation',
+    title: 'Professional Mental Health Counseling',
+    affiliation: 'Accredited Mental Health NGO',
+    helpline: '+919999666555',
+    altHelpline: '9999 666 555',
+    languages: ['English', 'Hindi', 'Gujarati', 'Marathi'],
+    specialties: ['Crisis Counseling', 'Depression & Burnout', 'Relationship Stress'],
+    bio: 'Round-the-clock professional counseling network staffed by qualified psychologists and trained clinical counselors.',
     type: 'counselor',
+    isEmergency: true,
   },
   {
-    id: 'neha',
-    name: 'Dr. Neha Kapoor',
-    title: 'Consultant Psychiatrist',
-    spec: 'MD Psychiatry',
-    rating: 4.9,
-    experience: '11+ yrs exp',
-    languages: ['English', 'Hindi'],
-    specialties: ['Depressive Episodes', 'Severe Anxiety', 'ADHD Guidance'],
-    bio: 'Holistic clinical evaluation and medication reviews paired with supportive medical psychoeducation.',
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=80',
+    id: 'kiran-helpline',
+    name: 'KIRAN Helpline',
+    title: 'National Mental Health Helpline',
+    affiliation: 'Department of Empowerment of Persons with Disabilities',
+    helpline: '1800-599-0019',
+    altHelpline: null,
+    languages: ['13 Indian Languages'],
+    specialties: ['Mental Wellbeing', 'Stress Management', 'Psychological Rehabilitation'],
+    bio: 'Toll-free 24/7 helpline providing initial screening, psychological first aid, and clinical mental health referrals across India.',
     type: 'psychiatrist',
+    isEmergency: false,
   },
 ];
 
@@ -113,8 +98,8 @@ export default function SupportPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'listeners', 'psychologists', 'psychiatrists', 'counselors'
-  const [selectedProfile, setSelectedProfile] = useState(null);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
   const [showLoginGate, setShowLoginGate] = useState(false);
   const [gateContent, setGateContent] = useState({
     title: 'Continue Your Journey',
@@ -126,7 +111,7 @@ export default function SupportPage() {
     if (!isAuthenticated) {
       setGateContent({
         title: 'Continue Your Journey',
-        description: 'Sign in to start a free, confidential chat session with a peer listener.',
+        description: 'Sign in to access the confidential peer support queue.',
         badgeText: 'Peer Chat Support',
       });
       setShowLoginGate(true);
@@ -135,41 +120,28 @@ export default function SupportPage() {
     navigate('/chat');
   };
 
-  const handleConfirmBooking = () => {
+  const handleJoinClinicianWaitlist = () => {
     if (!isAuthenticated) {
       setGateContent({
-        title: 'Continue Your Journey',
-        description: 'Sign in to confirm your consultation booking with a verified clinician.',
-        badgeText: 'Clinical Consultation',
+        title: 'Join Clinical Care Notification List',
+        description: 'Sign in to be notified the moment Vistaraz accredited clinical therapist appointments open.',
+        badgeText: 'Care Network Waitlist',
       });
       setShowLoginGate(true);
       return;
     }
-    setBookingSuccess(true);
-  };
-
-  const handleVideoConsultation = () => {
-    if (!isAuthenticated) {
-      setGateContent({
-        title: 'Continue Your Journey',
-        description: 'Sign in to start a live video consultation session.',
-        badgeText: 'Video Consultation',
-      });
-      setShowLoginGate(true);
-      return;
-    }
-    navigate('/video-call');
+    setWaitlistSuccess(true);
   };
 
   const filterTabs = [
-    { id: 'all', label: 'All Support' },
-    { id: 'listeners', label: 'Peer Listeners' },
-    { id: 'psychologists', label: 'Psychologists' },
-    { id: 'psychiatrists', label: 'Psychiatrists' },
-    { id: 'counselors', label: 'Counselors' },
+    { id: 'all', label: 'All Resources' },
+    { id: 'listeners', label: 'Peer Support' },
+    { id: 'psychologists', label: 'Clinical Psychologists' },
+    { id: 'psychiatrists', label: 'Psychiatry & Medical' },
+    { id: 'counselors', label: 'Professional Counselors' },
   ];
 
-  const filteredProfessionals = PROFESSIONALS.filter((p) => {
+  const filteredResources = VERIFIED_CLINICAL_RESOURCES.filter((p) => {
     if (activeTab === 'all') return true;
     if (activeTab === 'psychologists') return p.type === 'psychologist';
     if (activeTab === 'psychiatrists') return p.type === 'psychiatrist';
@@ -245,143 +217,226 @@ export default function SupportPage() {
           </section>
         )}
 
-        {/* Level 02 & 03: Professional Help matching reference image bottom right */}
+        {/* Level 02 & 03: Professional Help & National Clinical Resources */}
         {showPros && (
           <section className="vz-support-section" style={{ marginTop: '48px' }}>
             <div className="vz-support-section__title-row">
               <div>
                 <span className="vz-eyebrow" style={{ color: '#d97706' }}>
-                  LEVEL 02 & 03 · SPECIALIZED PROFESSIONAL CARE
+                  LEVEL 02 & 03 · PROFESSIONAL CLINICAL CARE & HELPLINES
                 </span>
-                <h2>Professional Help When Needed</h2>
+                <h2>Professional Care & National Helplines</h2>
                 <p style={{ marginTop: '4px', fontSize: '0.95rem', color: 'var(--vz-text-secondary)' }}>
-                  When you need specialized clinical care, connect with qualified mental-health professionals.
+                  When peer listening isn't enough, connect with accredited mental health organizations and licensed professionals.
                 </p>
+              </div>
+            </div>
+
+            {/* Beta Partner Notice Banner */}
+            <div style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '24px',
+              display: 'flex',
+              gap: '12px',
+              alignItems: 'flex-start'
+            }}>
+              <Shield size={20} color="var(--vz-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ fontSize: '0.88rem', color: 'var(--vz-text-secondary)', lineHeight: 1.5 }}>
+                <strong style={{ color: 'var(--vz-text-primary)' }}>Accredited Partner Telehealth Notice: </strong>
+                Vistaraz is currently onboarding and credentialing licensed clinical psychologists and psychiatrists across India under national telehealth standards. Direct in-app video appointments will open in Phase 2. For immediate, free clinical counseling and psychiatric guidance, connect directly with the verified national services below.
               </div>
             </div>
 
             <div className="vz-pros-layout">
               <div className="vz-pros-grid">
-                {filteredProfessionals.map((pro) => (
-                  <Card key={pro.id} variant="default" padding="lg" hoverable={true} className="vz-pro-card">
+                {filteredResources.map((res) => (
+                  <Card key={res.id} variant="default" padding="lg" hoverable={true} className="vz-pro-card">
                     <div className="vz-pro-card__top">
-                      <img src={pro.avatar} alt={pro.name} className="vz-pro-card__img" />
+                      <div style={{
+                        width: '52px',
+                        height: '52px',
+                        borderRadius: '12px',
+                        backgroundColor: res.isEmergency ? '#fef2f2' : '#eff6ff',
+                        color: res.isEmergency ? '#dc2626' : '#2563eb',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.4rem',
+                        fontWeight: 700
+                      }}>
+                        {res.isEmergency ? '🚨' : '🏥'}
+                      </div>
                       <div>
-                        <h3 style={{ fontSize: '1.25rem' }}>{pro.name}</h3>
-                        <p style={{ fontSize: '0.88rem', color: 'var(--vz-primary)', fontWeight: 600 }}>{pro.title}</p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--vz-text-muted)' }}>{pro.experience}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px', fontSize: '0.82rem', color: '#f59e0b', fontWeight: 600 }}>
-                          <Star size={14} fill="#f59e0b" /> {pro.rating} rating
-                        </div>
+                        <h3 style={{ fontSize: '1.18rem', margin: '0 0 2px' }}>{res.name}</h3>
+                        <p style={{ fontSize: '0.84rem', color: 'var(--vz-primary)', fontWeight: 600, margin: 0 }}>{res.title}</p>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--vz-text-muted)', margin: '2px 0 0' }}>{res.affiliation}</p>
                       </div>
                     </div>
 
                     <p style={{ fontSize: '0.88rem', color: 'var(--vz-text-secondary)', margin: '14px 0', minHeight: '44px' }}>
-                      {pro.bio}
+                      {res.bio}
                     </p>
 
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                      {pro.specialties.map((s) => (
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                      {res.specialties.map((s) => (
                         <span key={s} className="vz-chip mint">{s}</span>
                       ))}
                     </div>
 
+                    <div style={{
+                      backgroundColor: 'var(--vz-bg-subtle)',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '16px'
+                    }}>
+                      <span style={{ color: 'var(--vz-text-muted)' }}>Helpline:</span>
+                      <strong style={{ color: 'var(--vz-text-primary)' }}>{res.altHelpline || res.helpline}</strong>
+                    </div>
+
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        fullWidth
-                        onClick={() => setSelectedProfile(pro)}
+                      <a
+                        href={`tel:${res.helpline}`}
+                        className="vz-btn vz-btn--primary vz-btn--sm"
+                        style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
                       >
-                        View Profile & Book
+                        <Phone size={14} style={{ marginRight: '6px' }} /> Call Free (24/7)
+                      </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedResource(res)}
+                      >
+                        Info
                       </Button>
-                      <Button onClick={handleVideoConsultation} variant="outline" size="sm" icon={<Video size={14} />} title="Video Consultation" />
                     </div>
                   </Card>
                 ))}
               </div>
 
-              {/* Guide Side Banner from reference image */}
+              {/* Guide Side Banner */}
               <div className="vz-pros-sidebar">
                 <Card variant="lavender" padding="lg" className="vz-pro-guide-card">
                   <div className="vz-pro-guide-card__icon">
                     <Sparkles size={28} color="var(--vz-primary)" />
                   </div>
-                  <h3>Not sure if you need professional help?</h3>
+                  <h3>Looking for 1-on-1 In-App Therapy?</h3>
                   <p>
-                    Talk to us or start with a non-diagnostic wellbeing assessment to explore your options.
+                    Join our early access care list to receive an alert as soon as verified psychologist booking slots open on Vistaraz.
                   </p>
-                  <Button to="/assessment" variant="primary" size="md" icon={<ArrowRight size={16} />} fullWidth>
-                    Take Check-in First
+                  <Button
+                    variant="primary"
+                    size="md"
+                    icon={<ArrowRight size={16} />}
+                    fullWidth
+                    onClick={handleJoinClinicianWaitlist}
+                  >
+                    Join Clinical Waitlist
                   </Button>
+
+                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                    <Link to="/safety" style={{ fontSize: '0.84rem', color: '#b91c1c', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Phone size={14} /> View All 24/7 Crisis Helplines →
+                    </Link>
+                  </div>
                 </Card>
               </div>
             </div>
           </section>
         )}
 
-        {/* Modal: Clinician Profile & Booking */}
-        {selectedProfile && (
-          <div className="vz-modal-backdrop" onClick={() => { setSelectedProfile(null); setBookingSuccess(false); }}>
+        {/* Modal: Resource Details & Waitlist */}
+        {selectedResource && (
+          <div className="vz-modal-backdrop" onClick={() => setSelectedResource(null)}>
             <div className="vz-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 className="vz-modal-close"
-                onClick={() => { setSelectedProfile(null); setBookingSuccess(false); }}
+                onClick={() => setSelectedResource(null)}
               >
                 <X size={20} />
               </button>
 
-              {!bookingSuccess ? (
-                <>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
-                    <img src={selectedProfile.avatar} alt={selectedProfile.name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />
-                    <div>
-                      <h3 style={{ fontSize: '1.4rem' }}>{selectedProfile.name}</h3>
-                      <p style={{ color: 'var(--vz-primary)', fontWeight: 600 }}>{selectedProfile.title}</p>
-                      <small style={{ color: 'var(--vz-text-muted)' }}>{selectedProfile.spec}</small>
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize: '0.92rem', color: 'var(--vz-text-secondary)', marginBottom: '16px' }}>
-                    {selectedProfile.bio}
-                  </p>
-
-                  <div style={{ backgroundColor: 'var(--vz-bg-subtle)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-                      <strong>Available Slot:</strong>
-                      <span>Tomorrow, 5:00 PM</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                      <strong>Session Mode:</strong>
-                      <span>Encrypted Video Call (45 mins)</span>
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    size="lg"
-                    icon={<Calendar size={18} />}
-                    onClick={handleConfirmBooking}
-                  >
-                    Confirm Consultation Booking
-                  </Button>
-                </>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                    <CheckCircle2 size={36} />
-                  </div>
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>Session Confirmed!</h3>
-                  <p style={{ color: 'var(--vz-text-secondary)', marginBottom: '24px' }}>
-                    Your session with {selectedProfile.name} is booked for tomorrow at 5:00 PM. A calendar link has been placed in your Care Panel.
-                  </p>
-                  <Button to="/client-panel" variant="primary" fullWidth onClick={() => setSelectedProfile(null)}>
-                    Go to My Care Panel
-                  </Button>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '12px',
+                  backgroundColor: selectedResource.isEmergency ? '#fef2f2' : '#eff6ff',
+                  color: selectedResource.isEmergency ? '#dc2626' : '#2563eb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.6rem'
+                }}>
+                  {selectedResource.isEmergency ? '🚨' : '🏥'}
                 </div>
-              )}
+                <div>
+                  <h3 style={{ fontSize: '1.3rem', margin: '0 0 2px' }}>{selectedResource.name}</h3>
+                  <p style={{ color: 'var(--vz-primary)', fontWeight: 600, margin: 0 }}>{selectedResource.title}</p>
+                  <small style={{ color: 'var(--vz-text-muted)' }}>{selectedResource.affiliation}</small>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.92rem', color: 'var(--vz-text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+                {selectedResource.bio}
+              </p>
+
+              <div style={{ backgroundColor: 'var(--vz-bg-subtle)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
+                  <strong>Helpline Number:</strong>
+                  <span style={{ color: 'var(--vz-primary)', fontWeight: 700 }}>{selectedResource.altHelpline || selectedResource.helpline}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
+                  <strong>Languages:</strong>
+                  <span>{selectedResource.languages.join(', ')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <strong>Operating Hours:</strong>
+                  <span>24 Hours · Free & Confidential</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <a
+                  href={`tel:${selectedResource.helpline}`}
+                  className="vz-btn vz-btn--primary vz-btn--lg"
+                  style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
+                >
+                  <Phone size={18} style={{ marginRight: '6px' }} /> Call Helpline Now
+                </a>
+                <button
+                  type="button"
+                  className="vz-btn vz-btn--outline vz-btn--lg"
+                  onClick={() => setSelectedResource(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Clinical Waitlist Confirmation */}
+        {waitlistSuccess && (
+          <div className="vz-modal-backdrop" onClick={() => setWaitlistSuccess(false)}>
+            <div className="vz-modal-card" style={{ maxWidth: '480px', textAlign: 'center', padding: '32px 24px' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <CheckCircle2 size={36} />
+              </div>
+              <h3 style={{ fontSize: '1.35rem', marginBottom: '8px' }}>You're on the Priority Care List</h3>
+              <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.92rem', marginBottom: '24px', lineHeight: 1.5 }}>
+                We'll notify you via your registered email as soon as accredited in-app psychologist and counselor appointments become available in Phase 2.
+              </p>
+              <Button variant="primary" fullWidth onClick={() => setWaitlistSuccess(false)}>
+                Got It
+              </Button>
             </div>
           </div>
         )}

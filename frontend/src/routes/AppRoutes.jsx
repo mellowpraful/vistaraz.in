@@ -29,6 +29,10 @@ import ListenerPortalPage from '../pages/ListenerPortalPage';
 import VideoCallPage from '../pages/VideoCallPage';
 import SafetyPage from '../pages/SafetyPage';
 import RulesPage from '../pages/RulesPage';
+import HowItWorksPage from '../pages/HowItWorksPage';
+import AboutPage from '../pages/AboutPage';
+import FaqPage from '../pages/FaqPage';
+import ContactPage from '../pages/ContactPage';
 import ServerErrorPage from '../pages/ServerErrorPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
@@ -47,10 +51,16 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/safety" element={<SafetyPage />} />
       <Route path="/rules" element={<RulesPage />} />
+      <Route path="/privacy" element={<Navigate to="/rules" replace />} />
+      <Route path="/terms" element={<Navigate to="/rules" replace />} />
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/tools" element={<ToolsPage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/community" element={<CommunityPage />} />
+      <Route path="/how-it-works" element={<HowItWorksPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/faq" element={<FaqPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/error-500" element={<ServerErrorPage />} />
 
       {/* --- Authentication & Onboarding Flow --- */}

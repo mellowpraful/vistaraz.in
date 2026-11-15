@@ -327,3 +327,43 @@ export async function updateSeekerProfile({ realName, avatarId }) {
   return json;
 }
 
+/**
+ * GET /api/users/me/helper-profile
+ * Fetches saved helper credentials, application status, and verification state.
+ */
+export async function getHelperProfile() {
+  const res = await fetch(`${API_BASE_URL}/api/users/me/helper-profile`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.error || 'Failed to retrieve helper application.');
+  }
+  return json;
+}
+
+/**
+ * PUT /api/users/me/helper-profile
+ * Saves helper qualifications, spoken languages, and statement to DB.
+ */
+export async function updateHelperProfile({ qualification, languages, statement }) {
+  const res = await fetch(`${API_BASE_URL}/api/users/me/helper-profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ qualification, languages, statement }),
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.error || 'Failed to save helper application.');
+  }
+  return json;
+}
+
+
+
