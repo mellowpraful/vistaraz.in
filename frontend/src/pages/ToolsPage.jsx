@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Wind,
   Volume2,
+  Volume1,
   VolumeX,
   Trash2,
   Compass,
@@ -21,8 +22,14 @@ import {
   X,
   Plus,
   Save,
-  Check
+  Check,
+  Music,
+  Waves,
+  CloudRain,
+  Moon,
+  Sliders
 } from 'lucide-react';
+import soundEngine, { SOUND_PRESETS } from '../utils/soundEngine';
 import './ToolsPage.css';
 
 // Breathing Presets
@@ -31,6 +38,18 @@ const BREATH_PRESETS = {
   relax478: { name: 'Sleep 4-7-8', inhale: 4, hold1: 7, exhale: 8, hold2: 0, desc: 'Dr. Weil relaxation technique for sleep & worry' },
   coherence: { name: 'Heart Coherence', inhale: 5, hold1: 0, exhale: 5, hold2: 0, desc: 'Balances heart-rate variability at 6 breaths/min' },
   panicReset: { name: 'Rapid Vagus Reset', inhale: 4, hold1: 2, exhale: 6, hold2: 0, desc: 'Lengthened exhale to trigger parasympathetic brake' },
+};
+
+const renderSoundIcon = (iconName, size = 18) => {
+  switch (iconName) {
+    case 'Music': return <Music size={size} />;
+    case 'Waves': return <Waves size={size} />;
+    case 'CloudRain': return <CloudRain size={size} />;
+    case 'Sparkles': return <Sparkles size={size} />;
+    case 'Moon': return <Moon size={size} />;
+    case 'Volume2': return <Volume2 size={size} />;
+    default: return <Volume2 size={size} />;
+  }
 };
 
 export default function ToolsPage() {
@@ -99,70 +118,31 @@ export default function ToolsPage() {
   }, [isBreathing, patternKey]);
 
   // 2. Web Audio Soundscape Synth State
-  const [playingAudio, setPlayingAudio] = useState(null);
-  const audioCtxRef = useRef(null);
-  const audioSourceRef = useRef(null);
+  const [playingSoundId, setPlayingSoundId] = useState(null);
+  const [soundVolume, setSoundVolume] = useState(70); // Default 70% volume (clear & immersive)
+  const [soundCategoryFilter, setSoundCategoryFilter] = useState('all');
 
-  const startSound = (type) => {
-    stopSound();
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      audioCtxRef.current = ctx;
-
-      const bufferSize = ctx.sampleRate * 2;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-
-      // Generate soft synthetic noise textures
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        if (type === 'brown') {
-          data[i] = (lastOut + 0.02 * white) / 1.02;
-          lastOut = data[i];
-          data[i] *= 2.5; // Gain
-        } else {
-          // Pink noise filter approximation
-          data[i] = (lastOut + 0.05 * white) / 1.05;
-          lastOut = data[i];
-          data[i] *= 1.8;
-        }
-      }
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      noise.loop = true;
-
-      const gain = ctx.createGain();
-      gain.gain.value = 0.15;
-
-      noise.connect(gain);
-      gain.connect(ctx.destination);
-      noise.start();
-      audioSourceRef.current = noise;
-      setPlayingAudio(type);
-    } catch (e) {
-      console.warn('Audio Context init prevented:', e);
+  const toggleSound = (soundId) => {
+    if (playingSoundId === soundId) {
+      soundEngine.stop();
+      setPlayingSoundId(null);
+    } else {
+      soundEngine.play(soundId);
+      setPlayingSoundId(soundId);
     }
   };
 
-  const stopSound = () => {
-    if (audioSourceRef.current) {
-      try {
-        audioSourceRef.current.stop();
-        audioSourceRef.current.disconnect();
-      } catch (e) {}
-    }
-    if (audioCtxRef.current) {
-      try {
-        audioCtxRef.current.close();
-      } catch (e) {}
-    }
-    audioSourceRef.current = null;
-    audioCtxRef.current = null;
-    setPlayingAudio(null);
+  const handleVolumeChange = (e) => {
+    const val = parseInt(e.target.value, 10);
+    setSoundVolume(val);
+    soundEngine.setVolume(val / 100);
   };
+
+  useEffect(() => {
+    return () => {
+      soundEngine.stop();
+    };
+  }, []);
 
   // 3. Worry Shredder State
   const [worryText, setWorryText] = useState('');
@@ -361,43 +341,153 @@ export default function ToolsPage() {
 
           {/* Tool 2: Ambient Soundscape Synth */}
           {(activeTab === 'all' || activeTab === 'sound') && (
-            <Card variant="default" padding="lg" className="vz-tool-card">
-              <span className="vz-eyebrow" style={{ color: '#0284c7' }}>
-                ACOUSTIC FOCUS & COGNITIVE MASKING
-              </span>
-              <h2 style={{ fontSize: '1.5rem', margin: '4px 0 8px' }}>Ambient Soundscape Synth</h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--vz-text-secondary)', marginBottom: '20px' }}>
-                Procedural audio synthesizer generated live in your browser with no internet streaming needed.
-              </p>
+            <Card variant="default" padding="lg" className="vz-tool-card vz-sound-tool-card">
+              <div className="vz-sound-header-row">
+                <div>
+                  <span className="vz-eyebrow" style={{ color: '#0284c7' }}>
+                    ACOUSTIC HEALING & SOUND THERAPY
+                  </span>
+                  <h2 style={{ fontSize: '1.5rem', margin: '4px 0 8px' }}>Ambient Soundscape Studio</h2>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--vz-text-secondary)', margin: 0 }}>
+                    Procedural audio synthesized live in your browser — zero buffering, zero data usage, and infinite seamless playback.
+                  </p>
+                </div>
+              </div>
 
-              <div className="vz-sound-options">
-                <div className={`vz-sound-item ${playingAudio === 'pink' ? 'playing' : ''}`}>
-                  <div>
-                    <strong>Pink Noise · Ocean Wash</strong>
-                    <p>Balances higher frequencies; ideal for study and reading.</p>
-                  </div>
+              {/* Master Volume Controller Bar */}
+              <div className="vz-volume-controller-bar">
+                <div className="vz-volume-left">
                   <button
                     type="button"
-                    className="vz-sound-toggle-btn"
-                    onClick={() => (playingAudio === 'pink' ? stopSound() : startSound('pink'))}
+                    className="vz-volume-mute-btn"
+                    onClick={() => {
+                      if (soundVolume > 0) {
+                        setSoundVolume(0);
+                        soundEngine.setVolume(0);
+                      } else {
+                        setSoundVolume(70);
+                        soundEngine.setVolume(0.7);
+                      }
+                    }}
+                    title={soundVolume === 0 ? 'Unmute' : 'Mute'}
                   >
-                    {playingAudio === 'pink' ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    {soundVolume === 0 ? <VolumeX size={18} /> : soundVolume < 50 ? <Volume1 size={18} /> : <Volume2 size={18} />}
                   </button>
+                  <span className="vz-volume-label">Master Volume</span>
                 </div>
-
-                <div className={`vz-sound-item ${playingAudio === 'brown' ? 'playing' : ''}`}>
-                  <div>
-                    <strong>Brown Noise · Deep Warmth</strong>
-                    <p>Heavy low rumble; deeply calming for racing thoughts and ADHD.</p>
-                  </div>
+                <div className="vz-volume-slider-wrap">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={soundVolume}
+                    onChange={handleVolumeChange}
+                    className="vz-volume-slider"
+                    aria-label="Sound volume slider"
+                  />
+                  <span className="vz-volume-percent">{soundVolume}%</span>
+                </div>
+                {playingSoundId && (
                   <button
                     type="button"
-                    className="vz-sound-toggle-btn"
-                    onClick={() => (playingAudio === 'brown' ? stopSound() : startSound('brown'))}
+                    className="vz-volume-stop-all"
+                    onClick={() => toggleSound(playingSoundId)}
+                    title="Stop playback"
                   >
-                    {playingAudio === 'brown' ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    <VolumeX size={14} /> Stop
                   </button>
-                </div>
+                )}
+              </div>
+
+              {/* Sound Category Filter Pills */}
+              <div className="vz-sound-filters">
+                {['all', 'piano', 'nature', 'meditation', 'masking'].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`vz-sound-filter-pill ${soundCategoryFilter === cat ? 'active' : ''}`}
+                    onClick={() => setSoundCategoryFilter(cat)}
+                  >
+                    {cat === 'all' && 'All Sounds (9)'}
+                    {cat === 'piano' && 'Piano & Sanctuary'}
+                    {cat === 'nature' && 'Nature & Rain'}
+                    {cat === 'meditation' && 'Meditation (432Hz)'}
+                    {cat === 'masking' && 'Deep Noise & Focus'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sound Cards Grid */}
+              <div className="vz-sound-grid">
+                {SOUND_PRESETS
+                  .filter((preset) => {
+                    if (soundCategoryFilter === 'all') return true;
+                    if (soundCategoryFilter === 'piano') return preset.category.includes('Piano');
+                    if (soundCategoryFilter === 'nature') return preset.category.includes('Water') || preset.category.includes('Rain') || preset.category.includes('Night');
+                    if (soundCategoryFilter === 'meditation') return preset.category.includes('Meditation');
+                    if (soundCategoryFilter === 'masking') return preset.category.includes('Acoustic Masking');
+                    return true;
+                  })
+                  .map((sound) => {
+                    const isPlaying = playingSoundId === sound.id;
+                    return (
+                      <div
+                        key={sound.id}
+                        className={`vz-sound-card ${isPlaying ? 'vz-sound-card--playing' : ''}`}
+                      >
+                        <div className="vz-sound-card-header">
+                          <div className="vz-sound-icon-box" style={{ color: sound.badgeColor || '#4f46e5' }}>
+                            {renderSoundIcon(sound.iconName)}
+                          </div>
+                          <span
+                            className="vz-sound-badge"
+                            style={{
+                              backgroundColor: `${sound.badgeColor}15`,
+                              color: sound.badgeColor,
+                              borderColor: `${sound.badgeColor}30`,
+                            }}
+                          >
+                            {sound.badge}
+                          </span>
+                        </div>
+
+                        <div className="vz-sound-card-body">
+                          <h3 className="vz-sound-title">{sound.name}</h3>
+                          <span className="vz-sound-subtitle">{sound.subtitle}</span>
+                          <p className="vz-sound-desc">{sound.desc}</p>
+                        </div>
+
+                        <div className="vz-sound-card-footer">
+                          {isPlaying && (
+                            <div className="vz-playing-indicator">
+                              <span className="vz-eq-bar vz-eq-bar-1" />
+                              <span className="vz-eq-bar vz-eq-bar-2" />
+                              <span className="vz-eq-bar vz-eq-bar-3" />
+                              <span className="vz-playing-text">Playing</span>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            className={`vz-sound-play-btn ${isPlaying ? 'playing' : ''}`}
+                            onClick={() => toggleSound(sound.id)}
+                            aria-label={isPlaying ? `Stop ${sound.name}` : `Play ${sound.name}`}
+                          >
+                            {isPlaying ? (
+                              <>
+                                <VolumeX size={15} />
+                                <span>Stop</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play size={15} fill="currentColor" />
+                                <span>Play</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </Card>
           )}

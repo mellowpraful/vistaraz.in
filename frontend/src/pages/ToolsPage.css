@@ -211,7 +211,296 @@
   font-weight: 800;
 }
 
-/* Sound Synthesizer */
+/* Sound Synthesizer & Ambient Soundscape Studio */
+.vz-sound-tool-card {
+  overflow: hidden;
+}
+
+.vz-sound-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.vz-volume-controller-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  background: var(--vz-bg-subtle, #f8fafc);
+  border: 1px solid var(--vz-border-light, #e2e8f0);
+  border-radius: var(--vz-radius-lg, 12px);
+  margin-bottom: 18px;
+}
+
+.vz-volume-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vz-volume-mute-btn {
+  background: transparent;
+  border: none;
+  color: var(--vz-text-primary, #0f172a);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms ease;
+}
+
+.vz-volume-mute-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.vz-volume-label {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--vz-text-primary, #0f172a);
+  white-space: nowrap;
+}
+
+.vz-volume-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 320px;
+}
+
+.vz-volume-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: #cbd5e1;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--vz-primary, #4f46e5);
+  transition: opacity 150ms ease;
+}
+
+.vz-volume-percent {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--vz-text-secondary, #64748b);
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.vz-volume-stop-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.vz-volume-stop-all:hover {
+  background: #fecaca;
+}
+
+/* Category Filter Pills */
+.vz-sound-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.vz-sound-filter-pill {
+  padding: 6px 14px;
+  border-radius: var(--vz-radius-full, 9999px);
+  background: var(--vz-bg-subtle, #f8fafc);
+  border: 1px solid var(--vz-border-light, #e2e8f0);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--vz-text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.vz-sound-filter-pill:hover {
+  background: #f1f5f9;
+  color: var(--vz-text-primary, #0f172a);
+}
+
+.vz-sound-filter-pill.active {
+  background: var(--vz-primary, #4f46e5);
+  color: #ffffff;
+  border-color: var(--vz-primary, #4f46e5);
+}
+
+/* Sound Cards Grid */
+.vz-sound-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.vz-sound-card {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border-radius: var(--vz-radius-xl, 16px);
+  background: #ffffff;
+  border: 1.5px solid var(--vz-border-light, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  position: relative;
+}
+
+.vz-sound-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+}
+
+.vz-sound-card--playing {
+  border-color: var(--vz-primary, #4f46e5);
+  background: linear-gradient(180deg, #fbfbfe 0%, #ffffff 100%);
+  box-shadow: 0 0 0 1px var(--vz-primary, #4f46e5), 0 8px 24px rgba(79, 70, 229, 0.12);
+}
+
+.vz-sound-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.vz-sound-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--vz-border-light, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vz-sound-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  letter-spacing: 0.02em;
+}
+
+.vz-sound-card-body {
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+.vz-sound-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--vz-text-primary, #0f172a);
+  margin: 0 0 3px 0;
+}
+
+.vz-sound-subtitle {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--vz-text-muted, #94a3b8);
+  margin-bottom: 8px;
+}
+
+.vz-sound-desc {
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: var(--vz-text-secondary, #475569);
+  margin: 0;
+}
+
+.vz-sound-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--vz-border-light, #f1f5f9);
+}
+
+.vz-playing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.vz-eq-bar {
+  width: 3px;
+  background: var(--vz-primary, #4f46e5);
+  border-radius: 2px;
+  animation: vzEqPulse 1s ease-in-out infinite;
+}
+
+.vz-eq-bar-1 { height: 14px; animation-delay: 0.1s; }
+.vz-eq-bar-2 { height: 18px; animation-delay: 0.3s; }
+.vz-eq-bar-3 { height: 11px; animation-delay: 0.5s; }
+
+@keyframes vzEqPulse {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.6; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+.vz-playing-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--vz-primary, #4f46e5);
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vz-sound-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--vz-radius-md, 8px);
+  background: var(--vz-primary, #4f46e5);
+  color: #ffffff;
+  border: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  margin-left: auto;
+}
+
+.vz-sound-play-btn:hover {
+  background: var(--vz-primary-hover, #4338ca);
+  transform: translateY(-1px);
+}
+
+.vz-sound-play-btn.playing {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.vz-sound-play-btn.playing:hover {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+/* Legacy Fallback */
 .vz-sound-options {
   display: flex;
   flex-direction: column;
