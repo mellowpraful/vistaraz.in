@@ -7,7 +7,7 @@
  */
 
 import { Router } from 'express';
-import { getHealth, getDbHealth } from '../controllers/healthController.js';
+import { getHealth, getDbHealth, getEnvDebug } from '../controllers/healthController.js';
 
 const router = Router();
 
@@ -22,5 +22,11 @@ router.get('/', getHealth);
  * Public. Verifies live NeonDB connectivity.
  */
 router.get('/db', getDbHealth);
+
+/**
+ * GET /api/health/debug-env
+ * Diagnostic: reports presence of environment keys safely.
+ */
+router.get('/debug-env', getEnvDebug);
 
 export default router;

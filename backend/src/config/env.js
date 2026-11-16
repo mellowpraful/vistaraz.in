@@ -30,8 +30,14 @@ const CORS_ORIGINS = rawOrigins
   .map((o) => o.trim())
   .filter(Boolean);
 
-// ─── Database ─── Placeholder; NeonDB wired in Phase 2 ───────────────────────
-const DATABASE_URL = process.env.DATABASE_URL ?? null;
+// ─── Database ────────────────────────────────────────────────────────────────
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.NEON_DATABASE_URL ||
+  process.env.DATABASE_URL_UNPOOLED ||
+  null;
 
 // ─── Better Auth Configuration ───────────────────────────────────────────────
 const BETTER_AUTH_SECRET =

@@ -80,3 +80,22 @@ export async function getDbHealth(_req, res) {
     },
   });
 }
+
+/**
+ * GET /api/health/debug-env
+ * Diagnostic: safely reports presence of required env variables without exposing any values.
+ */
+export function getEnvDebug(_req, res) {
+  const safeKeys = Object.keys(process.env)
+    .filter((k) => !k.startsWith('npm_') && !k.startsWith('_'))
+    .sort();
+
+  return res.status(200).json({
+    success: true,
+    availableKeys: safeKeys,
+    hasDatabaseUrl: Boolean(env.DATABASE_URL),
+    hasGoogleClientId: Boolean(process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_ID || process.env.AUTH_GOOGLE_ID),
+    hasGoogleSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_SECRET || process.env.AUTH_GOOGLE_SECRET),
+    hasBetterAuthSecret: Boolean(process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET),
+  });
+}
