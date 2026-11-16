@@ -93,6 +93,7 @@ export function getEnvDebug(_req, res) {
   return res.status(200).json({
     success: true,
     availableKeys: safeKeys,
+    vercelProjectName: process.env.VERCEL_PROJECT_NAME || null,
     vercelEnv: process.env.VERCEL_ENV || null,
     vercelTargetEnv: process.env.VERCEL_TARGET_ENV || null,
     vercelGitCommitRef: process.env.VERCEL_GIT_COMMIT_REF || null,
