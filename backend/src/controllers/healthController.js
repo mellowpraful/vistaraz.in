@@ -93,6 +93,12 @@ export function getEnvDebug(_req, res) {
   return res.status(200).json({
     success: true,
     availableKeys: safeKeys,
+    vercelEnv: process.env.VERCEL_ENV || null,
+    vercelTargetEnv: process.env.VERCEL_TARGET_ENV || null,
+    vercelGitCommitRef: process.env.VERCEL_GIT_COMMIT_REF || null,
+    vercelGitCommitSha: process.env.VERCEL_GIT_COMMIT_SHA || null,
+    vercelUrl: process.env.VERCEL_URL || null,
+    vercelBranchUrl: process.env.VERCEL_BRANCH_URL || null,
     hasDatabaseUrl: Boolean(env.DATABASE_URL),
     hasGoogleClientId: Boolean(process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_ID || process.env.AUTH_GOOGLE_ID),
     hasGoogleSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_SECRET || process.env.AUTH_GOOGLE_SECRET),
