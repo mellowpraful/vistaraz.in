@@ -50,6 +50,14 @@ async function runValidation() {
       'community_posts',
       'community_likes',
       'community_comments',
+      'match_candidates',
+      'support_assignments',
+      'session_messages',
+      'voice_rooms',
+      'session_feedback',
+      'support_reports',
+      'safeguarding_cases',
+      'supporter_training',
     ];
 
     const missingTables = expectedTables.filter((t) => !tableNames.has(t));
@@ -64,10 +72,10 @@ async function runValidation() {
     console.log('Test 2: Verify schema_migrations table records all migrations');
     const migRes = await client.query('SELECT name FROM schema_migrations ORDER BY id ASC');
     const recordedMigrations = migRes.rows.map((r) => r.name);
-    if (recordedMigrations.length >= 8) {
+    if (recordedMigrations.length >= 9) {
       console.log(`✅ Test 2 PASSED: ${recordedMigrations.length} migrations recorded in schema_migrations.\n`);
     } else {
-      console.error('❌ Test 2 FAILED: Expected at least 8 migrations, found:', recordedMigrations.length);
+      console.error('❌ Test 2 FAILED: Expected at least 9 migrations, found:', recordedMigrations.length);
       failures++;
     }
 

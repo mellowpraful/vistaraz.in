@@ -727,3 +727,401 @@ export async function getAuditReports(req, res) {
   }
 }
 
+// ─── Phase 4 Peer Support & Safeguarding Administrative Endpoints ─────────────
+
+/**
+ * GET /api/admin/supporters
+ * Lists all peer listeners with operational filters (status, availability).
+ */
+export async function getAdminSupporters(req, res) {
+  try {
+    const { status, availability, search } = req.query;
+    let query = `
+      SELECT hp.id, hp.user_id, hp.display_alias, hp.verification_status,
+             hp.application_status, hp.availability_status, hp.max_active_sessions,
+             hp.training_status, hp.safeguarding_approved, hp.languages,
+             hp.supported_categories, hp.supported_modes, hp.supported_age_bands,
+             hp.created_at, hp.updated_at,
+             u.name as real_name, u.email as user_email,
+             (
+               SELECT COUNT(*)::int
+               FROM support_sessions ss
+               WHERE ss.assigned_peer_id = hp.user_id
+                 AND ss.session_status IN ('scheduled', 'active', 'in_progress')
+             ) as active_sessions_count
+      FROM helper_profiles hp
+      JOIN "user" u ON u.id = hp.user_id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (status) {
+      params.push(status);
+      query += ` AND hp.verification_status = $${params.length}`;
+    }
+
+    if (availability) {
+      params.push(availability);
+      query += ` AND hp.availability_status = $${params.length}`;
+    }
+
+    if (search) {
+      params.push(`%${search}%`);
+      query += ` AND (hp.display_alias ILIKE $${params.length} OR u.name ILIKE $${params.length} OR u.email ILIKE $${params.length})`;
+    }
+
+    query += ' ORDER BY hp.created_at DESC';
+
+    const result = await authPool.query(query, params);
+    return res.status(200).json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (err) {
+    logger.error('Failed to fetch admin supporters', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * GET /api/admin/supporters/:id
+ * Retrieves detailed supporter record with training logs.
+ */
+export async function getAdminSupporterById(req, res) {
+  try {
+    const { id } = req.params;
+    const supporterRes = await authPool.query(
+      `SELECT hp.*, u.name as real_name, u.email as user_email
+       FROM helper_profiles hp
+       JOIN "user" u ON u.id = hp.user_id
+       WHERE hp.id = $1`,
+      [id]
+    );
+
+    if (supporterRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Supporter not found.' });
+    }
+
+    const trainingRes = await authPool.query(
+      `SELECT * FROM supporter_training WHERE supporter_id = $1 ORDER BY completed_at DESC`,
+      [id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...supporterRes.rows[0],
+        trainingModules: trainingRes.rows,
+      },
+    });
+  } catch (err) {
+    logger.error('Failed to fetch admin supporter details', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * PATCH /api/admin/supporters/:id/verify
+ * Administrative verification approval or rejection.
+ */
+export async function verifyAdminSupporter(req, res) {
+  try {
+    const { id } = req.params;
+    const { action, safeguardingApproved, reviewNotes } = req.body;
+    const adminId = req.user.id;
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ success: false, error: "Action must be 'approve' or 'reject'." });
+    }
+
+    const isApproval = action === 'approve';
+    const newVerifStatus = isApproval ? 'approved' : 'rejected';
+    const newAppStatus = isApproval ? 'approved' : 'rejected';
+
+    const client = await authPool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const supporterRes = await client.query(
+        'SELECT id, user_id FROM helper_profiles WHERE id = $1 FOR UPDATE',
+        [id]
+      );
+
+      if (supporterRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ success: false, error: 'Supporter not found.' });
+      }
+
+      const supporter = supporterRes.rows[0];
+
+      const updateRes = await client.query(
+        `UPDATE helper_profiles
+         SET verification_status = $1,
+             application_status = $2,
+             training_status = CASE WHEN $3 = true THEN 'completed' ELSE training_status END,
+             safeguarding_approved = COALESCE($4, safeguarding_approved),
+             verified_by = $5,
+             verified_at = CURRENT_TIMESTAMP,
+             review_notes = COALESCE($6, review_notes),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $7
+         RETURNING *`,
+        [
+          newVerifStatus,
+          newAppStatus,
+          isApproval,
+          safeguardingApproved !== undefined ? Boolean(safeguardingApproved) : null,
+          adminId,
+          reviewNotes || null,
+          id,
+        ]
+      );
+
+      if (isApproval) {
+        await client.query(
+          `INSERT INTO user_roles (user_id, role, assigned_by)
+           VALUES ($1, 'helper', $2)
+           ON CONFLICT (user_id, role) DO NOTHING`,
+          [supporter.user_id, adminId]
+        );
+      }
+
+      await client.query('COMMIT');
+      return res.status(200).json({
+        success: true,
+        message: `Supporter verification ${action}d successfully.`,
+        data: updateRes.rows[0],
+      });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    logger.error('Failed to verify supporter', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * PATCH /api/admin/supporters/:id/suspend
+ * Suspends an active supporter.
+ */
+export async function suspendAdminSupporter(req, res) {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const resUpdate = await authPool.query(
+      `UPDATE helper_profiles
+       SET verification_status = 'suspended',
+           availability_status = 'offline',
+           review_notes = COALESCE($1, review_notes),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [reason || 'Suspended by admin', id]
+    );
+
+    if (resUpdate.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Supporter not found.' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Supporter suspended successfully.',
+      data: resUpdate.rows[0],
+    });
+  } catch (err) {
+    logger.error('Failed to suspend supporter', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * GET /api/admin/support-requests
+ * Operational request monitoring.
+ */
+export async function getAdminSupportRequests(req, res) {
+  try {
+    const { status, urgency, ageBand } = req.query;
+    let query = `
+      SELECT sr.*, u.name as seeker_name, u.email as seeker_email,
+             (SELECT COUNT(*)::int FROM match_candidates mc WHERE mc.request_id = sr.id) as candidates_count
+      FROM support_requests sr
+      JOIN "user" u ON u.id = sr.user_id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (status) {
+      params.push(status);
+      query += ` AND sr.status = $${params.length}`;
+    }
+
+    if (urgency) {
+      params.push(urgency);
+      query += ` AND sr.urgency = $${params.length}`;
+    }
+
+    if (ageBand) {
+      params.push(ageBand);
+      query += ` AND sr.age_band = $${params.length}`;
+    }
+
+    query += ' ORDER BY sr.created_at DESC LIMIT 100';
+
+    const result = await authPool.query(query, params);
+    return res.status(200).json({ success: true, data: result.rows });
+  } catch (err) {
+    logger.error('Failed to fetch admin support requests', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * GET /api/admin/assignments
+ * Assignment monitoring.
+ */
+export async function getAdminAssignments(req, res) {
+  try {
+    const result = await authPool.query(
+      `SELECT sa.*, 
+              hp.display_alias as supporter_alias,
+              u.name as seeker_name,
+              ss.id as session_id, ss.session_status, ss.session_type
+       FROM support_assignments sa
+       JOIN helper_profiles hp ON hp.id = sa.supporter_id
+       JOIN "user" u ON u.id = sa.seeker_user_id
+       LEFT JOIN support_sessions ss ON ss.assignment_id = sa.id
+       ORDER BY sa.created_at DESC
+       LIMIT 100`
+    );
+
+    return res.status(200).json({ success: true, data: result.rows });
+  } catch (err) {
+    logger.error('Failed to fetch admin assignments', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * GET /api/admin/safeguarding-cases
+ * Restricted safeguarding review for authorized personnel.
+ */
+export async function getAdminSafeguardingCases(req, res) {
+  try {
+    const { status, riskLevel } = req.query;
+    let query = `
+      SELECT sc.*, u.name as seeker_name, u.email as seeker_email,
+             lead.name as assigned_lead_name
+      FROM safeguarding_cases sc
+      JOIN "user" u ON u.id = sc.seeker_user_id
+      LEFT JOIN "user" lead ON lead.id = sc.assigned_lead_id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (status) {
+      params.push(status);
+      query += ` AND sc.status = $${params.length}`;
+    }
+
+    if (riskLevel) {
+      params.push(riskLevel);
+      query += ` AND sc.risk_level = $${params.length}`;
+    }
+
+    query += ' ORDER BY sc.created_at DESC LIMIT 100';
+
+    const result = await authPool.query(query, params);
+    return res.status(200).json({ success: true, data: result.rows });
+  } catch (err) {
+    logger.error('Failed to fetch safeguarding cases', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * PATCH /api/admin/safeguarding-cases/:id
+ * Escalate, refer, or resolve safeguarding cases.
+ */
+export async function updateAdminSafeguardingCase(req, res) {
+  try {
+    const { id } = req.params;
+    const { status, referralDestination, caseNotes } = req.body;
+    const adminId = req.user.id;
+
+    const result = await authPool.query(
+      `UPDATE safeguarding_cases
+       SET status = COALESCE($1, status),
+           referral_destination = COALESCE($2, referral_destination),
+           case_notes = COALESCE($3, case_notes),
+           assigned_lead_id = $4,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $5
+       RETURNING *`,
+      [status || null, referralDestination || null, caseNotes || null, adminId, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Safeguarding case not found.' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Safeguarding case updated.',
+      data: result.rows[0],
+    });
+  } catch (err) {
+    logger.error('Failed to update safeguarding case', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+/**
+ * GET /api/admin/support-metrics
+ * Aggregate operational peer support metrics.
+ */
+export async function getAdminSupportMetrics(req, res) {
+  try {
+    const [
+      totalReqRes,
+      matchedReqRes,
+      completedSessionsRes,
+      activeSessionsRes,
+      availableSupportersRes,
+      avgFeedbackRes,
+    ] = await Promise.all([
+      authPool.query('SELECT COUNT(*)::int as count FROM support_requests'),
+      authPool.query("SELECT COUNT(*)::int as count FROM support_requests WHERE status IN ('matched', 'in_progress', 'resolved', 'closed')"),
+      authPool.query("SELECT COUNT(*)::int as count FROM support_sessions WHERE session_status = 'completed'"),
+      authPool.query("SELECT COUNT(*)::int as count FROM support_sessions WHERE session_status IN ('scheduled', 'active', 'in_progress')"),
+      authPool.query("SELECT COUNT(*)::int as count FROM helper_profiles WHERE availability_status = 'available' AND verification_status IN ('verified', 'approved')"),
+      authPool.query('SELECT COALESCE(ROUND(AVG(rating)::numeric, 2), 0) as avg_rating FROM session_feedback'),
+    ]);
+
+    const totalRequests = totalReqRes.rows[0].count;
+    const matchedRequests = matchedReqRes.rows[0].count;
+    const matchRate = totalRequests > 0 ? Math.round((matchedRequests / totalRequests) * 100) : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalRequests,
+        matchedRequests,
+        matchRatePercentage: matchRate,
+        completedSessions: completedSessionsRes.rows[0].count,
+        activeSessions: activeSessionsRes.rows[0].count,
+        availableSupporters: availableSupportersRes.rows[0].count,
+        averageFeedbackRating: parseFloat(avgFeedbackRes.rows[0].avg_rating),
+      },
+    });
+  } catch (err) {
+    logger.error('Failed to fetch support metrics', { error: err.message });
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+

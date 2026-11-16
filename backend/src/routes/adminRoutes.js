@@ -20,6 +20,15 @@ import {
   getProfessionals,
   getSupportSessions,
   getAuditReports,
+  getAdminSupporters,
+  getAdminSupporterById,
+  verifyAdminSupporter,
+  suspendAdminSupporter,
+  getAdminSupportRequests,
+  getAdminAssignments,
+  getAdminSafeguardingCases,
+  updateAdminSafeguardingCase,
+  getAdminSupportMetrics,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -30,11 +39,16 @@ router.use(requireRole('admin'));
 
 // 1. Overview metrics
 router.get('/stats', getAdminStats);
+router.get('/support-metrics', getAdminSupportMetrics);
 
 // 2. Seeker Management
 router.get('/seekers', getSeekers);
 
-// 3. Listener / Helper Applications
+// 3. Listener / Supporter Management & Applications
+router.get('/supporters', getAdminSupporters);
+router.get('/supporters/:id', getAdminSupporterById);
+router.patch('/supporters/:id/verify', verifyAdminSupporter);
+router.patch('/supporters/:id/suspend', suspendAdminSupporter);
 router.get('/listeners/applications', getListenerApplications);
 router.get('/listeners/applications/:id', getListenerApplicationDetails);
 router.post('/listeners/applications/:id/review', reviewListenerApplication);
@@ -47,10 +61,16 @@ router.post('/interns/applications/:id/review', reviewInternApplication);
 // 5. Professional Accounts
 router.get('/professionals', getProfessionals);
 
-// 6. Support Sessions Monitoring
+// 6. Support Requests & Assignments Monitoring
+router.get('/support-requests', getAdminSupportRequests);
+router.get('/assignments', getAdminAssignments);
 router.get('/sessions', getSupportSessions);
 
-// 7. Audit Reports
+// 7. Safeguarding Operations
+router.get('/safeguarding-cases', getAdminSafeguardingCases);
+router.patch('/safeguarding-cases/:id', updateAdminSafeguardingCase);
+
+// 8. Audit Reports
 router.get('/reports', getAuditReports);
 
 export default router;

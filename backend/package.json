@@ -11,7 +11,8 @@
     "test:db": "node test-db-health.mjs",
     "test:schema": "node test-schema-validation.mjs",
     "test:auth": "node test-phase4-rbac.mjs",
-    "test": "node test-db-health.mjs && node test-schema-validation.mjs && node test-phase4-rbac.mjs",
+    "test:peer": "node test-phase4-peer-support.mjs",
+    "test": "node test-db-health.mjs && node test-schema-validation.mjs && node test-phase4-peer-support.mjs",
     "migrate": "node src/scripts/migrate.js",
     "migrate:status": "node src/scripts/migrate.js --status"
   },

@@ -86,3 +86,78 @@
   - Total automated tests passed: **75/75 (100% pass rate)**.
 - **F2 — Production Build:**
   - `cd frontend ; npm.cmd run build`: PASSED in 1.91s with 0 errors.
+
+---
+
+## PHASE 4: HUMAN PEER SUPPORT & INTELLIGENT MATCHING INFRASTRUCTURE
+
+**Active Branch:** `Dev`  
+**Execution Date:** November 16, 2026  
+**Status:** Complete & Independently Verified
+
+### 1. Database Infrastructure (`009_create_peer_support_infrastructure.sql`)
+- Applied additive migration creating 7 new tables and extending existing schemas:
+  - `helper_profiles` extended with `display_alias`, `availability_status`, `max_active_sessions`, `training_status`, `safeguarding_approved`, `supported_age_bands`, `supported_categories`, `supported_modes`.
+  - `support_requests` extended with `preferred_language`, `communication_mode`, `age_band`, `privacy_mode`, `preferred_time_start`, `preferred_time_end`, and expanded status check constraint.
+  - Created `supporter_training` for tracking module completion.
+  - Created `match_candidates` for candidate queue, match scoring, and expiring offers.
+  - Created `support_assignments` enforcing atomic 1:1 request assignment lock.
+  - Extended `support_sessions` with `assignment_id`.
+  - Created `session_messages` for private, authorized session messaging (1–5000 chars).
+  - Created `voice_rooms` for WebRTC room tracking and clean session teardowns.
+  - Created `session_feedback` with unique per-user per-session constraint.
+  - Created `support_reports` for in-session participant concern and boundary reporting.
+  - Created `safeguarding_cases` for restricted youth protection and crisis tracking.
+  - Added 10 high-performance indexes.
+  - Total NeonDB tables: 24. Total migrations: 9.
+
+### 2. Backend Modules (`backend/src/modules/`)
+- **`supporters` Module:**
+  - `supporter.service.js`, `supporter.controller.js`, `supporter.routes.js`
+  - Provides `/api/supporters/me`, `/status`, `/availability`, `/requests`, `/accept`, `/decline`.
+- **`matching` Module:**
+  - `eligibility.service.js`: 10 hard eligibility filters (online, verified, training, capacity, language, category, mode, age-band, self-match prevention).
+  - `scoring.service.js`: 100-point deterministic ranking (Language: 25, Availability: 25, Category: 20, Mode: 15, Training: 10, Continuity: 5).
+  - `matching.service.js`: Atomic offer dispatcher with 10-minute TTL, rematching triggers.
+- **`support-requests` Module:**
+  - `request.service.js`, `request.controller.js`, `request.routes.js`
+  - Provides `/api/support-requests`, `/me`, `/:id`, `/cancel`, `/match`, `/rematch`.
+  - Implements Section 11.2 Minor Safeguarding Gate (Age 15–17 held in protected review with 24/7 national helplines).
+  - Implements Imminent Crisis Detection with non-clinical emergency routing.
+- **`sessions` & `messaging` Module:**
+  - `session.service.js`, `session.controller.js`, `session.routes.js`
+  - Provides `/api/sessions/me`, `/:id`, `/start`, `/end`, `/messages`, `/report`, `/feedback`.
+  - Strict participant verification preventing IDOR attacks.
+- **`voice` Module:**
+  - `voice.service.js`, `voice.controller.js`
+  - Provides `/api/sessions/:id/voice-room`, `/voice-token`, `/voice/end`.
+  - Issues HMAC-signed ephemeral participant tokens with STUN server configuration.
+- **`admin` & `safeguarding` Operations:**
+  - Extended `adminController.js` and `adminRoutes.js` with operational oversight:
+    - `/api/admin/supporters`, `/supporters/:id/verify`, `/supporters/:id/suspend`
+    - `/api/admin/support-requests`, `/assignments`, `/support-metrics`
+    - `/api/admin/safeguarding-cases`, `/safeguarding-cases/:id`
+  - Added `requireSafeguardingLead` middleware guard in `backend/src/middleware/rbac.js`.
+
+### 3. Frontend Client Integration
+- Created `frontend/src/services/peerSupportService.js` mapping all supporter, seeker, session, message, voice, report, and feedback REST APIs.
+- Frontend builds cleanly via Vite in 2.29s with 0 errors.
+
+### 4. Automated Testing
+- Created `backend/test-phase4-peer-support.mjs`:
+  - 14 automated tests passing 100% with 0 failures:
+    1. Offline listener strictly excluded
+    2. Unverified / untrained listener strictly excluded
+    3. Language + category eligibility matching
+    4. Age 15–17 minor safeguarding gate
+    5. Crisis keyword detection & emergency referral
+    6. Adult request matching & atomic offer dispatch
+    7. Supporter sanitized offer with zero seeker PII leakage
+    8. Atomic offer acceptance & session establishment
+    9. IDOR blocking on non-participants
+    10. Private messaging in active session
+    11. Encrypted session message retrieval
+    12. Ephemeral WebRTC voice token & STUN generation
+    13. Post-session message rejection on ended sessions
+    14. Mutual post-session feedback recording
+

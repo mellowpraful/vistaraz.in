@@ -144,7 +144,7 @@ export async function requireVerifiedHelper(req, res, next) {
 
     const helperProfile = profileRes.rows[0];
 
-    if (!helperProfile || helperProfile.verification_status !== 'verified') {
+    if (!helperProfile || !['verified', 'approved'].includes(helperProfile.verification_status)) {
       return res.status(403).json({
         success: false,
         error: 'Helper verification required. Your helper application is pending administrative review.',
@@ -168,6 +168,22 @@ export async function requireVerifiedHelper(req, res, next) {
  * Enforces that the user has the 'professional' role AND has a 'verified' professional_profile.
  * Helpers and general users can NEVER access professional routes.
  */
+export async function requireSafeguardingLead(req, res, next) {
+  if (!req.user || !req.roles) {
+    return requireAuth(req, res, () => requireSafeguardingLead(req, res, next));
+  }
+
+  const isAuthorized = req.roles.some((r) => ['safeguarding_lead', 'admin'].includes(r));
+  if (!isAuthorized) {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied. Safeguarding Lead authorization required.',
+      code: 'SAFEGUARDING_LEAD_REQUIRED',
+    });
+  }
+
+  next();
+}
 export async function requireVerifiedProfessional(req, res, next) {
   if (!req.user || !req.roles) {
     return requireAuth(req, res, () => requireVerifiedProfessional(req, res, next));
