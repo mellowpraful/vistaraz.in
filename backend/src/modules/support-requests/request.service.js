@@ -7,6 +7,7 @@
 
 import { authPool } from '../../config/auth.js';
 import { MatchingService } from '../matching/matching.service.js';
+import { env } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 
 // Urgent crisis indicator patterns
@@ -40,15 +41,17 @@ export class RequestService {
       urgency = 'medium',
     } = data;
 
-    // 1. Age band validation
+    // 1. Age band validation & normalization ('15_17' -> '15-17')
+    const normalizedAgeBand = (ageBand || '18-20').replace('_', '-');
     const validAgeBands = ['15-17', '18-20', '21-25'];
-    if (!validAgeBands.includes(ageBand)) {
-      throw new Error(`Invalid age band. Must be one of: ${validAgeBands.join(', ')}`);
+    if (!validAgeBands.includes(normalizedAgeBand)) {
+      throw new Error(`Invalid age band. Must be one of: 15-17 (15_17), 18-20 (18_20), 21-25 (21_25)`);
     }
 
-    // 2. Minor Safeguarding Gate (Phase 4F / Section 11.2)
-    if (ageBand === '15-17') {
-      logger.warn(`Minor support request created by user [${userId}] — held under Section 11.2.`);
+    // 2. Minor Safeguarding Gate (Phase 4F / Section 5 & 11.2)
+    // Adult pilot strictly excludes minors unless explicit feature flag is active
+    if (normalizedAgeBand === '15-17' && !env.MINOR_LIVE_SUPPORT_ENABLED) {
+      logger.warn(`Minor support request created by user [${userId}] — held under Section 5 & 11.2.`);
       // Insert with safeguarding status
       const res = await authPool.query(
         `INSERT INTO support_requests (
@@ -66,7 +69,7 @@ export class RequestService {
           communicationMode,
           preferredTimeStart,
           preferredTimeEnd,
-          ageBand,
+          normalizedAgeBand,
           privacyMode,
           urgency,
         ]
@@ -319,5 +322,175 @@ export class RequestService {
     );
 
     return MatchingService.findAndOfferMatch(requestId);
+  }
+
+  /**
+   * Confirms or declines a proposed match by the seeker (Mutual Acceptance).
+   * Implements Section 8 & Section 9.3 of Phase 4 specification.
+   *
+   * @param {string} userId Seeker user ID
+   * @param {string} requestId Support request ID
+   * @param {{ offerId?: string, decision: 'accept' | 'decline' }} param2
+   */
+  static async confirmMatch(userId, requestId, { offerId, decision = 'accept' } = {}) {
+    if (!['accept', 'decline'].includes(decision)) {
+      throw new Error("Decision must be either 'accept' or 'decline'.");
+    }
+
+    const request = await this.getRequestById(userId, requestId);
+    if (!request) {
+      throw new Error('Support request not found.');
+    }
+
+    const client = await authPool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const reqRes = await client.query(
+        `SELECT * FROM support_requests WHERE id = $1 FOR UPDATE`,
+        [requestId]
+      );
+      const lockedReq = reqRes.rows[0];
+
+      if (!['awaiting_seeker_confirmation', 'offered', 'matched'].includes(lockedReq.status)) {
+        throw new Error(`Request is not awaiting confirmation (status: ${lockedReq.status}).`);
+      }
+
+      // Find relevant candidate offer
+      let offerQuery = `
+        SELECT mc.*, hp.user_id as supporter_user_id, hp.max_active_sessions, hp.display_alias
+        FROM match_candidates mc
+        JOIN helper_profiles hp ON hp.id = mc.supporter_id
+        WHERE mc.request_id = $1
+      `;
+      const offerParams = [requestId];
+      if (offerId) {
+        offerParams.push(offerId);
+        offerQuery += ` AND mc.id = $2`;
+      } else {
+        offerQuery += ` AND mc.offer_status IN ('listener_accepted', 'offered', 'accepted') ORDER BY mc.match_score DESC LIMIT 1`;
+      }
+      offerQuery += ` FOR UPDATE`;
+
+      const candRes = await client.query(offerQuery, offerParams);
+      if (candRes.rows.length === 0) {
+        throw new Error('No valid pending offer found for this request.');
+      }
+      const candidate = candRes.rows[0];
+
+      if (decision === 'accept') {
+        // 1. Verify supporter capacity
+        const countRes = await client.query(
+          `SELECT COUNT(*)::int as active_count
+           FROM support_sessions
+           WHERE assigned_peer_id = $1
+             AND session_status IN ('scheduled', 'ready', 'active', 'in_progress')`,
+          [candidate.supporter_user_id]
+        );
+        if (countRes.rows[0].active_count >= candidate.max_active_sessions) {
+          throw new Error('Listener capacity reached. Rematching with next available listener.');
+        }
+
+        // 2. Create support_assignments
+        const assignRes = await client.query(
+          `INSERT INTO support_assignments (request_id, supporter_id, seeker_user_id, assignment_status)
+           VALUES ($1, $2, $3, 'accepted')
+           ON CONFLICT (request_id) DO UPDATE SET assignment_status = 'accepted'
+           RETURNING *`,
+          [requestId, candidate.supporter_id, userId]
+        );
+        const assignment = assignRes.rows[0];
+
+        // 3. Update match_candidates
+        await client.query(
+          `UPDATE match_candidates
+           SET offer_status = 'seeker_confirmed', seeker_responded_at = CURRENT_TIMESTAMP
+           WHERE id = $1`,
+          [candidate.id]
+        );
+
+        // Expire any other offers
+        await client.query(
+          `UPDATE match_candidates
+           SET offer_status = 'expired'
+           WHERE request_id = $1 AND id != $2 AND offer_status IN ('pending', 'offered', 'listener_accepted')`,
+          [requestId, candidate.id]
+        );
+
+        // 4. Update request status to 'confirmed' / 'matched'
+        await client.query(
+          `UPDATE support_requests
+           SET status = 'confirmed', updated_at = CURRENT_TIMESTAMP
+           WHERE id = $1`,
+          [requestId]
+        );
+
+        // 5. Create or fetch support_sessions
+        const sessionMode = lockedReq.communication_mode === 'voice' ? 'audio' : 'text';
+        const sessionRes = await client.query(
+          `INSERT INTO support_sessions (
+             support_request_id, assignment_id, user_id, assigned_peer_id, session_type, session_status, scheduled_for
+           )
+           VALUES ($1, $2, $3, $4, $5, 'scheduled', CURRENT_TIMESTAMP)
+           ON CONFLICT DO NOTHING
+           RETURNING *`,
+          [requestId, assignment.id, userId, candidate.supporter_user_id, sessionMode]
+        );
+
+        let session = sessionRes.rows[0];
+        if (!session) {
+          const sRes = await client.query(
+            `SELECT * FROM support_sessions WHERE support_request_id = $1 ORDER BY created_at DESC LIMIT 1`,
+            [requestId]
+          );
+          session = sRes.rows[0];
+        }
+
+        await client.query('COMMIT');
+        return {
+          success: true,
+          status: 'confirmed',
+          assignmentId: assignment.id,
+          sessionId: session?.id,
+          sessionType: session?.session_type,
+          sessionStatus: session?.session_status,
+          supporterAlias: candidate.display_alias || 'Peer Listener',
+          message: 'Match successfully confirmed by both participants. Session is scheduled.',
+        };
+      } else {
+        // Seeker declined proposed match
+        await client.query(
+          `UPDATE match_candidates
+           SET offer_status = 'seeker_declined', seeker_responded_at = CURRENT_TIMESTAMP
+           WHERE id = $1`,
+          [candidate.id]
+        );
+
+        await client.query(
+          `UPDATE support_requests
+           SET status = 'matching', updated_at = CURRENT_TIMESTAMP
+           WHERE id = $1`,
+          [requestId]
+        );
+
+        await client.query('COMMIT');
+
+        // Trigger rematching asynchronously
+        MatchingService.findAndOfferMatch(requestId).catch((err) => {
+          logger.error('Error triggering rematch after seeker decline', { error: err.message });
+        });
+
+        return {
+          success: true,
+          status: 'rematching',
+          message: 'Proposed match declined. Searching for another peer listener.',
+        };
+      }
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 }

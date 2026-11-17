@@ -13,6 +13,7 @@ import {
   cancelSupportRequest,
   getMatchStatus,
   rematchSupportRequest,
+  confirmMatch,
 } from './request.controller.js';
 
 const router = Router();
@@ -25,5 +26,6 @@ router.get('/:id', getSupportRequestById);
 router.post('/:id/cancel', cancelSupportRequest);
 router.get('/:id/match', getMatchStatus);
 router.post('/:id/rematch', rematchSupportRequest);
+router.post('/:id/confirm-match', confirmMatch);
 
 export default router;

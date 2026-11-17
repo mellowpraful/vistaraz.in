@@ -60,8 +60,19 @@ export async function rematchSupportRequest(req, res) {
   try {
     const { id } = req.params;
     const rematchResult = await RequestService.rematch(req.user.id, id);
-    return sendSuccess(res, rematchResult, 'Rematching initiated');
+    return sendSuccess(res, rematchResult, 'Rematching initiated', 202);
   } catch (err) {
     return sendError(res, err.message, 400, 'REMATCH_FAILED');
+  }
+}
+
+export async function confirmMatch(req, res) {
+  try {
+    const { id } = req.params;
+    const { offerId, decision } = req.body;
+    const result = await RequestService.confirmMatch(req.user.id, id, { offerId, decision });
+    return sendSuccess(res, result, result.message || 'Match confirmation recorded');
+  } catch (err) {
+    return sendError(res, err.message, 400, 'CONFIRMATION_FAILED');
   }
 }

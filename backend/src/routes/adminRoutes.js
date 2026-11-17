@@ -49,6 +49,13 @@ router.get('/supporters', getAdminSupporters);
 router.get('/supporters/:id', getAdminSupporterById);
 router.patch('/supporters/:id/verify', verifyAdminSupporter);
 router.patch('/supporters/:id/suspend', suspendAdminSupporter);
+
+// Section 9.6 aliases
+router.get('/listeners', getAdminSupporters);
+router.get('/listeners/:id', getAdminSupporterById);
+router.patch('/listeners/:id/verify', verifyAdminSupporter);
+router.patch('/listeners/:id/suspend', suspendAdminSupporter);
+
 router.get('/listeners/applications', getListenerApplications);
 router.get('/listeners/applications/:id', getListenerApplicationDetails);
 router.post('/listeners/applications/:id/review', reviewListenerApplication);

@@ -16,6 +16,18 @@ export async function createVoiceRoom(req, res) {
   }
 }
 
+export async function scheduleVoiceSession(req, res) {
+  try {
+    const { id } = req.params;
+    const { scheduledAt } = req.body;
+    const session = await VoiceService.scheduleVoiceSession(id, req.user.id, scheduledAt);
+    return sendSuccess(res, session, 'Voice session scheduled successfully');
+  } catch (err) {
+    const status = err.statusCode || 400;
+    return sendError(res, err.message, status, err.code || 'VOICE_SCHEDULE_FAILED');
+  }
+}
+
 export async function issueVoiceToken(req, res) {
   try {
     const { id } = req.params;
@@ -25,6 +37,10 @@ export async function issueVoiceToken(req, res) {
     const status = err.statusCode || 400;
     return sendError(res, err.message, status, err.code || 'TOKEN_ISSUANCE_FAILED');
   }
+}
+
+export async function issueVoiceJoinToken(req, res) {
+  return issueVoiceToken(req, res);
 }
 
 export async function endVoiceRoom(req, res) {

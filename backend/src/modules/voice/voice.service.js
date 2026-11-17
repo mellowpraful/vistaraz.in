@@ -103,6 +103,40 @@ export class VoiceService {
   }
 
   /**
+   * Schedules a future voice session between assigned participants.
+   */
+  static async scheduleVoiceSession(sessionId, userId, scheduledAt) {
+    const { session } = await SessionService.verifyParticipant(sessionId, userId);
+
+    if (['completed', 'cancelled', 'no_show'].includes(session.session_status)) {
+      throw new Error('Cannot schedule voice call on an ended or cancelled session.');
+    }
+
+    if (!scheduledAt) {
+      throw new Error('scheduledAt timestamp is required.');
+    }
+
+    const parsedDate = new Date(scheduledAt);
+    if (isNaN(parsedDate.getTime()) || parsedDate <= new Date()) {
+      throw new Error('scheduledAt must be a valid future ISO timestamp.');
+    }
+
+    const res = await authPool.query(
+      `UPDATE support_sessions
+       SET scheduled_for = $1,
+           session_type = 'audio',
+           session_status = 'scheduled',
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [parsedDate.toISOString(), sessionId]
+    );
+
+    logger.info(`Voice session [${sessionId}] scheduled for ${parsedDate.toISOString()} by user [${userId}].`);
+    return res.rows[0];
+  }
+
+  /**
    * Closes an active voice room.
    */
   static async closeVoiceRoom(sessionId, userId) {

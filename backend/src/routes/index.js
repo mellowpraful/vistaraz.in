@@ -25,6 +25,7 @@ export function mountRoutes(app) {
   app.use('/api/assessments', assessmentRoutes);
   app.use('/api/community', communityRoutes);
   app.use('/api/supporters', supporterRoutes);
+  app.use('/api/listeners', supporterRoutes);
   app.use('/api/support-requests', supportRequestRoutes);
   app.use('/api/sessions', sessionRoutes);
   app.use('/api/test', testRoutes);

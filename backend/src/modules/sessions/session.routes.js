@@ -19,6 +19,8 @@ import {
 import {
   createVoiceRoom,
   issueVoiceToken,
+  issueVoiceJoinToken,
+  scheduleVoiceSession,
   endVoiceRoom,
 } from '../voice/voice.controller.js';
 
@@ -43,6 +45,8 @@ router.post('/:id/report', reportSessionConcern);
 // WebRTC Voice Communication
 router.post('/:id/voice-room', createVoiceRoom);
 router.post('/:id/voice-token', issueVoiceToken);
+router.post('/:id/voice/schedule', scheduleVoiceSession);
+router.post('/:id/voice/join-token', issueVoiceJoinToken);
 router.post('/:id/voice/end', endVoiceRoom);
 
 export default router;

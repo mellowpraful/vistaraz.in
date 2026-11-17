@@ -173,7 +173,9 @@ export async function requireSafeguardingLead(req, res, next) {
     return requireAuth(req, res, () => requireSafeguardingLead(req, res, next));
   }
 
-  const isAuthorized = req.roles.some((r) => ['safeguarding_lead', 'admin'].includes(r));
+  const isAuthorized = req.roles.some((r) =>
+    ['safeguarding_case_review', 'safeguarding_lead', 'admin'].includes(r)
+  );
   if (!isAuthorized) {
     return res.status(403).json({
       success: false,

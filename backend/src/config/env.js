@@ -56,6 +56,9 @@ const BETTER_AUTH_URL =
         ? `https://${process.env.VERCEL_URL}`
         : 'https://vistaraz.in'));
 
+// ─── Phase 4 Peer Support & Safeguarding Gates ─────────────────────────────
+const MINOR_LIVE_SUPPORT_ENABLED = process.env.MINOR_LIVE_SUPPORT_ENABLED === 'true';
+
 export const env = {
   NODE_ENV,
   isDev,
@@ -64,5 +67,6 @@ export const env = {
   DATABASE_URL,
   BETTER_AUTH_SECRET,
   BETTER_AUTH_URL,
+  MINOR_LIVE_SUPPORT_ENABLED,
 };
 

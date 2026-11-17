@@ -101,6 +101,13 @@ export async function rematchSupportRequest(id) {
   });
 }
 
+export async function confirmMatch(id, confirmationData) {
+  return request(`/api/support-requests/${id}/confirm-match`, {
+    method: 'POST',
+    body: JSON.stringify(confirmationData),
+  });
+}
+
 // ─── 3. Session & Messaging APIs ──────────────────────────────────────────────
 
 export async function getMySessions() {
@@ -160,8 +167,15 @@ export async function createVoiceRoom(id) {
   });
 }
 
+export async function scheduleVoiceSession(id, scheduledAt) {
+  return request(`/api/sessions/${id}/voice/schedule`, {
+    method: 'POST',
+    body: JSON.stringify({ scheduledAt }),
+  });
+}
+
 export async function issueVoiceToken(id) {
-  return request(`/api/sessions/${id}/voice-token`, {
+  return request(`/api/sessions/${id}/voice/join-token`, {
     method: 'POST',
   });
 }

@@ -193,17 +193,37 @@ async function runTests() {
     );
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 8: Supporter Accepts Offer — Atomic Session Established
+    // TEST 8: Mutual Match Confirmation Flow (Section 8)
     // ─────────────────────────────────────────────────────────────
-    const acceptRes = await SupporterService.acceptOffer(testHelper1Id, adultRequest.id);
+    // Seeker explicitly confirms the matched listener to lock assignment
+    const confirmRes = await RequestService.confirmMatch(testSeekerId, adultRequest.id, {
+      decision: 'accept',
+    });
     assert(
-      acceptRes.success === true && Boolean(acceptRes.sessionId),
-      'Test 8: Atomic offer acceptance creates support assignment and support session'
+      confirmRes.success === true && Boolean(confirmRes.sessionId),
+      'Test 8: Mutual match confirmation: seeker accepts and atomically schedules session'
     );
-    const activeSessionId = acceptRes.sessionId;
+    const activeSessionId = confirmRes.sessionId;
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 9: IDOR Security — Unauthorized Third Party Blocked from Session
+    // TEST 9: Duplicate Assignment Concurrency Protection
+    // ─────────────────────────────────────────────────────────────
+    let duplicateBlocked = false;
+    try {
+      await authPool.query(
+        `INSERT INTO support_assignments (request_id, supporter_id, seeker_user_id, assignment_status)
+         VALUES ($1, $2, $3, 'accepted')`,
+        [adultRequest.id, helper1ProfileId, testSeekerId]
+      );
+    } catch (err) {
+      if (err.code === '23505') { // Postgres unique_violation
+        duplicateBlocked = true;
+      }
+    }
+    assert(duplicateBlocked, 'Test 9: Database constraint strictly blocks duplicate assignment on same request');
+
+    // ─────────────────────────────────────────────────────────────
+    // TEST 10: IDOR Security — Unauthorized Third Party Blocked from Session
     // ─────────────────────────────────────────────────────────────
     let idorBlocked = false;
     try {
@@ -213,10 +233,10 @@ async function runTests() {
         idorBlocked = true;
       }
     }
-    assert(idorBlocked, 'Test 9: IDOR blocked — unassigned listener cannot view or access session');
+    assert(idorBlocked, 'Test 10: IDOR blocked — unassigned listener cannot view or access session');
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 10: Private Messaging Between Assigned Participants
+    // TEST 11: Private Messaging Between Assigned Participants
     // ─────────────────────────────────────────────────────────────
     const sentMsg = await SessionService.sendMessage(
       activeSessionId,
@@ -225,26 +245,45 @@ async function runTests() {
     );
     assert(
       sentMsg.id && sentMsg.message_body === 'Hello, thank you for being here to listen.',
-      'Test 10: Seeker sends private message in active session'
+      'Test 11: Seeker sends private message in active session'
     );
 
     const messages = await SessionService.getMessages(activeSessionId, testHelper1Id);
     assert(
       messages.length === 1 && messages[0].sender_user_id === testSeekerId,
-      'Test 11: Assigned listener correctly retrieves encrypted session messages'
+      'Test 12: Assigned listener correctly retrieves encrypted session messages'
     );
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 12: Ephemeral WebRTC Voice Token Issuance
+    // TEST 13: Scheduled Voice Session Booking & Ephemeral Token
     // ─────────────────────────────────────────────────────────────
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const scheduledVoice = await VoiceService.scheduleVoiceSession(activeSessionId, testSeekerId, futureDate);
+    assert(
+      scheduledVoice.session_type === 'audio' && Boolean(scheduledVoice.scheduled_for),
+      'Test 13: Scheduled voice session booked for future timestamp'
+    );
+
     const voiceTokenRes = await VoiceService.issueParticipantToken(activeSessionId, testSeekerId);
     assert(
       Boolean(voiceTokenRes.token) && voiceTokenRes.iceServers.length > 0,
-      'Test 12: Ephemeral WebRTC token and STUN configuration generated securely'
+      'Test 14: Ephemeral WebRTC token and STUN configuration generated securely'
     );
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 13: End Session Lifecycle & Post-Closure Message Rejection
+    // TEST 15: Incident Reporting During Session
+    // ─────────────────────────────────────────────────────────────
+    const reportRes = await SessionService.submitReport(activeSessionId, testSeekerId, {
+      reportType: 'boundary_violation',
+      description: 'Test incident concern reporting verification',
+    });
+    assert(
+      reportRes.id && reportRes.status === 'pending',
+      'Test 15: Incident report successfully filed into restricted support_reports'
+    );
+
+    // ─────────────────────────────────────────────────────────────
+    // TEST 16: End Session Lifecycle & Post-Closure Message Rejection
     // ─────────────────────────────────────────────────────────────
     await SessionService.endSession(activeSessionId, testHelper1Id);
     let postEndBlocked = false;
@@ -253,10 +292,10 @@ async function runTests() {
     } catch {
       postEndBlocked = true;
     }
-    assert(postEndBlocked, 'Test 13: Ended session strictly rejects new messages');
+    assert(postEndBlocked, 'Test 16: Ended session strictly rejects new messages');
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 14: Mutual Post-Session Feedback
+    // TEST 17: Mutual Post-Session Feedback
     // ─────────────────────────────────────────────────────────────
     const feedback = await SessionService.submitFeedback(activeSessionId, testSeekerId, {
       rating: 5,
@@ -265,7 +304,7 @@ async function runTests() {
     });
     assert(
       feedback.rating === 5 && feedback.session_id === activeSessionId,
-      'Test 14: Post-session feedback recorded cleanly'
+      'Test 17: Post-session feedback recorded cleanly'
     );
 
   } catch (err) {
