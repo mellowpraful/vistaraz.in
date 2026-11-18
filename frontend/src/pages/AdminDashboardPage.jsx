@@ -221,10 +221,10 @@ export default function AdminDashboardPage() {
       <aside className={`vz-admin-sidebar ${mobileMenuOpen ? 'vz-admin-sidebar--open' : ''}`}>
         <div className="vz-admin-sidebar__header">
           <Link to="/admin/dashboard" className="vz-admin-brand" onClick={() => setMobileMenuOpen(false)}>
-            <div className="vz-admin-brand-icon">🛡️</div>
-            <div>
+            <img src="/assets/logo.svg" alt="Vistaraz" height="38" className="vz-admin-logo" />
+            <div className="vz-admin-brand-text">
               <span className="vz-admin-brand-title">Vistaraz</span>
-              <span className="vz-admin-brand-sub">Admin Portal</span>
+              <span className="vz-admin-brand-sub">Admin Console</span>
             </div>
           </Link>
           <button
@@ -330,37 +330,37 @@ export default function AdminDashboardPage() {
           {activeTab === 'overview' && (
             <div className="vz-admin-view vz-admin-view--overview">
               <div className="vz-admin-kpi-grid">
-                <div className="vz-admin-kpi-card">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--sky">
                   <div className="vz-admin-kpi-header">
                     <span>Total Registered Users</span>
-                    <Users size={18} color="#6366f1" />
+                    <Users size={18} color="#0369a1" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.totalUsers ?? '—'}</strong>
                   <span className="vz-admin-kpi-sub">Across all roles</span>
                 </div>
 
-                <div className="vz-admin-kpi-card">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--mint">
                   <div className="vz-admin-kpi-header">
                     <span>Support Seekers</span>
-                    <Users size={18} color="#10b981" />
+                    <Users size={18} color="#065f46" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.totalSeekers ?? '—'}</strong>
                   <span className="vz-admin-kpi-sub">Active members seeking support</span>
                 </div>
 
-                <div className="vz-admin-kpi-card">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--lavender">
                   <div className="vz-admin-kpi-header">
                     <span>Active Listeners</span>
-                    <UserCheck size={18} color="#8b5cf6" />
+                    <UserCheck size={18} color="#5b21b6" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.approvedListeners ?? '—'}</strong>
                   <span className="vz-admin-kpi-sub">{stats?.totalListeners ?? 0} total assigned</span>
                 </div>
 
-                <div className="vz-admin-kpi-card vz-admin-kpi-card--highlight">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--peach vz-admin-kpi-card--highlight">
                   <div className="vz-admin-kpi-header">
                     <span>Pending Listener Apps</span>
-                    <Clock size={18} color="#f59e0b" />
+                    <Clock size={18} color="#c2410c" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.pendingListenerApplications ?? '—'}</strong>
                   <Link to="/admin/listener-applications" className="vz-admin-kpi-link">
@@ -368,10 +368,10 @@ export default function AdminDashboardPage() {
                   </Link>
                 </div>
 
-                <div className="vz-admin-kpi-card">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--pink">
                   <div className="vz-admin-kpi-header">
                     <span>Pending Intern Apps</span>
-                    <GraduationCap size={18} color="#ec4899" />
+                    <GraduationCap size={18} color="#be185d" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.pendingInternApplications ?? '—'}</strong>
                   <Link to="/admin/intern-applications" className="vz-admin-kpi-link">
@@ -379,10 +379,10 @@ export default function AdminDashboardPage() {
                   </Link>
                 </div>
 
-                <div className="vz-admin-kpi-card">
+                <div className="vz-admin-kpi-card vz-admin-kpi-card--cyan">
                   <div className="vz-admin-kpi-header">
                     <span>Active Support Sessions</span>
-                    <Activity size={18} color="#06b6d4" />
+                    <Activity size={18} color="#0e7490" />
                   </div>
                   <strong className="vz-admin-kpi-val">{stats?.activeSupportSessions ?? '—'}</strong>
                   <span className="vz-admin-kpi-sub">{stats?.totalSupportSessions ?? 0} total sessions logged</span>

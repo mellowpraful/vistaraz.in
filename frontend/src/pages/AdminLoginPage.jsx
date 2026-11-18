@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Shield, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import './AdminLoginPage.css';
@@ -88,13 +88,16 @@ export default function AdminLoginPage() {
       <div className="vz-admin-auth-card">
         {/* Header Branding */}
         <div className="vz-admin-auth-header">
+          <Link to="/" className="vz-admin-auth-logo-link">
+            <img src="/assets/logo.svg" alt="Vistaraz" height="46" />
+          </Link>
           <div className="vz-admin-auth-badge">
-            <Shield size={16} className="vz-admin-badge-icon" />
-            <span>Vistaraz Platform Administration</span>
+            <Shield size={14} className="vz-admin-badge-icon" />
+            <span>Governance &amp; Review Console</span>
           </div>
-          <h1 className="vz-admin-auth-title">Administrative Console</h1>
+          <h1 className="vz-admin-auth-title">Administrative Login</h1>
           <p className="vz-admin-auth-subtitle">
-            Restricted access gateway for platform governance, peer application review, and system oversight.
+            Restricted access gateway for peer listener verification, safeguarding oversight, and platform governance.
           </p>
         </div>
 
