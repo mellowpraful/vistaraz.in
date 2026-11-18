@@ -72,7 +72,7 @@ async function runValidation() {
     console.log('Test 2: Verify schema_migrations table records all migrations');
     const migRes = await client.query('SELECT name FROM schema_migrations ORDER BY id ASC');
     const recordedMigrations = migRes.rows.map((r) => r.name);
-    if (recordedMigrations.length >= 10) {
+    if (recordedMigrations.length >= 11) {
       console.log(`✅ Test 2 PASSED: ${recordedMigrations.length} migrations recorded in schema_migrations.\n`);
     } else {
       console.error('❌ Test 2 FAILED: Expected at least 10 migrations, found:', recordedMigrations.length);

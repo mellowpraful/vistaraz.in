@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import LoginGate from '../components/common/LoginGate';
 import { useAuth } from '../context/AuthContext';
+import {
+  createSupportRequest,
+  getMySupportRequests,
+  cancelSupportRequest,
+  getMatchStatus,
+  confirmMatch,
+} from '../services/peerSupportService';
 import {
   MessageSquare,
   Video,
@@ -18,25 +25,17 @@ import {
   Search,
   Filter,
   X,
-  Calendar
+  Calendar,
+  AlertCircle,
+  AlertTriangle,
+  Clock,
+  HeartHandshake,
+  Loader2,
+  ShieldAlert,
+  ShieldCheck,
+  RefreshCw,
 } from 'lucide-react';
 import './SupportPage.css';
-
-const LISTENERS = [
-  {
-    id: 'peer-listener-community',
-    name: 'Trained Peer Listeners',
-    role: 'Active Listening Sanctuary',
-    roleTag: 'Peer Support',
-    languages: ['English', 'Hindi', 'Regional Languages'],
-    topics: ['Academic Stress', 'Loneliness', 'Overthinking', 'College Transitions'],
-    bio: 'Empathetic, non-judgmental peer listeners trained in active listening and psychological first aid. Peer listeners provide emotional grounding and safe space to talk, but do not provide clinical therapy or medical diagnosis.',
-    sessionsCount: 'Community Queue',
-    available: true,
-    avatar: '🌱',
-    type: 'listener',
-  },
-];
 
 // Verified National Mental Health Resources & Partner Clinical Care
 const VERIFIED_CLINICAL_RESOURCES = [
@@ -107,30 +106,160 @@ export default function SupportPage() {
     badgeText: 'Sanctuary Access',
   });
 
-  const handleStartChat = () => {
-    if (!isAuthenticated) {
-      setGateContent({
-        title: 'Continue Your Journey',
-        description: 'Sign in to access the confidential peer support queue.',
-        badgeText: 'Peer Chat Support',
-      });
-      setShowLoginGate(true);
-      return;
+  // Active Peer Support Request State
+  const [activeRequest, setActiveRequest] = useState(null);
+  const [matchDetails, setMatchDetails] = useState(null);
+  const [loadingRequest, setLoadingRequest] = useState(false);
+  const [intakeModalOpen, setIntakeModalOpen] = useState(false);
+  const [youthModalOpen, setYouthModalOpen] = useState(false);
+  const [crisisModalOpen, setCrisisModalOpen] = useState(false);
+  const [crisisDetails, setCrisisDetails] = useState(null);
+  const [intakeSubmitting, setIntakeSubmitting] = useState(false);
+  const [intakeError, setIntakeError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Form Fields
+  const [formData, setFormData] = useState({
+    category: 'stress',
+    preferredLanguage: 'en',
+    communicationMode: 'text',
+    ageBand: '18-20',
+    concernDescription: '',
+  });
+
+  // Fetch active seeker support request
+  const fetchActiveRequest = async () => {
+    if (!isAuthenticated) return;
+    try {
+      setLoadingRequest(true);
+      const requests = await getMySupportRequests();
+      const current = requests?.find((r) =>
+        ['requested', 'open', 'matching', 'offered', 'awaiting_seeker_confirmation', 'confirmed', 'matched'].includes(r.status)
+      );
+      setActiveRequest(current || null);
+      if (current) {
+        const match = await getMatchStatus(current.id);
+        setMatchDetails(match);
+      }
+    } catch (err) {
+      console.error('Error fetching support request:', err);
+    } finally {
+      setLoadingRequest(false);
     }
-    navigate('/chat');
   };
 
-  const handleJoinClinicianWaitlist = () => {
+  useEffect(() => {
+    fetchActiveRequest();
+  }, [isAuthenticated]);
+
+  // Polling for matching updates while request is in progress
+  useEffect(() => {
+    if (!activeRequest || !['matching', 'offered', 'awaiting_seeker_confirmation'].includes(activeRequest.status)) {
+      return;
+    }
+    const interval = setInterval(async () => {
+      try {
+        const match = await getMatchStatus(activeRequest.id);
+        setMatchDetails(match);
+        if (match.status !== activeRequest.status) {
+          setActiveRequest((prev) => (prev ? { ...prev, status: match.status } : null));
+        }
+      } catch (e) {
+        console.error('Polling error:', e);
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeRequest?.id, activeRequest?.status]);
+
+  const handleOpenIntake = () => {
     if (!isAuthenticated) {
       setGateContent({
-        title: 'Join Clinical Care Notification List',
-        description: 'Sign in to be notified the moment Vistaraz accredited clinical therapist appointments open.',
-        badgeText: 'Care Network Waitlist',
+        title: 'Request a Peer Listener',
+        description: 'Sign in to access our free, confidential peer support matching sanctuary.',
+        badgeText: 'Peer Support Access',
       });
       setShowLoginGate(true);
       return;
     }
-    setWaitlistSuccess(true);
+    setIntakeError(null);
+    setIntakeModalOpen(true);
+  };
+
+  const handleCancelRequest = async () => {
+    if (!activeRequest) return;
+    if (!window.confirm('Are you sure you want to cancel your peer support request?')) return;
+    try {
+      setActionLoading(true);
+      await cancelSupportRequest(activeRequest.id);
+      setActiveRequest(null);
+      setMatchDetails(null);
+    } catch (err) {
+      alert(err.message || 'Failed to cancel request');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleConfirmMatch = async (decision) => {
+    if (!activeRequest) return;
+    try {
+      setActionLoading(true);
+      const res = await confirmMatch(activeRequest.id, {
+        candidateId: matchDetails?.candidateId,
+        decision,
+      });
+      if (decision === 'accept' && res?.sessionId) {
+        navigate(`/chat?session=${res.sessionId}`);
+      } else {
+        await fetchActiveRequest();
+      }
+    } catch (err) {
+      alert(err.message || 'Error confirming match');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSubmitIntake = async (e) => {
+    e.preventDefault();
+    setIntakeError(null);
+
+    // Minor Safeguarding Gate: Ages 15-17
+    if (formData.ageBand === '15-17') {
+      setIntakeModalOpen(false);
+      setYouthModalOpen(true);
+      try {
+        await createSupportRequest(formData);
+      } catch (err) {
+        // Backend handles youth holding safely
+      }
+      return;
+    }
+
+    try {
+      setIntakeSubmitting(true);
+      const res = await createSupportRequest(formData);
+      setIntakeModalOpen(false);
+      if (res?.crisisIntervention) {
+        setCrisisDetails(res);
+        setCrisisModalOpen(true);
+      } else {
+        await fetchActiveRequest();
+      }
+    } catch (err) {
+      if (err.data?.code === 'CRISIS_INTERCEPTED') {
+        setIntakeModalOpen(false);
+        setCrisisDetails(err.data);
+        setCrisisModalOpen(true);
+      } else if (err.data?.code === 'YOUTH_SAFEGUARDING_HOLD') {
+        setIntakeModalOpen(false);
+        setYouthModalOpen(true);
+      } else {
+        setIntakeError(err.message || 'Failed to submit support request');
+      }
+    } finally {
+      setIntakeSubmitting(false);
+    }
   };
 
   const filterTabs = [
@@ -165,7 +294,7 @@ export default function SupportPage() {
             Choose from trained peer listeners for free chat, or verified clinicians for deeper care. You can change your support at any time.
           </p>
 
-          {/* Filter Pills matching reference image */}
+          {/* Filter Pills */}
           <div className="vz-support-filter-bar">
             {filterTabs.map((tab) => (
               <button
@@ -180,52 +309,229 @@ export default function SupportPage() {
           </div>
         </section>
 
-        {/* Level 01: Chat Listeners — Coming Soon Banner */}
+        {/* Level 01: Peer Support Section */}
         {showListeners && (
-          <section className="vz-support-section">
+          <section className="vz-support-section" style={{ marginBottom: '48px' }}>
             <div className="vz-support-section__title-row">
               <div>
                 <span className="vz-eyebrow" style={{ color: 'var(--vz-primary)' }}>
-                  LEVEL 01 · CHAT SUPPORT
+                  LEVEL 01 · PEER SUPPORT SANCTUARY
                 </span>
                 <h2>Start with someone who listens.</h2>
+                <p style={{ marginTop: '4px', fontSize: '0.95rem', color: 'var(--vz-text-secondary)' }}>
+                  Free, confidential, empathetic 1-on-1 emotional grounding with trained peer listeners.
+                </p>
               </div>
-              <span className="vz-chip lavender">
-                Listener Network Preparing
+              <span className="vz-chip mint">
+                Free Community Beta
               </span>
             </div>
 
-            <Card variant="default" padding="lg" style={{ textAlign: 'center', padding: '48px 24px', borderRadius: '20px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ede9fe', color: 'var(--vz-primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <Sparkles size={32} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '0 0 10px', color: 'var(--vz-text-primary)' }}>
-                Listener Support Coming Soon
-              </h3>
-              <p style={{ maxWidth: '580px', margin: '0 auto 24px', color: 'var(--vz-text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                We are preparing a trusted listener network so you can connect with someone who is ready to listen. This service is not available yet.
-              </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Button to="/assessment" variant="primary" size="md" icon={<ArrowRight size={16} />}>
-                  Take a Wellbeing Assessment
-                </Button>
-                <Button to="/tools" variant="outline" size="md">
-                  Explore Grounding Tools
-                </Button>
-              </div>
-            </Card>
+            {/* A. If Active Request Exists */}
+            {activeRequest ? (
+              <Card variant="default" padding="lg" style={{ borderRadius: '20px', border: '1px solid var(--vz-primary-light)' }}>
+                {activeRequest.status === 'awaiting_seeker_confirmation' ? (
+                  /* 1. Mutual Confirmation Screen */
+                  <div style={{ textAlign: 'center', padding: '16px 8px' }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ecfdf5',
+                      color: '#059669',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '16px'
+                    }}>
+                      <HeartHandshake size={32} />
+                    </div>
+                    <span className="vz-chip mint" style={{ display: 'inline-block', marginBottom: '8px' }}>
+                      Listener Found · Confirmation Required
+                    </span>
+                    <h3 style={{ fontSize: '1.4rem', margin: '0 0 8px', color: 'var(--vz-text-primary)' }}>
+                      Connect with {matchDetails?.supporter?.alias || 'Peer Listener'}?
+                    </h3>
+                    <p style={{ color: 'var(--vz-text-secondary)', maxWidth: '520px', margin: '0 auto 20px', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                      A trained peer listener has reviewed your request category and is available to listen right now. Both participants must confirm to establish a session.
+                    </p>
+
+                    <div style={{
+                      backgroundColor: 'var(--vz-bg-subtle)',
+                      padding: '16px 20px',
+                      borderRadius: '12px',
+                      maxWidth: '460px',
+                      margin: '0 auto 24px',
+                      display: 'flex',
+                      justifyContent: 'space-around',
+                      textAlign: 'left'
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--vz-text-muted)', textTransform: 'uppercase' }}>Preferred Mode</div>
+                        <strong style={{ fontSize: '0.92rem', textTransform: 'capitalize' }}>{activeRequest.communication_mode || 'Text Chat'}</strong>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--vz-text-muted)', textTransform: 'uppercase' }}>Language</div>
+                        <strong style={{ fontSize: '0.92rem', textTransform: 'uppercase' }}>{activeRequest.preferred_language || 'EN'}</strong>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--vz-text-muted)', textTransform: 'uppercase' }}>Category</div>
+                        <strong style={{ fontSize: '0.92rem', textTransform: 'capitalize' }}>{activeRequest.category}</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <Button
+                        variant="primary"
+                        size="md"
+                        disabled={actionLoading}
+                        onClick={() => handleConfirmMatch('accept')}
+                        icon={<CheckCircle2 size={16} />}
+                      >
+                        {actionLoading ? 'Connecting...' : 'Accept & Start Session'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="md"
+                        disabled={actionLoading}
+                        onClick={() => handleConfirmMatch('decline')}
+                      >
+                        Decline &amp; Rematch
+                      </Button>
+                    </div>
+                  </div>
+                ) : activeRequest.status === 'confirmed' || activeRequest.status === 'matched' ? (
+                  /* 2. Confirmed & Connected State */
+                  <div style={{ textAlign: 'center', padding: '16px 8px' }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      backgroundColor: '#eff6ff',
+                      color: '#2563eb',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '16px'
+                    }}>
+                      <CheckCircle2 size={32} />
+                    </div>
+                    <h3 style={{ fontSize: '1.4rem', margin: '0 0 8px' }}>You are Connected!</h3>
+                    <p style={{ color: 'var(--vz-text-secondary)', maxWidth: '480px', margin: '0 auto 20px', fontSize: '0.95rem' }}>
+                      Your private session with {matchDetails?.supporter?.alias || 'your peer listener'} is active.
+                    </p>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      to={matchDetails?.sessionId ? `/chat?session=${matchDetails.sessionId}` : '/chat'}
+                      icon={<ArrowRight size={16} />}
+                    >
+                      Open Session Chat
+                    </Button>
+                  </div>
+                ) : (
+                  /* 3. Matching In Progress State */
+                  <div style={{ textAlign: 'center', padding: '24px 8px' }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ede9fe',
+                      color: 'var(--vz-primary)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '16px',
+                      animation: 'pulse 2s infinite'
+                    }}>
+                      <Loader2 size={32} className="vz-spin" />
+                    </div>
+                    <span className="vz-chip lavender" style={{ display: 'inline-block', marginBottom: '8px' }}>
+                      Intelligent Matching Active
+                    </span>
+                    <h3 style={{ fontSize: '1.35rem', margin: '0 0 8px' }}>
+                      Finding an Available Peer Listener...
+                    </h3>
+                    <p style={{ color: 'var(--vz-text-secondary)', maxWidth: '520px', margin: '0 auto 24px', fontSize: '0.92rem', lineHeight: 1.5 }}>
+                      We are matching your request for <strong>{activeRequest.category}</strong> support with verified, online peer listeners fluent in your preferred language. You will receive an offer the moment a listener is available.
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={actionLoading}
+                        onClick={handleCancelRequest}
+                      >
+                        Cancel Request
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            ) : (
+              /* B. Default State: Request a Peer Listener */
+              <Card variant="default" padding="lg" style={{ borderRadius: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.35rem', margin: '0 0 10px', color: 'var(--vz-text-primary)' }}>
+                      Talk through what's on your mind.
+                    </h3>
+                    <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.94rem', lineHeight: 1.6, marginBottom: '20px' }}>
+                      Whether you are experiencing academic burnout, loneliness, anxiety, or transition stress, our trained peer listeners provide a supportive, judgment-free space to talk.
+                    </p>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: 'var(--vz-text-secondary)' }}>
+                        <CheckCircle2 size={16} color="var(--vz-primary)" />
+                        <span><strong>100% Confidential:</strong> Your real name and email are never shared with listeners.</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: 'var(--vz-text-secondary)' }}>
+                        <CheckCircle2 size={16} color="var(--vz-primary)" />
+                        <span><strong>Vetted Listeners:</strong> Community listeners trained in active listening and psychological first aid.</span>
+                      </li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', color: 'var(--vz-text-secondary)' }}>
+                        <CheckCircle2 size={16} color="var(--vz-primary)" />
+                        <span><strong>Mutual Consent:</strong> You review the listener before any conversation begins.</span>
+                      </li>
+                    </ul>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleOpenIntake}
+                      icon={<ArrowRight size={16} />}
+                    >
+                      Connect with a Peer Listener
+                    </Button>
+                  </div>
+
+                  <div style={{
+                    backgroundColor: 'var(--vz-bg-subtle)',
+                    padding: '24px',
+                    borderRadius: '16px',
+                    border: '1px solid var(--vz-border-light)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                      <Shield size={20} color="var(--vz-primary)" />
+                      <strong style={{ fontSize: '0.95rem' }}>Non-Clinical Safety Notice</strong>
+                    </div>
+                    <p style={{ fontSize: '0.86rem', color: 'var(--vz-text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                      Peer listeners provide empathetic emotional listening and safe psychological grounding. They are not psychologists, psychiatrists, or medical clinicians. If you need clinical diagnosis, psychiatric therapy, or are in crisis, please utilize the professional resources below.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
           </section>
         )}
 
         {/* Level 02 & 03: Professional Help & National Clinical Resources */}
         {showPros && (
-          <section className="vz-support-section" style={{ marginTop: '48px' }}>
+          <section className="vz-support-section" style={{ marginTop: '24px' }}>
             <div className="vz-support-section__title-row">
               <div>
                 <span className="vz-eyebrow" style={{ color: '#d97706' }}>
-                  LEVEL 02 & 03 · PROFESSIONAL CLINICAL CARE & HELPLINES
+                  LEVEL 02 &amp; 03 · PROFESSIONAL CLINICAL CARE &amp; HELPLINES
                 </span>
-                <h2>Professional Care & National Helplines</h2>
+                <h2>Professional Care &amp; National Helplines</h2>
                 <p style={{ marginTop: '4px', fontSize: '0.95rem', color: 'var(--vz-text-secondary)' }}>
                   When peer listening isn't enough, connect with accredited mental health organizations and licensed professionals.
                 </p>
@@ -319,50 +625,300 @@ export default function SupportPage() {
                   </Card>
                 ))}
               </div>
-
-              {/* Guide Side Banner */}
-              <div className="vz-pros-sidebar">
-                <Card variant="lavender" padding="lg" className="vz-pro-guide-card">
-                  <div className="vz-pro-guide-card__icon">
-                    <Sparkles size={28} color="var(--vz-primary)" />
-                  </div>
-                  <h3>Looking for 1-on-1 In-App Therapy?</h3>
-                  <p>
-                    Join our early access care list to receive an alert as soon as verified psychologist booking slots open on Vistaraz.
-                  </p>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    icon={<ArrowRight size={16} />}
-                    fullWidth
-                    onClick={handleJoinClinicianWaitlist}
-                  >
-                    Join Clinical Waitlist
-                  </Button>
-
-                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-                    <Link to="/safety" style={{ fontSize: '0.84rem', color: '#b91c1c', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Phone size={14} /> View All 24/7 Crisis Helplines →
-                    </Link>
-                  </div>
-                </Card>
-              </div>
             </div>
           </section>
         )}
 
-        {/* Modal: Resource Details & Waitlist */}
+        {/* ── Modal: Seeker Support Intake Form ── */}
+        {intakeModalOpen && (
+          <div className="vz-modal-backdrop" onClick={() => setIntakeModalOpen(false)}>
+            <div className="vz-modal-card" style={{ maxWidth: '540px', padding: '32px 28px', maxHeight: '90vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#ede9fe', color: 'var(--vz-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Request a Peer Listener</h3>
+                    <small style={{ color: 'var(--vz-text-muted)' }}>Free · Anonymous · Confidential</small>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--vz-text-muted)' }}
+                  onClick={() => setIntakeModalOpen(false)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {intakeError && (
+                <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', marginBottom: '16px', color: '#b91c1c', fontSize: '0.88rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <AlertCircle size={16} />
+                  <span>{intakeError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitIntake}>
+                {/* 1. Category */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '6px' }}>
+                    What would you like support with?
+                  </label>
+                  <select
+                    className="vz-input"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--vz-border-light)' }}
+                  >
+                    <option value="stress">Stress &amp; Burnout</option>
+                    <option value="anxiety">Anxiety &amp; Overthinking</option>
+                    <option value="academics">Academic &amp; Exam Pressure</option>
+                    <option value="loneliness">Loneliness &amp; Transitions</option>
+                    <option value="relationships">Relationship &amp; Social Strain</option>
+                    <option value="general_wellbeing">General Emotional Wellbeing</option>
+                  </select>
+                </div>
+
+                {/* 2. Preferred Language */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '6px' }}>
+                    Preferred Language
+                  </label>
+                  <select
+                    className="vz-input"
+                    value={formData.preferredLanguage}
+                    onChange={(e) => setFormData({ ...formData, preferredLanguage: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--vz-border-light)' }}
+                  >
+                    <option value="en">English</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="gu">Gujarati (ગુજરાતી)</option>
+                    <option value="mr">Marathi (मराठी)</option>
+                    <option value="ta">Tamil (தமிழ்)</option>
+                  </select>
+                </div>
+
+                {/* 3. Communication Mode */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '6px' }}>
+                    Preferred Communication Mode
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <button
+                      type="button"
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: formData.communicationMode === 'text' ? '2px solid var(--vz-primary)' : '1px solid var(--vz-border-light)',
+                        backgroundColor: formData.communicationMode === 'text' ? '#f5f3ff' : 'var(--vz-bg-surface)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontWeight: 600,
+                        fontSize: '0.88rem'
+                      }}
+                      onClick={() => setFormData({ ...formData, communicationMode: 'text' })}
+                    >
+                      💬 Text Chat
+                      <div style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--vz-text-muted)' }}>Encrypted instant messaging</div>
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: formData.communicationMode === 'voice' ? '2px solid var(--vz-primary)' : '1px solid var(--vz-border-light)',
+                        backgroundColor: formData.communicationMode === 'voice' ? '#f5f3ff' : 'var(--vz-bg-surface)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontWeight: 600,
+                        fontSize: '0.88rem'
+                      }}
+                      onClick={() => setFormData({ ...formData, communicationMode: 'voice' })}
+                    >
+                      🎙️ Scheduled Voice
+                      <div style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--vz-text-muted)' }}>Audio call with peer listener</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Age Band (Controlled Pilot Safeguard) */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '6px' }}>
+                    Your Age Band
+                  </label>
+                  <select
+                    className="vz-input"
+                    value={formData.ageBand}
+                    onChange={(e) => setFormData({ ...formData, ageBand: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--vz-border-light)' }}
+                  >
+                    <option value="18-20">18–20 (College / Young Adult)</option>
+                    <option value="21-25">21–25 (University / Early Career)</option>
+                    <option value="15-17">15–17 (Youth / High School)</option>
+                  </select>
+                  <small style={{ color: 'var(--vz-text-muted)', display: 'block', marginTop: '4px' }}>
+                    * The Free Beta Live Pilot is currently focused on adults aged 18–25. Youth aged 15–17 are guided to specialized national support.
+                  </small>
+                </div>
+
+                {/* 5. Optional Concern Description */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: '6px' }}>
+                    A few words on how you're feeling (Optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="vz-input"
+                    placeholder="e.g. Feeling overwhelmed preparing for semester exams and need someone to talk to..."
+                    value={formData.concernDescription}
+                    onChange={(e) => setFormData({ ...formData, concernDescription: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--vz-border-light)', resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Clinical Disclaimer Box */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--vz-text-secondary)', lineHeight: 1.45, marginBottom: '20px', border: '1px solid #e2e8f0' }}>
+                  <strong>Safety Acknowledgement:</strong> Peer listeners provide empathetic active listening and psychological first aid. They are not licensed clinicians, psychiatrists, or emergency responders. If you are experiencing thoughts of self-harm, please contact 24/7 helplines directly.
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    disabled={intakeSubmitting}
+                    fullWidth
+                    icon={intakeSubmitting ? <Loader2 size={16} className="vz-spin" /> : <ArrowRight size={16} />}
+                  >
+                    {intakeSubmitting ? 'Submitting Request...' : 'Find a Peer Listener'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    onClick={() => setIntakeModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ── Modal: Youth Safeguarding Guidance (Ages 15-17) ── */}
+        {youthModalOpen && (
+          <div className="vz-modal-backdrop" onClick={() => setYouthModalOpen(false)}>
+            <div className="vz-modal-card" style={{ maxWidth: '520px', padding: '32px 24px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <ShieldCheck size={36} />
+              </div>
+              <span className="vz-chip lavender" style={{ margin: '0 auto 10px', display: 'inline-block' }}>
+                Youth Safeguarding Pathway
+              </span>
+              <h3 style={{ fontSize: '1.35rem', marginBottom: '8px' }}>Dedicated Support for Ages 15–17</h3>
+              <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.92rem', marginBottom: '20px', lineHeight: 1.5 }}>
+                In accordance with child digital safety standards, our live peer listening pilot is restricted to adults aged 18+. You are deeply valued and not alone — please connect directly with these free, 24/7 accredited national youth services:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', textAlign: 'left' }}>
+                <div style={{ backgroundColor: 'var(--vz-bg-subtle)', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem' }}>Childline India</strong>
+                    <small style={{ color: 'var(--vz-text-muted)' }}>24/7 dedicated helpline for children &amp; youth</small>
+                  </div>
+                  <a href="tel:1098" className="vz-btn vz-btn--primary vz-btn--sm" style={{ textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call 1098
+                  </a>
+                </div>
+
+                <div style={{ backgroundColor: 'var(--vz-bg-subtle)', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem' }}>Tele-MANAS</strong>
+                    <small style={{ color: 'var(--vz-text-muted)' }}>Govt. of India National Mental Health Service</small>
+                  </div>
+                  <a href="tel:14416" className="vz-btn vz-btn--primary vz-btn--sm" style={{ textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call 14416
+                  </a>
+                </div>
+
+                <div style={{ backgroundColor: 'var(--vz-bg-subtle)', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem' }}>Kiran Helpline</strong>
+                    <small style={{ color: 'var(--vz-text-muted)' }}>Toll-free psychological support across India</small>
+                  </div>
+                  <a href="tel:18005990019" className="vz-btn vz-btn--primary vz-btn--sm" style={{ textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call 1800-599-0019
+                  </a>
+                </div>
+              </div>
+
+              <Button variant="primary" fullWidth onClick={() => setYouthModalOpen(false)}>
+                I Understand
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Modal: Crisis Intercept Emergency Guidance ── */}
+        {crisisModalOpen && (
+          <div className="vz-modal-backdrop" onClick={() => setCrisisModalOpen(false)}>
+            <div className="vz-modal-card" style={{ maxWidth: '520px', padding: '32px 24px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#fef2f2', color: '#dc2626', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <ShieldAlert size={36} />
+              </div>
+              <span className="vz-chip" style={{ backgroundColor: '#fee2e2', color: '#991b1b', margin: '0 auto 10px', display: 'inline-block' }}>
+                Immediate Crisis Support
+              </span>
+              <h3 style={{ fontSize: '1.35rem', marginBottom: '8px' }}>Your Safety is Our Highest Priority</h3>
+              <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.92rem', marginBottom: '20px', lineHeight: 1.5 }}>
+                Peer listeners are non-clinical supporters and cannot provide crisis care. If you are experiencing acute distress, thoughts of self-harm, or danger, please contact immediate 24/7 professional crisis counselors right now:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', textAlign: 'left' }}>
+                <div style={{ backgroundColor: '#fff5f5', border: '1px solid #fed7d7', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', color: '#9b2c2c' }}>Tele-MANAS (Govt of India)</strong>
+                    <small style={{ color: '#742a2a' }}>24/7 Toll-Free National Emergency Service</small>
+                  </div>
+                  <a href="tel:14416" className="vz-btn vz-btn--sm" style={{ backgroundColor: '#e53e3e', color: '#fff', textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call 14416
+                  </a>
+                </div>
+
+                <div style={{ backgroundColor: '#fff5f5', border: '1px solid #fed7d7', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', color: '#9b2c2c' }}>Vandrevala Foundation</strong>
+                    <small style={{ color: '#742a2a' }}>24/7 Professional Crisis Counseling Helpline</small>
+                  </div>
+                  <a href="tel:+919999666555" className="vz-btn vz-btn--sm" style={{ backgroundColor: '#e53e3e', color: '#fff', textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call +91 9999 666 555
+                  </a>
+                </div>
+
+                <div style={{ backgroundColor: '#fff5f5', border: '1px solid #fed7d7', padding: '14px 16px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.95rem', color: '#9b2c2c' }}>National Emergency Services</strong>
+                    <small style={{ color: '#742a2a' }}>Police, Ambulance, Emergency</small>
+                  </div>
+                  <a href="tel:112" className="vz-btn vz-btn--sm" style={{ backgroundColor: '#e53e3e', color: '#fff', textDecoration: 'none' }}>
+                    <Phone size={14} style={{ marginRight: '4px' }} /> Call 112
+                  </a>
+                </div>
+              </div>
+
+              <Button variant="primary" fullWidth onClick={() => setCrisisModalOpen(false)}>
+                Close Guidance
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Resource Details */}
         {selectedResource && (
           <div className="vz-modal-backdrop" onClick={() => setSelectedResource(null)}>
             <div className="vz-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
-              <button
-                type="button"
-                className="vz-modal-close"
-                onClick={() => setSelectedResource(null)}
-              >
-                <X size={20} />
-              </button>
-
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
                 <div style={{
                   width: '56px',
@@ -373,7 +929,8 @@ export default function SupportPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.6rem'
+                  fontSize: '1.6rem',
+                  fontWeight: 700
                 }}>
                   {selectedResource.isEmergency ? '🚨' : '🏥'}
                 </div>
@@ -399,7 +956,7 @@ export default function SupportPage() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                   <strong>Operating Hours:</strong>
-                  <span>24 Hours · Free & Confidential</span>
+                  <span>24 Hours · Free &amp; Confidential</span>
                 </div>
               </div>
 
@@ -419,24 +976,6 @@ export default function SupportPage() {
                   Close
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal: Clinical Waitlist Confirmation */}
-        {waitlistSuccess && (
-          <div className="vz-modal-backdrop" onClick={() => setWaitlistSuccess(false)}>
-            <div className="vz-modal-card" style={{ maxWidth: '480px', textAlign: 'center', padding: '32px 24px' }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <CheckCircle2 size={36} />
-              </div>
-              <h3 style={{ fontSize: '1.35rem', marginBottom: '8px' }}>You're on the Priority Care List</h3>
-              <p style={{ color: 'var(--vz-text-secondary)', fontSize: '0.92rem', marginBottom: '24px', lineHeight: 1.5 }}>
-                We'll notify you via your registered email as soon as accredited in-app psychologist and counselor appointments become available in Phase 2.
-              </p>
-              <Button variant="primary" fullWidth onClick={() => setWaitlistSuccess(false)}>
-                Got It
-              </Button>
             </div>
           </div>
         )}

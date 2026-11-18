@@ -255,8 +255,8 @@ export class RequestService {
       throw new Error('Request not found.');
     }
 
-    // If matched, fetch assigned listener alias
-    if (request.status === 'matched') {
+    // If confirmed or matched, fetch assigned listener alias & session
+    if (request.status === 'matched' || request.status === 'confirmed') {
       const matchRes = await authPool.query(
         `SELECT sa.assignment_status, sa.accepted_at,
                 hp.display_alias, hp.languages, hp.verification_status,
@@ -270,7 +270,7 @@ export class RequestService {
 
       const match = matchRes.rows[0];
       return {
-        status: 'matched',
+        status: request.status,
         supporter: {
           alias: match?.display_alias || 'Verified Peer Listener',
           languages: match?.languages || ['en'],
@@ -280,6 +280,28 @@ export class RequestService {
         sessionStatus: match?.session_status,
         sessionType: match?.session_type,
         acceptedAt: match?.accepted_at,
+      };
+    }
+
+    if (request.status === 'awaiting_seeker_confirmation') {
+      const candRes = await authPool.query(
+        `SELECT mc.id as candidate_id, hp.display_alias, hp.languages, hp.supported_categories, mc.match_score
+         FROM match_candidates mc
+         JOIN helper_profiles hp ON hp.id = mc.supporter_id
+         WHERE mc.request_id = $1 AND mc.offer_status = 'listener_accepted'
+         ORDER BY mc.responded_at DESC LIMIT 1`,
+        [requestId]
+      );
+      const cand = candRes.rows[0];
+      return {
+        status: 'awaiting_seeker_confirmation',
+        candidateId: cand?.candidate_id,
+        supporter: {
+          alias: cand?.display_alias || 'Verified Peer Listener',
+          languages: cand?.languages || ['en'],
+          categories: cand?.supported_categories || [],
+        },
+        message: 'A peer listener has accepted your request. Please confirm to begin your session.',
       };
     }
 

@@ -9,6 +9,7 @@ import {
   CheckCircle2, ChevronRight, X, Send, Bell, Star, TrendingUp,
   FileText, BookOpen, AlertCircle, RefreshCw, Sliders, Lock
 } from 'lucide-react';
+import * as peerSupportService from '../services/peerSupportService';
 import './ListenerPortalPage.css';
 
 /**
@@ -25,10 +26,15 @@ import './ListenerPortalPage.css';
 export default function ListenerPortalPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
-  const [status, setStatus] = useState('available');
+  const [status, setStatus] = useState('offline');
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [sessionFilter, setSessionFilter] = useState('active');
   const [requests, setRequests] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [supporterProfile, setSupporterProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
   // Modals state
@@ -50,7 +56,7 @@ export default function ListenerPortalPage() {
 
   // Channel toggles
   const [channels, setChannels] = useState({
-    video: true,
+    video: false,
     audio: true,
     chat: true
   });
@@ -60,6 +66,42 @@ export default function ListenerPortalPage() {
       setSeconds(prev => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  async function loadPortalData() {
+    try {
+      setLoading(true);
+      // 1. Supporter profile
+      const prof = await peerSupportService.getMySupporterProfile().catch(err => {
+        setProfileError(err.message || 'Supporter profile not found');
+        return null;
+      });
+
+      if (prof) {
+        setSupporterProfile(prof);
+        if (prof.availability_status) {
+          setStatus(prof.availability_status);
+        }
+      }
+
+      // 2. Incoming candidate offers
+      const offers = await peerSupportService.getMyOffers().catch(() => []);
+      setRequests(Array.isArray(offers) ? offers : []);
+
+      // 3. User sessions
+      const sessList = await peerSupportService.getMySessions().catch(() => []);
+      setSessions(Array.isArray(sessList) ? sessList : []);
+    } catch (err) {
+      console.error('Error loading supporter portal data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadPortalData();
+    const interval = setInterval(loadPortalData, 12000); // 12s polling for live queue
+    return () => clearInterval(interval);
   }, []);
 
   function formatTime(totalSec) {
@@ -75,17 +117,41 @@ export default function ListenerPortalPage() {
     }, 3500);
   }
 
-  function handleAcceptRequest(id) {
-    const req = requests.find(r => r.id === id);
-    setRequests(prev => prev.filter(r => r.id !== id));
-    showToast(`Accepted session request from ${req ? req.seekerId : 'seeker'}.`);
-    setActiveTab('sessions');
-    setSessionFilter('active');
+  async function handleUpdateStatus(newStatus) {
+    setStatusMenuOpen(false);
+    try {
+      await peerSupportService.updateAvailability({ status: newStatus });
+      setStatus(newStatus);
+      showToast(`Status updated to ${statusColors[newStatus]?.label || newStatus}.`);
+    } catch (err) {
+      showToast(err.message || 'Failed to update availability status.');
+    }
   }
 
-  function handleDeclineRequest(id) {
-    setRequests(prev => prev.filter(r => r.id !== id));
-    showToast('Session request returned to shared provider pool.');
+  async function handleAcceptOffer(offerId) {
+    try {
+      setActionLoading(true);
+      await peerSupportService.acceptOffer(offerId);
+      showToast('Offer accepted! Awaiting seeker confirmation.');
+      await loadPortalData();
+    } catch (err) {
+      showToast(err.message || 'Failed to accept offer.');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleDeclineOffer(offerId) {
+    try {
+      setActionLoading(true);
+      await peerSupportService.declineOffer(offerId);
+      showToast('Offer declined. Request returned to matching pool.');
+      await loadPortalData();
+    } catch (err) {
+      showToast(err.message || 'Failed to decline offer.');
+    } finally {
+      setActionLoading(false);
+    }
   }
 
   function handleSendMessage(e) {
@@ -114,6 +180,11 @@ export default function ListenerPortalPage() {
     away: { bg: 'var(--vz-pastel-peach-text)', text: '#7c2d12', label: 'Away', dot: '#f59e0b' },
     offline: { bg: '#64748b', text: '#334155', label: 'Offline', dot: '#94a3b8' }
   };
+
+  const activeSessions = sessions.filter(s => s.session_status === 'active' || s.session_status === 'in_progress');
+  const upcomingSessions = sessions.filter(s => s.session_status === 'scheduled');
+  const completedSessions = sessions.filter(s => s.session_status === 'completed');
+  const cancelledSessions = sessions.filter(s => s.session_status === 'cancelled');
 
   return (
     <AppLayout>
@@ -148,30 +219,30 @@ export default function ListenerPortalPage() {
               >
                 <span
                   className="lp-status-dot"
-                  style={{ backgroundColor: statusColors[status].dot }}
+                  style={{ backgroundColor: statusColors[status]?.dot || '#10b981' }}
                 />
-                <span className="lp-status-label">{statusColors[status].label}</span>
+                <span className="lp-status-label">{statusColors[status]?.label || status}</span>
                 <span className="lp-status-caret">▾</span>
               </button>
 
               {statusMenuOpen && (
                 <div className="lp-status-menu">
                   <button
-                    onClick={() => { setStatus('available'); setStatusMenuOpen(false); showToast('Status updated to Available.'); }}
+                    onClick={() => handleUpdateStatus('available')}
                     className={status === 'available' ? 'active' : ''}
                   >
                     <span className="lp-status-dot" style={{ backgroundColor: '#10b981' }} />
                     <strong>Available</strong> — Ready to take sessions
                   </button>
                   <button
-                    onClick={() => { setStatus('away'); setStatusMenuOpen(false); showToast('Status updated to Away (Break).'); }}
+                    onClick={() => handleUpdateStatus('away')}
                     className={status === 'away' ? 'active' : ''}
                   >
                     <span className="lp-status-dot" style={{ backgroundColor: '#f59e0b' }} />
                     <strong>Away</strong> — Taking a mindful pause
                   </button>
                   <button
-                    onClick={() => { setStatus('offline'); setStatusMenuOpen(false); showToast('Status updated to Offline.'); }}
+                    onClick={() => handleUpdateStatus('offline')}
                     className={status === 'offline' ? 'active' : ''}
                   >
                     <span className="lp-status-dot" style={{ backgroundColor: '#94a3b8' }} />
@@ -192,6 +263,15 @@ export default function ListenerPortalPage() {
             </Button>
           </div>
         </header>
+
+        {profileError && (
+          <div style={{ margin: '16px 0', padding: '14px 20px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', color: '#991b1b', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div>
+              <strong>Peer Listener Account Notice:</strong> {profileError}. (If you are a student or volunteer, please ensure your helper application is approved to receive live sessions).
+            </div>
+            <Button to="/support" variant="outline" size="sm">Go to Support</Button>
+          </div>
+        )}
 
         {/* Workspace Navigation Tabs (7 Views from original HTML) */}
         <nav className="lp-nav-tabs" aria-label="Portal Navigation Tabs">
@@ -217,7 +297,7 @@ export default function ListenerPortalPage() {
             className={`lp-tab-item ${activeTab === 'sessions' ? 'active' : ''}`}
             onClick={() => setActiveTab('sessions')}
           >
-            Sessions Hub
+            Sessions Hub {activeSessions.length > 0 && <span className="lp-tab-badge">{activeSessions.length}</span>}
           </button>
           <button
             className={`lp-tab-item ${activeTab === 'community' ? 'active' : ''}`}
@@ -248,12 +328,12 @@ export default function ListenerPortalPage() {
             <div className="lp-hero-card">
               <div className="lp-hero-left">
                 <span className="vz-chip mint">
-                  <ShieldCheck size={14} /> Trainee Verified · Supervised
+                  <ShieldCheck size={14} /> {supporterProfile?.verification_status === 'verified' ? 'Trainee Verified · Supervised' : (supporterProfile?.verification_status || 'Peer Listener Trainee')}
                 </span>
-                <h2>Welcome back, <em className="lp-name">KrushnaRaj</em></h2>
+                <h2>Welcome back, <em className="lp-name">{supporterProfile?.display_alias || 'Listener'}</em></h2>
                 <p>
                   You are currently{' '}
-                  <strong style={{ color: statusColors[status].dot }}>● {statusColors[status].label}</strong>{' '}
+                  <strong style={{ color: statusColors[status]?.dot || '#10b981' }}>● {statusColors[status]?.label || status}</strong>{' '}
                   to receive supportive requests from peers and students in need.
                 </p>
               </div>
@@ -290,24 +370,24 @@ export default function ListenerPortalPage() {
               <div className="lp-stat-card" onClick={() => { setActiveTab('sessions'); setSessionFilter('active'); }}>
                 <div className="lp-stat-icon mint"><Heart size={18} /></div>
                 <span className="lp-stat-label">Active Session</span>
-                <strong className="lp-stat-value">Anonymous_8821</strong>
-                <span className="lp-stat-link" style={{ color: 'var(--vz-success)' }}>
-                  Continue Chat ({formatTime(seconds)}) →
+                <strong className="lp-stat-value">{activeSessions.length > 0 ? `Active (#${activeSessions[0].id.slice(0, 6)})` : 'None Active'}</strong>
+                <span className="lp-stat-link" style={{ color: activeSessions.length > 0 ? 'var(--vz-success)' : 'inherit' }}>
+                  {activeSessions.length > 0 ? 'Open Chat →' : 'View Sessions Hub →'}
                 </span>
               </div>
 
               <div className="lp-stat-card" onClick={() => setScheduleModalOpen(true)}>
                 <div className="lp-stat-icon peach"><Clock size={18} /></div>
-                <span className="lp-stat-label">Working Hours</span>
-                <strong className="lp-stat-value">6 PM – 10 PM</strong>
-                <span className="lp-stat-link">Configure schedule →</span>
+                <span className="lp-stat-label">Max Sessions</span>
+                <strong className="lp-stat-value">{supporterProfile?.max_active_sessions || 2} concurrent</strong>
+                <span className="lp-stat-link">Configure capacity →</span>
               </div>
 
               <div className="lp-stat-card" onClick={() => setActiveTab('earnings')}>
                 <div className="lp-stat-icon lavender"><DollarSign size={18} /></div>
-                <span className="lp-stat-label">Today's Earnings</span>
-                <strong className="lp-stat-value">₹ 120.00</strong>
-                <span className="lp-stat-link">Wallet breakdown →</span>
+                <span className="lp-stat-label">Volunteering Level</span>
+                <strong className="lp-stat-value">Free Beta Pilot</strong>
+                <span className="lp-stat-link">View details →</span>
               </div>
             </div>
 
@@ -330,29 +410,35 @@ export default function ListenerPortalPage() {
                     </Button>
                   </div>
 
-                  <div className="lp-session-item">
-                    <div className="lp-session-avatar">👤</div>
-                    <div className="lp-session-details">
-                      <div className="lp-session-title">
-                        <strong>Anonymous_1310</strong>
-                        <span className="vz-chip sky">Video / Audio</span>
+                  {upcomingSessions.length > 0 ? (
+                    <div className="lp-session-item">
+                      <div className="lp-session-avatar">👤</div>
+                      <div className="lp-session-details">
+                        <div className="lp-session-title">
+                          <strong>Seeker #{upcomingSessions[0].id.slice(0, 8)}</strong>
+                          <span className="vz-chip sky">{upcomingSessions[0].session_type === 'scheduled_voice' ? 'Scheduled Voice' : 'Text Support'}</span>
+                        </div>
+                        <p className="lp-session-topic">Assigned Peer Support Consultation</p>
+                        <span className="lp-session-time">
+                          <Clock size={12} /> {upcomingSessions[0].scheduled_for ? new Date(upcomingSessions[0].scheduled_for).toLocaleString() : 'Scheduled'}
+                        </span>
                       </div>
-                      <p className="lp-session-topic">Topic: Overthinking, anxiety spirals at night</p>
-                      <span className="lp-session-time">
-                        <Clock size={12} /> Today at 11:00 PM (30 Mins)
-                      </span>
+                      <div className="lp-session-btn-group">
+                        <Button
+                          onClick={() => navigate(`/chat?session=${upcomingSessions[0].id}`)}
+                          variant="primary"
+                          size="sm"
+                          icon={<MessageSquare size={14} />}
+                        >
+                          Open Room
+                        </Button>
+                      </div>
                     </div>
-                    <div className="lp-session-btn-group">
-                      <Button
-                        to="/video-call"
-                        variant="primary"
-                        size="sm"
-                        icon={<Video size={14} />}
-                      >
-                        Join Room
-                      </Button>
+                  ) : (
+                    <div className="lp-empty-state" style={{ padding: '24px 0' }}>
+                      <p style={{ color: 'var(--vz-text-secondary)', margin: 0 }}>No upcoming scheduled consultations.</p>
                     </div>
-                  </div>
+                  )}
                 </Card>
 
                 {/* Pending Requests Preview */}
@@ -378,34 +464,52 @@ export default function ListenerPortalPage() {
                     </div>
                   ) : (
                     <div className="lp-req-list">
-                      {requests.map(req => (
-                        <div key={req.id} className="lp-req-row">
-                          <div>
-                            <div className="lp-req-header">
-                              <strong>{req.seekerId}</strong>
-                              <span className="vz-chip lavender">{req.mode}</span>
+                      {requests.slice(0, 3).map(req => {
+                        const offerId = req.candidate_id || req.request_id || req.id;
+                        const isAccepted = req.offer_status === 'listener_accepted';
+                        return (
+                          <div key={offerId} className="lp-req-row">
+                            <div>
+                              <div className="lp-req-header">
+                                <strong>Seeker (Confidential)</strong>
+                                <span className="vz-chip lavender">
+                                  {req.communication_mode === 'scheduled_voice' ? 'Scheduled Voice' : 'Text Support'}
+                                </span>
+                              </div>
+                              <p className="lp-req-topic">
+                                {req.support_category ? req.support_category.replace(/_/g, ' ') : 'General Support'}
+                              </p>
+                              <span className="lp-req-meta">
+                                Lang: {req.preferred_language?.toUpperCase() || 'EN'} · Age: {req.age_band || '18-25'}
+                              </span>
                             </div>
-                            <p className="lp-req-topic">{req.topic}</p>
-                            <span className="lp-req-meta">{req.duration} · Received {req.timeReceived}</span>
+                            <div className="lp-req-actions">
+                              {!isAccepted ? (
+                                <>
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    disabled={actionLoading}
+                                    onClick={() => handleAcceptOffer(offerId)}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={actionLoading}
+                                    onClick={() => handleDeclineOffer(offerId)}
+                                  >
+                                    Pass
+                                  </Button>
+                                </>
+                              ) : (
+                                <span className="vz-chip mint">Awaiting Seeker</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="lp-req-actions">
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() => handleAcceptRequest(req.id)}
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeclineRequest(req.id)}
-                            >
-                              Pass
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </Card>
@@ -716,49 +820,71 @@ export default function ListenerPortalPage() {
                   </Card>
                 ) : (
                   <div className="lp-req-cards-grid">
-                    {requests.map(req => (
-                      <Card key={req.id} variant="default" padding="lg" className="lp-card-item">
-                        <div className="lp-card-item-top">
-                          <div>
-                            <span className="lp-seeker-code">{req.seekerId}</span>
-                            <span className="vz-chip lavender" style={{ marginLeft: '8px' }}>
-                              {req.mode}
+                    {requests.map(req => {
+                      const offerId = req.candidate_id || req.request_id || req.id;
+                      const isAccepted = req.offer_status === 'listener_accepted';
+                      return (
+                        <Card key={offerId} variant="default" padding="lg" className="lp-card-item">
+                          <div className="lp-card-item-top">
+                            <div>
+                              <span className="lp-seeker-code">Seeker (Confidential)</span>
+                              <span className="vz-chip lavender" style={{ marginLeft: '8px' }}>
+                                {req.communication_mode === 'scheduled_voice' ? 'Scheduled Voice' : 'Text Support'}
+                              </span>
+                            </div>
+                            <span className={`lp-urgency-badge ${(req.urgency || 'low').toLowerCase()}`}>
+                              {req.urgency || 'Normal'} Urgency
                             </span>
                           </div>
-                          <span className={`lp-urgency-badge ${req.urgency.toLowerCase()}`}>
-                            {req.urgency} Urgency
-                          </span>
-                        </div>
 
-                        <div className="lp-card-item-body">
-                          <p className="lp-req-desc">
-                            <strong>Primary Focus:</strong> {req.topic}
-                          </p>
-                          <div className="lp-req-chips">
-                            <span className="lp-chip"><Clock size={12} /> {req.duration}</span>
-                            <span className="lp-chip">Received {req.timeReceived}</span>
-                            <span className="lp-chip">First-time student seeker</span>
+                          <div className="lp-card-item-body">
+                            <p className="lp-req-desc">
+                              <strong>Primary Focus:</strong> {req.support_category ? req.support_category.replace(/_/g, ' ') : 'General Support'}
+                            </p>
+                            <div className="lp-req-chips">
+                              <span className="lp-chip"><Clock size={12} /> Lang: {req.preferred_language?.toUpperCase() || 'EN'}</span>
+                              {req.match_score && <span className="lp-chip mint">Match: {Math.round(req.match_score * 100)}%</span>}
+                              <span className="lp-chip">Age Band: {req.age_band || '18-25'}</span>
+                            </div>
+                            {isAccepted && (
+                              <div style={{ marginTop: '12px', padding: '10px 14px', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
+                                <strong style={{ color: '#065f46', fontSize: '0.88rem' }}>✓ You accepted this offer!</strong>
+                                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#047857' }}>
+                                  Waiting for seeker to confirm your profile. Once confirmed, your session will begin in the Sessions Hub.
+                                </p>
+                              </div>
+                            )}
                           </div>
-                        </div>
 
-                        <div className="lp-card-item-footer">
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleAcceptRequest(req.id)}
-                          >
-                            Accept Session
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeclineRequest(req.id)}
-                          >
-                            Decline / Next Provider
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
+                          <div className="lp-card-item-footer">
+                            {!isAccepted ? (
+                              <>
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  disabled={actionLoading}
+                                  onClick={() => handleAcceptOffer(offerId)}
+                                >
+                                  Accept Offer
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={actionLoading}
+                                  onClick={() => handleDeclineOffer(offerId)}
+                                >
+                                  Decline / Next Provider
+                                </Button>
+                              </>
+                            ) : (
+                              <span style={{ fontSize: '0.85rem', color: '#059669', fontWeight: 600 }}>
+                                Awaiting Seeker Confirmation...
+                              </span>
+                            )}
+                          </div>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -783,25 +909,25 @@ export default function ListenerPortalPage() {
                   className={`lp-pill ${sessionFilter === 'active' ? 'active' : ''}`}
                   onClick={() => setSessionFilter('active')}
                 >
-                  Active (1)
+                  Active ({activeSessions.length})
                 </button>
                 <button
                   className={`lp-pill ${sessionFilter === 'upcoming' ? 'active' : ''}`}
                   onClick={() => setSessionFilter('upcoming')}
                 >
-                  Upcoming (2)
+                  Upcoming ({upcomingSessions.length})
                 </button>
                 <button
                   className={`lp-pill ${sessionFilter === 'completed' ? 'active' : ''}`}
                   onClick={() => setSessionFilter('completed')}
                 >
-                  Completed (24)
+                  Completed ({completedSessions.length})
                 </button>
                 <button
                   className={`lp-pill ${sessionFilter === 'cancelled' ? 'active' : ''}`}
                   onClick={() => setSessionFilter('cancelled')}
                 >
-                  Cancelled (2)
+                  Cancelled ({cancelledSessions.length})
                 </button>
               </div>
             </div>
@@ -809,116 +935,154 @@ export default function ListenerPortalPage() {
             {/* Tab: ACTIVE SESSION */}
             {sessionFilter === 'active' && (
               <div className="lp-active-session-wrap">
-                <Card variant="mint" padding="lg" className="lp-active-card">
-                  <div className="lp-active-header">
-                    <div className="lp-active-user">
-                      <div className="lp-active-avatar">👤</div>
-                      <div>
-                        <div className="lp-active-id-row">
-                          <h3>Anonymous_8821</h3>
-                          <span className="vz-chip mint">● In Session</span>
+                {activeSessions.length === 0 ? (
+                  <Card variant="default" padding="xl" className="lp-empty-card">
+                    <CheckCircle2 size={36} color="var(--vz-text-secondary)" />
+                    <h3>No Active Sessions Right Now</h3>
+                    <p>When a seeker confirms an accepted match, your active session will appear here.</p>
+                  </Card>
+                ) : (
+                  activeSessions.map(session => (
+                    <Card key={session.id} variant="mint" padding="lg" className="lp-active-card" style={{ marginBottom: '16px' }}>
+                      <div className="lp-active-header">
+                        <div className="lp-active-user">
+                          <div className="lp-active-avatar">👤</div>
+                          <div>
+                            <div className="lp-active-id-row">
+                              <h3>Seeker #{session.id.slice(0, 8)}</h3>
+                              <span className="vz-chip mint">● In Session</span>
+                            </div>
+                            <p className="lp-active-topic">
+                              Mode: {session.session_type === 'scheduled_voice' ? 'Scheduled Voice Consultation' : 'Text Support Session'}
+                            </p>
+                          </div>
                         </div>
-                        <p className="lp-active-topic">Primary Concern: Academic pressure & exam anxiety</p>
+
+                        <div className="lp-active-rate">
+                          <span className="lp-rate-title">Free Peer Support Pilot</span>
+                          <span className="lp-rate-sub">{session.message_count || 0} messages exchanged</span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="lp-active-rate">
-                      <span className="lp-rate-title">Introductory Free Care Session</span>
-                      <span className="lp-rate-sub">15 Min Free (3m remaining) · Then ₹ 15/hr</span>
-                    </div>
-                  </div>
+                      <div className="lp-active-actions-bar">
+                        <div className="lp-active-timer">
+                          <Clock size={16} color="var(--vz-primary)" />
+                          <span>Status: <strong className="lp-timer-num">{session.session_status}</strong></span>
+                        </div>
 
-                  <div className="lp-active-actions-bar">
-                    <div className="lp-active-timer">
-                      <Clock size={16} color="var(--vz-primary)" />
-                      <span>Elapsed: <strong className="lp-timer-num">{formatTime(seconds)}</strong></span>
-                    </div>
-
-                    <div className="lp-active-btn-row">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        icon={<MessageSquare size={14} />}
-                        onClick={() => setChatModalOpen(true)}
-                      >
-                        Open Live Chat
-                      </Button>
-                      <Button
-                        to="/video-call"
-                        variant="secondary"
-                        size="sm"
-                        icon={<Video size={14} />}
-                      >
-                        Open Video/Voice Room
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        icon={<AlertTriangle size={14} />}
-                        onClick={() => { setReportTarget('Anonymous_8821'); setReportModalOpen(true); }}
-                      >
-                        Escalate / Report
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+                        <div className="lp-active-btn-row">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            icon={<MessageSquare size={14} />}
+                            onClick={() => navigate(`/chat?session=${session.id}`)}
+                          >
+                            Open Session Chat
+                          </Button>
+                          {session.session_type === 'scheduled_voice' && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              icon={<Phone size={14} />}
+                              onClick={() => navigate(`/chat?session=${session.id}`)}
+                            >
+                              Join Voice Room
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            icon={<AlertTriangle size={14} />}
+                            onClick={() => { setReportTarget(`Seeker #${session.id.slice(0, 8)}`); setReportModalOpen(true); }}
+                          >
+                            Escalate / Report
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
               </div>
             )}
 
             {/* Tab: UPCOMING */}
             {sessionFilter === 'upcoming' && (
               <div className="lp-sessions-list">
-                <Card variant="default" padding="md" className="lp-session-row">
-                  <div>
-                    <span className="lp-sess-id">Anonymous_1310</span>
-                    <p className="lp-sess-details">Today at 11:00 PM (30 min) · Video/Audio Room</p>
-                  </div>
-                  <Button to="/video-call" variant="primary" size="sm">
-                    Join Call
-                  </Button>
-                </Card>
-
-                <Card variant="default" padding="md" className="lp-session-row">
-                  <div>
-                    <span className="lp-sess-id">Anonymous_9042</span>
-                    <p className="lp-sess-details">Tomorrow at 4:00 PM (45 min) · Chat Support</p>
-                  </div>
-                  <span className="vz-chip lavender">Scheduled</span>
-                </Card>
+                {upcomingSessions.length === 0 ? (
+                  <Card variant="default" padding="xl" className="lp-empty-card">
+                    <Clock size={36} color="var(--vz-text-secondary)" />
+                    <h3>No Upcoming Scheduled Sessions</h3>
+                    <p>Confirmed future consultations and scheduled calls will appear here.</p>
+                  </Card>
+                ) : (
+                  upcomingSessions.map(session => (
+                    <Card key={session.id} variant="default" padding="md" className="lp-session-row">
+                      <div>
+                        <span className="lp-sess-id">Seeker #{session.id.slice(0, 8)}</span>
+                        <p className="lp-sess-details">
+                          {session.scheduled_for ? new Date(session.scheduled_for).toLocaleString() : 'Scheduled'} · {session.session_type === 'scheduled_voice' ? 'Voice Consultation' : 'Text Support'}
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span className="vz-chip lavender">Scheduled</span>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => navigate(`/chat?session=${session.id}`)}
+                        >
+                          Open Waiting Room
+                        </Button>
+                      </div>
+                    </Card>
+                  ))
+                )}
               </div>
             )}
 
             {/* Tab: COMPLETED */}
             {sessionFilter === 'completed' && (
               <div className="lp-sessions-list">
-                <Card variant="default" padding="md" className="lp-session-row">
-                  <div>
-                    <span className="lp-sess-id">Anonymous_1155</span>
-                    <p className="lp-sess-details">18 Aug 2026 · 42 mins · Video Session · Rating: 5.0 ★</p>
-                  </div>
-                  <span className="vz-chip mint">Completed</span>
-                </Card>
-
-                <Card variant="default" padding="md" className="lp-session-row">
-                  <div>
-                    <span className="lp-sess-id">Anonymous_0982</span>
-                    <p className="lp-sess-details">18 Aug 2026 · 29 mins · Chat Session · Rating: 4.8 ★</p>
-                  </div>
-                  <span className="vz-chip mint">Completed</span>
-                </Card>
+                {completedSessions.length === 0 ? (
+                  <Card variant="default" padding="xl" className="lp-empty-card">
+                    <CheckCircle2 size={36} color="var(--vz-text-secondary)" />
+                    <h3>No Completed Sessions Yet</h3>
+                    <p>Completed support consultations will appear here once ended.</p>
+                  </Card>
+                ) : (
+                  completedSessions.map(session => (
+                    <Card key={session.id} variant="default" padding="md" className="lp-session-row">
+                      <div>
+                        <span className="lp-sess-id">Session #{session.id.slice(0, 8)}</span>
+                        <p className="lp-sess-details">
+                          Ended {session.ended_at ? new Date(session.ended_at).toLocaleDateString() : 'Recently'} · {session.message_count || 0} messages
+                        </p>
+                      </div>
+                      <span className="vz-chip mint">Completed</span>
+                    </Card>
+                  ))
+                )}
               </div>
             )}
 
             {/* Tab: CANCELLED */}
             {sessionFilter === 'cancelled' && (
               <div className="lp-sessions-list">
-                <Card variant="default" padding="md" className="lp-session-row">
-                  <div>
-                    <span className="lp-sess-id">Anonymous_3740</span>
-                    <p className="lp-sess-details">Client cancelled 10 min prior to session</p>
-                  </div>
-                  <span className="vz-chip peach">Cancelled</span>
-                </Card>
+                {cancelledSessions.length === 0 ? (
+                  <Card variant="default" padding="xl" className="lp-empty-card">
+                    <CheckCircle2 size={36} color="var(--vz-text-secondary)" />
+                    <h3>No Cancelled Sessions</h3>
+                  </Card>
+                ) : (
+                  cancelledSessions.map(session => (
+                    <Card key={session.id} variant="default" padding="md" className="lp-session-row">
+                      <div>
+                        <span className="lp-sess-id">Session #{session.id.slice(0, 8)}</span>
+                        <p className="lp-sess-details">Cancelled</p>
+                      </div>
+                      <span className="vz-chip peach">Cancelled</span>
+                    </Card>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -1122,25 +1286,29 @@ export default function ListenerPortalPage() {
             {/* Profile Header */}
             <Card variant="default" padding="lg" className="lp-profile-header-card">
               <div className="lp-profile-head">
-                <div className="lp-profile-avatar-lg">KJ</div>
+                <div className="lp-profile-avatar-lg">
+                  {supporterProfile?.display_alias ? supporterProfile.display_alias.slice(0, 2).toUpperCase() : 'LP'}
+                </div>
                 <div>
                   <div className="lp-profile-name-row">
-                    <h2>KrushnaRaj</h2>
+                    <h2>{supporterProfile?.display_alias || 'Peer Listener'}</h2>
                     <span className="vz-chip mint">
-                      <ShieldCheck size={14} /> Certified Trainee
+                      <ShieldCheck size={14} /> {supporterProfile?.verification_status === 'verified' ? 'Verified Listener' : (supporterProfile?.verification_status || 'Under Review')}
                     </span>
                   </div>
-                  <p className="lp-profile-role">Support Listener Trainee · Final Year B.A. Psychology</p>
-                  <span className="lp-profile-id">Delhi University · Provider ID: #VIST-8842</span>
+                  <p className="lp-profile-role">{supporterProfile?.qualification || 'Support Listener Trainee'}</p>
+                  <span className="lp-profile-id">
+                    {supporterProfile?.introduction ? supporterProfile.introduction.slice(0, 90) : 'Vistaraz Certified Provider Sanctuary'}
+                  </span>
                 </div>
               </div>
 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => showToast('Profile edit modal opened.')}
+                onClick={() => showToast('Profile details managed via Sanctuary onboarding.')}
               >
-                Edit Bio
+                Profile Info
               </Button>
             </Card>
 
@@ -1151,7 +1319,7 @@ export default function ListenerPortalPage() {
                 <div>
                   <strong>Non-Clinical Support Listener Disclosure</strong>
                   <p style={{ fontSize: '0.88rem', marginTop: '4px', color: 'var(--vz-text-secondary)' }}>
-                    Psychology students and interns on Vistaraz are identified strictly as <strong>Support Listeners / Trainees</strong>. They offer empathic active listening and peer support. They do not diagnose psychiatric conditions or provide clinical medical psychotherapy.
+                    Psychology students and peer listeners on Vistaraz are identified strictly as <strong>Support Listeners / Trainees</strong>. They offer empathic active listening and non-clinical emotional support. They do not diagnose psychiatric conditions or provide psychotherapy.
                   </p>
                 </div>
               </div>
@@ -1160,49 +1328,53 @@ export default function ListenerPortalPage() {
             {/* Profile Info Details */}
             <div className="lp-grid-two" style={{ marginTop: '20px' }}>
               <Card variant="default" padding="lg">
-                <h3>Personal &amp; Academic Credentials</h3>
+                <h3>Personal &amp; Operational Credentials</h3>
                 <ul className="lp-profile-info-list">
                   <li>
-                    <span className="label">Full Legal Name</span>
-                    <strong>Nidhi Sharma</strong>
+                    <span className="label">Display Alias</span>
+                    <strong>{supporterProfile?.display_alias || 'Listener'}</strong>
                   </li>
                   <li>
                     <span className="label">Languages Spoken</span>
-                    <strong>English (Fluent), Hindi (Conversational)</strong>
+                    <strong>{Array.isArray(supporterProfile?.languages) ? supporterProfile.languages.join(', ').toUpperCase() : 'English'}</strong>
                   </li>
                   <li>
-                    <span className="label">Degree Program</span>
-                    <strong>B.A. (Hons) Psychology</strong>
+                    <span className="label">Qualification / Training</span>
+                    <strong>{supporterProfile?.qualification || 'Peer Support Trainee'}</strong>
                   </li>
                   <li>
-                    <span className="label">University</span>
-                    <strong>Delhi University, New Delhi</strong>
+                    <span className="label">Supported Age Bands</span>
+                    <strong>{Array.isArray(supporterProfile?.supported_age_bands) ? supporterProfile.supported_age_bands.join(', ') : '18-20, 21-25'}</strong>
                   </li>
                   <li>
-                    <span className="label">Supervisor Assigned</span>
-                    <strong>Dr. S. Verma (Clinical Consultant)</strong>
+                    <span className="label">Concurrent Sessions Limit</span>
+                    <strong>{supporterProfile?.max_active_sessions || 2} Active Sessions</strong>
                   </li>
                 </ul>
               </Card>
 
               <Card variant="default" padding="lg">
-                <h3>Care Credentials &amp; Training</h3>
+                <h3>Care Credentials &amp; Verification</h3>
                 <ul className="lp-profile-info-list">
                   <li>
-                    <span className="label">Background Check</span>
-                    <strong style={{ color: 'var(--vz-success)' }}>● Cleared & Verified</strong>
+                    <span className="label">Verification Status</span>
+                    <strong style={{ color: supporterProfile?.verification_status === 'verified' ? 'var(--vz-success)' : '#f59e0b' }}>
+                      ● {supporterProfile?.verification_status === 'verified' ? 'Cleared & Approved' : (supporterProfile?.verification_status || 'Pending')}
+                    </strong>
                   </li>
                   <li>
-                    <span className="label">Active Listening Hours</span>
-                    <strong>64 / 100 Hours Logged</strong>
+                    <span className="label">Mandatory Training</span>
+                    <strong style={{ color: 'var(--vz-success)' }}>
+                      ● {supporterProfile?.training_status === 'completed' ? 'Level 1 & 2 Completed' : (supporterProfile?.training_status || 'Underway')}
+                    </strong>
                   </li>
                   <li>
-                    <span className="label">De-escalation Certificate</span>
-                    <strong style={{ color: 'var(--vz-success)' }}>● Level 2 Certified</strong>
+                    <span className="label">Minor (15–17) Safeguarding</span>
+                    <strong>{supporterProfile?.safeguarding_approved ? 'Approved (Specialized Gate)' : 'Adults 18–25 Pilot Only'}</strong>
                   </li>
                   <li>
-                    <span className="label">Crisis Hotline Liaison</span>
-                    <strong>KIRAN &amp; Tele-MANAS Bridge Active</strong>
+                    <span className="label">Emergency Escalation Link</span>
+                    <strong>Tele-MANAS (14416) &amp; Kiran (1800-599-0019) Active</strong>
                   </li>
                 </ul>
               </Card>

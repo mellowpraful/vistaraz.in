@@ -45,6 +45,9 @@ async function runTests() {
   const testHelperUnverifiedId = `test_helper_unv_${Date.now()}`;
 
   try {
+    // 0. Pre-cleanup any lingering test fixtures
+    await authPool.query("DELETE FROM \"user\" WHERE id LIKE 'test_%'");
+
     // 1. Setup Test Fixture Users in database
     await authPool.query(
       `INSERT INTO "user" (id, name, email, email_verified, created_at, updated_at)
@@ -193,15 +196,49 @@ async function runTests() {
     );
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 8: Mutual Match Confirmation Flow (Section 8)
+    // TEST 8A: Mutual Confirmation Step 1 — Listener Acceptance Only
     // ─────────────────────────────────────────────────────────────
-    // Seeker explicitly confirms the matched listener to lock assignment
+    const listenerAcceptRes = await SupporterService.acceptOffer(testHelper1Id, offers[0].candidate_id);
+    assert(
+      listenerAcceptRes.success === true &&
+      listenerAcceptRes.offerStatus === 'listener_accepted' &&
+      listenerAcceptRes.requestStatus === 'awaiting_seeker_confirmation',
+      'Test 8A: Listener acceptance transitions offer to listener_accepted and request to awaiting_seeker_confirmation'
+    );
+
+    // Verify regression protection: NO assignment or session created yet
+    const preAssignmentCheck = await authPool.query(
+      'SELECT id FROM support_assignments WHERE request_id = $1',
+      [adultRequest.id]
+    );
+    const preSessionCheck = await authPool.query(
+      'SELECT id FROM support_sessions WHERE support_request_id = $1',
+      [adultRequest.id]
+    );
+    assert(
+      preAssignmentCheck.rows.length === 0 && preSessionCheck.rows.length === 0,
+      'Test 8B: Regression test: Listener acceptance alone strictly CANNOT create an assignment or session'
+    );
+
+    // Verify seeker sees awaiting_seeker_confirmation with supporter details
+    const seekerStatusCheck = await RequestService.getMatchStatus(testSeekerId, adultRequest.id);
+    assert(
+      seekerStatusCheck.status === 'awaiting_seeker_confirmation' &&
+      Boolean(seekerStatusCheck.candidateId) &&
+      seekerStatusCheck.supporter?.alias === 'Aarav Listener',
+      'Test 8C: Seeker retrieves awaiting_seeker_confirmation with listener alias and candidate ID'
+    );
+
+    // ─────────────────────────────────────────────────────────────
+    // TEST 8D: Mutual Confirmation Step 2 — Seeker Confirms Listener
+    // ─────────────────────────────────────────────────────────────
+    // Seeker explicitly confirms the matched listener to lock assignment and schedule session
     const confirmRes = await RequestService.confirmMatch(testSeekerId, adultRequest.id, {
       decision: 'accept',
     });
     assert(
       confirmRes.success === true && Boolean(confirmRes.sessionId),
-      'Test 8: Mutual match confirmation: seeker accepts and atomically schedules session'
+      'Test 8D: Seeker explicit confirmation atomically creates assignment and schedules session'
     );
     const activeSessionId = confirmRes.sessionId;
 

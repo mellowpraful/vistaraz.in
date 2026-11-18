@@ -274,60 +274,33 @@ export class SupporterService {
         throw new Error('Request is no longer available for matching.');
       }
 
-      // 4. Create support_assignments
-      const assignRes = await client.query(
-        `INSERT INTO support_assignments (request_id, supporter_id, seeker_user_id, assignment_status)
-         VALUES ($1, $2, $3, 'accepted')
-         RETURNING *`,
-        [candidate.request_id, supporter.id, candidate.seeker_id]
-      );
-      const assignment = assignRes.rows[0];
-
-      // 5. Update match_candidates
+      // 4. Update match_candidates to listener_accepted (Mutual confirmation step 1)
       await client.query(
         `UPDATE match_candidates
-         SET offer_status = 'accepted', responded_at = CURRENT_TIMESTAMP
+         SET offer_status = 'listener_accepted', responded_at = CURRENT_TIMESTAMP
          WHERE id = $1`,
         [candidate.id]
       );
 
-      // Expire any other open offers for this request
-      await client.query(
-        `UPDATE match_candidates
-         SET offer_status = 'expired'
-         WHERE request_id = $1 AND id != $2 AND offer_status IN ('pending', 'offered')`,
-        [candidate.request_id, candidate.id]
-      );
-
-      // 6. Update support_requests
+      // 5. Update support_requests to awaiting_seeker_confirmation
+      // Assignment and session are strictly created ONLY after seeker confirms
       await client.query(
         `UPDATE support_requests
-         SET status = 'matched', updated_at = CURRENT_TIMESTAMP
+         SET status = 'awaiting_seeker_confirmation', updated_at = CURRENT_TIMESTAMP
          WHERE id = $1`,
         [candidate.request_id]
       );
 
-      // 7. Create support_sessions
-      const sessionMode = candidate.communication_mode === 'voice' ? 'audio' : 'text';
-      const sessionRes = await client.query(
-        `INSERT INTO support_sessions (
-           support_request_id, assignment_id, user_id, assigned_peer_id, session_type, session_status, scheduled_for
-         )
-         VALUES ($1, $2, $3, $4, $5, 'scheduled', CURRENT_TIMESTAMP)
-         RETURNING *`,
-        [candidate.request_id, assignment.id, candidate.seeker_id, userId, sessionMode]
-      );
-      const session = sessionRes.rows[0];
-
       await client.query('COMMIT');
-      logger.info(`Supporter [${supporter.id}] accepted request [${candidate.request_id}]. Session [${session.id}] established.`);
+      logger.info(`Supporter [${supporter.id}] accepted offer [${candidate.id}] for request [${candidate.request_id}]. Awaiting seeker confirmation.`);
 
       return {
         success: true,
-        assignmentId: assignment.id,
-        sessionId: session.id,
-        sessionType: session.session_type,
-        sessionStatus: session.session_status,
+        offerStatus: 'listener_accepted',
+        requestStatus: 'awaiting_seeker_confirmation',
+        candidateId: candidate.id,
+        requestId: candidate.request_id,
+        message: 'Offer accepted. Waiting for support seeker confirmation.',
       };
     } catch (err) {
       await client.query('ROLLBACK');
